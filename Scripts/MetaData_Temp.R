@@ -100,6 +100,8 @@ BVR_1 <- BVR_date %>% filter(Depth_m==1) %>% select(Reservoir, Site, DateTime, D
 # Average temperatures when two replicates/day
 BVR_1 <- aggregate(as.numeric(BVR_1$Temp_C),by=list(BVR_1$DateTime),FUN="mean")
 BVR_1$x <- na.approx(BVR_1$x)
+names(BVR_1)[1] <- "DateTime"
+names(BVR_1)[2] <- "Temp_C_1m"
 
 # Select FCR data from 8 m
 FCR_8 <- FCR_date %>% filter(Depth_m==8) %>% select(Reservoir, Site, DateTime, Depth_m, Temp_C)
@@ -110,6 +112,28 @@ FCR_8$x <- na.approx(FCR_8$x)
 BVR_10 <- BVR_date %>% filter(Depth_m==10) %>% select(Reservoir, Site, DateTime, Depth_m, Temp_C)
 BVR_10 <- aggregate(as.numeric(BVR_10$Temp_C),by=list(BVR_10$DateTime),FUN="mean")
 BVR_10$x <- na.approx(BVR_10$x)
+
+# Select BVR data from 9 m
+BVR_9 <- BVR_date %>% filter(Depth_m==9) %>% select(Reservoir, Site, DateTime, Depth_m, Temp_C)
+BVR_9 <- aggregate(as.numeric(BVR_9$Temp_C),by=list(BVR_9$DateTime),FUN="mean")
+names(BVR_9)[1] <- "DateTime"
+names(BVR_9)[2] <- "Temp_C_9m"
+
+# Combine data from 1m and 9m for BVR
+bvr_to <- cbind(BVR_1,BVR_9)
+
+# Subtract BVR surface (1 m) from BVR depths (9 m) to determine what day turn-over
+# had already occured with the CTD data
+bvr_to$to <- bvr_to$Temp_C_1m - bvr_to$Temp_C_9m
+
+# Plot BVR temps by depth for 2016-2017
+ggplot(data=BVR_date,aes(DateTime,Temp_C,group=Depth_m,color=as.factor(Depth_m)))+
+  geom_line()+
+  geom_point()+
+  labs(x="Date",y="Temp (C)")+
+  theme_classic()
+
+ggsave("C:/Users/ahounshell/OneDrive/VT/GHG/GHG_R/Fig_Output/bvr_temp_depths.jpg",bvr_temp,width=15,height=10)
 
 # Plot both depths for Temp
 temp <- ggplot(FCR_0.8,aes(Group.1,x))+geom_line()+geom_point(size=3)+
