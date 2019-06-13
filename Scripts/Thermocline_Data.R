@@ -4,7 +4,7 @@
 
 # Load in libraries
 # install.packages('pacman')
-pacman::p_load(tidyverse,zoo)
+pacman::p_load(tidyverse,zoo,rLakeAnalyzer)
 
 # Set working directory
 setwd("C:/Users/ahounshell/OneDrive/VT/GHG/GHG_R/Data")
@@ -52,6 +52,7 @@ fcr_dates <- merge(ysi_fcr_date_list, ctd_fcr_date_list, by="dates", all.x=TRUE,
 
 ## Need to merge the CTD and YSI data sets by date, then 'fill in' missing CTD
 ## data with YSI data
+# For FCR
 names(ysi_fcr_date)[3] <- "Date"
 fcr_merge <- merge(ctd_fcr_date, ysi_fcr_date, by="Date", all.x=TRUE, all.y=TRUE)
 
@@ -109,5 +110,203 @@ fcr_date_list <- as.data.frame(unique(as.Date(fcr_all$Date)))
 # For dates with both a CTD and YSI cast, CTD casts were selected
 write_csv(fcr_all, path = "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR_CTDysi_merge.csv")
 
+### Merge data CTD and YSI datasets for BVR
+names(ysi_bvr_date)[3] <- "Date"
+bvr_merge <- merge(ctd_bvr_date, ysi_bvr_date, by="Date", all.x=TRUE, all.y=TRUE)
+
+# Select certain columns
+bvr_merge <- bvr_merge %>% select(Date,Reservoir.x,Site.x,Depth_m.x,Temp_C.x,DO_mgL.x,Cond_uScm.x,
+                                  Chla_ugL,Turb_NTU,pH.x,ORP_mV.x,PAR_umolm2s.x,Reservoir.y,
+                                  Site.y,Depth_m.y,Temp_C.y,DO_mgL.y,Cond_uScm.y,PAR_umolm2s.y,
+                                  ORP_mV.y,pH.y)
+
+# Find where there are Na values in the CTD data: need to do it for each column
+ctd_bvr_na <- is.na(bvr_merge$Reservoir.x)
+bvr_merge$Reservoir.x[ctd_bvr_na] <- bvr_merge$Reservoir.y[ctd_bvr_na]
+
+ctd_bvr_na <- is.na(bvr_merge$Site.x)
+bvr_merge$Site.x[ctd_bvr_na] <- bvr_merge$Site.y[ctd_bvr_na]
+
+ctd_bvr_na <- is.na(bvr_merge$Depth_m.x)
+bvr_merge$Depth_m.x[ctd_bvr_na] <- bvr_merge$Depth_m.y[ctd_bvr_na]
+
+ctd_bvr_na <- is.na(bvr_merge$Temp_C.x)
+bvr_merge$Temp_C.x[ctd_bvr_na] <- bvr_merge$Temp_C.y[ctd_bvr_na]
+
+ctd_bvr_na <- is.na(bvr_merge$DO_mgL.x)
+bvr_merge$DO_mgL.x[ctd_bvr_na] <- bvr_merge$DO_mgL.y[ctd_bvr_na]
+
+ctd_bvr_na <- is.na(bvr_merge$Cond_uScm.x)
+bvr_merge$Cond_uScm.x[ctd_bvr_na] <- bvr_merge$Cond_uScm.y[ctd_bvr_na]
+
+ctd_bvr_na <- is.na(bvr_merge$pH.x)
+bvr_merge$pH.x[ctd_bvr_na] <- bvr_merge$pH.y[ctd_bvr_na]
+
+ctd_bvr_na <- is.na(bvr_merge$ORP_mV.x)
+bvr_merge$ORP_mV.x[ctd_bvr_na] <- bvr_merge$ORP_mV.y[ctd_bvr_na]
+
+ctd_bvr_na <- is.na(bvr_merge$PAR_umolm2s.x)
+bvr_merge$PAR_umolm2s.x[ctd_bvr_na] <- bvr_merge$PAR_umolm2s.y[ctd_bvr_na]
+
+bvr_all <- bvr_merge %>% select(Date,Reservoir.x,Site.x,Depth_m.x,Temp_C.x,DO_mgL.x,Cond_uScm.x,
+                                Chla_ugL,Turb_NTU,pH.x,ORP_mV.x,PAR_umolm2s.x)
+names(bvr_all)[2] <- "Reservoir"
+names(bvr_all)[3] <- "Site"
+names(bvr_all)[4] <- "Depth_m"
+names(bvr_all)[5] <- "Temp_C"
+names(bvr_all)[6] <- "DO_mgL"
+names(bvr_all)[7] <- "Cond_uScm"
+names(bvr_all)[10] <- "pH"
+names(bvr_all)[11] <- "ORP_mV"
+names(bvr_all)[12] <- "PAR_umolm2s"
+
+# Check the number of unique days captured by the merged data set
+bvr_date_list <- as.data.frame(unique(as.Date(bvr_all$Date)))
+
+# Export out fcr_all as .csv
+# Includes merged data from CTD and YSI casts on unique dates
+# For dates with both a CTD and YSI cast, CTD casts were selected
+write_csv(bvr_all, path = "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR_CTDysi_merge.csv")
+
+### Format merged CTD-YSI data for use in Lake Analyzer: specifically Temp data
+# FCR: select FCR temp data
+fcr_temp <- fcr_all %>% select(Date,Depth_m,Temp_C)
+
+df.final<-data.frame()
+
+layer1<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 0.1)))
+layer2<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 0.5)))
+layer3<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 1)))
+layer4<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 1.5)))
+layer5<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 2)))
+layer6<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 2.5)))
+layer7<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 3)))
+layer8<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 3.5)))
+layer9<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 4)))
+layer10<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 4.5)))
+layer11<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 5)))
+layer12<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 5.5)))
+layer13<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 6)))
+layer14<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 6.5)))
+layer15<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 7)))
+layer16<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 7.5)))
+layer17<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 8)))
+layer18<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 8.5)))
+layer19<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 9)))
+
+# Define depth of layers
+layer1 <- layer1 %>% mutate(depth_f="0.1")
+layer2 <- layer2 %>% mutate(depth_f="0.5")
+layer3 <- layer3 %>% mutate(depth_f="1.0")
+layer4 <- layer4 %>% mutate(depth_f="1.5")
+layer5 <- layer5 %>% mutate(depth_f="2.0")
+layer6 <- layer6 %>% mutate(depth_f="2.5")
+layer7 <- layer7 %>% mutate(depth_f="3.0")
+layer8 <- layer8 %>% mutate(depth_f="3.5")
+layer9 <- layer9 %>% mutate(depth_f="4.0")
+layer10 <- layer10 %>% mutate(depth_f="4.5")
+layer11 <- layer11 %>% mutate(depth_f="5.0")
+layer12 <- layer12 %>% mutate(depth_f="5.5")
+layer13 <- layer13 %>% mutate(depth_f="6.0")
+layer14 <- layer14 %>% mutate(depth_f="6.5")
+layer15 <- layer15 %>% mutate(depth_f="7.0")
+layer16 <- layer16 %>% mutate(depth_f="7.5")
+layer17 <- layer17 %>% mutate(depth_f="8.0")
+layer18 <- layer18 %>% mutate(depth_f="8.5")
+layer19 <- layer19 %>% mutate(depth_f="9.0")
+
+# Combine all layers
+df.final = rbind(layer1,layer2,layer3,layer4,layer5,layer6,layer7,layer8,layer9,layer10,layer11,layer12,layer13,layer14,layer15,layer16,layer17,layer18,layer19)
+
+fcr_layers <- df.final %>% select(Date,depth_f,Temp_C)
+fcr_layers <- arrange(fcr_layers, Date)
+
+# Plot 1.0 m layer and 8.0 m layer to verify turn-over for FCR
+fcr_temp <- ggplot(fcr_layers,aes(Date,Temp_C,group=depth_f,color=as.factor(depth_f)))+
+  geom_line()+
+  theme_classic()
+
+ggsave("C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Fig_Output/fcr_temp_depth.jpg",fcr_temp,width=15,height=10)
+
+fcr_thermo <- fcr_layers %>% spread(depth_f,Temp_C)
+colnames(fcr_thermo)[-1] = paste0('temp',colnames(fcr_thermo)[-1])
+names(fcr_thermo)[1] <- "DateTime"
+
+# Export out .wtr for use in Lake Analyzer in Matlab
+write.table(fcr_thermo, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR.wtr", sep="\t")
+
+## Do the same for BVR
+bvr_temp <- bvr_all %>% select(Date,Depth_m,Temp_C)
+
+df.final<-data.frame()
+
+layer1<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 0.1)))
+layer2<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 0.5)))
+layer3<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 1)))
+layer4<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 1.5)))
+layer5<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 2)))
+layer6<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 2.5)))
+layer7<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 3)))
+layer8<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 3.5)))
+layer9<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 4)))
+layer10<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 4.5)))
+layer11<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 5)))
+layer12<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 5.5)))
+layer13<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 6)))
+layer14<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 6.5)))
+layer15<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 7)))
+layer16<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 7.5)))
+layer17<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 8)))
+layer18<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 8.5)))
+layer19<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 9)))
+layer20<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 9.5)))
+layer21<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 10)))
+layer22<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 10.5)))
+layer23<-bvr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 11)))
+
+# Define depth of layers
+layer1 <- layer1 %>% mutate(depth_f="0.1")
+layer2 <- layer2 %>% mutate(depth_f="0.5")
+layer3 <- layer3 %>% mutate(depth_f="1.0")
+layer4 <- layer4 %>% mutate(depth_f="1.5")
+layer5 <- layer5 %>% mutate(depth_f="2.0")
+layer6 <- layer6 %>% mutate(depth_f="2.5")
+layer7 <- layer7 %>% mutate(depth_f="3.0")
+layer8 <- layer8 %>% mutate(depth_f="3.5")
+layer9 <- layer9 %>% mutate(depth_f="4.0")
+layer10 <- layer10 %>% mutate(depth_f="4.5")
+layer11 <- layer11 %>% mutate(depth_f="5.0")
+layer12 <- layer12 %>% mutate(depth_f="5.5")
+layer13 <- layer13 %>% mutate(depth_f="6.0")
+layer14 <- layer14 %>% mutate(depth_f="6.5")
+layer15 <- layer15 %>% mutate(depth_f="7.0")
+layer16 <- layer16 %>% mutate(depth_f="7.5")
+layer17 <- layer17 %>% mutate(depth_f="8.0")
+layer18 <- layer18 %>% mutate(depth_f="8.5")
+layer19 <- layer19 %>% mutate(depth_f="9.0")
+layer20 <- layer20 %>% mutate(depth_f="9.5")
+layer21 <- layer21 %>% mutate(depth_f="10.0")
+layer22 <- layer22 %>% mutate(depth_f="10.5")
+layer23 <- layer23 %>% mutate(depth_f="11.0")
+
+# Combine all layers
+df.final = rbind(layer1,layer2,layer3,layer4,layer5,layer6,layer7,layer8,layer9,layer10,layer11,layer12,layer13,layer14,layer15,layer16,layer17,layer18,layer19,layer20,layer21,layer22,layer23)
+
+bvr_layers <- df.final %>% select(Date,depth_f,Temp_C)
+bvr_layers <- arrange(bvr_layers, Date)
+
+# Plot layers for BVR
+bvr_temp <- ggplot(bvr_layers,aes(Date,Temp_C,group=depth_f,color=as.factor(depth_f)))+
+  geom_line()+
+  theme_classic()
+
+ggsave("C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Fig_Output/bvr_temp_depth.jpg",bvr_temp,width=15,height=10)
+
+bvr_thermo <- bvr_layers %>% spread(depth_f,Temp_C)
+colnames(bvr_thermo)[-1] = paste0('temp',colnames(bvr_thermo)[-1])
+names(bvr_thermo)[1] <- "DateTime"
+
+# Export out .wtr for use in Lake Analyzer in Matlab
+write.table(bvr_thermo, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR.wtr", sep="\t")
 
 # Save Rfile as Thermocline_Data
