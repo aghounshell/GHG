@@ -11,11 +11,9 @@ setwd("C:/Users/ahounshell/OneDrive/VT/GHG/GHG_R/Data")
 
 # Load in CTD file: for all reservoirs, 2013-2018
 ysi <- read_csv('YSI_Profiles.csv')
-ysi$DateTime <- format(as.POSIXct(strptime(ysi$DateTime, "%m/%d/%Y %H:%M", tz = "EST")),format="%m/%d/%Y")
-ysi$DateTime <- as.POSIXct(strptime(ysi$DateTime, "%m/%d/%Y", tz = "EST"))
+ysi$DateTime <- as.POSIXct(strptime(ysi$DateTime, "%m/%d/%Y %H:%M", tz = "EST"))
 ctd <- read_csv('CTD_Casts.csv')
-ctd$Date <- format(as.POSIXct(strptime(ctd$Date, "%m/%d/%Y", tz="EST")),format="%m/%d/%Y")
-ctd$Date <- as.POSIXct(strptime(ctd$Date,"%m/%d/%Y", tz="EST"))
+ctd$Date <- as.POSIXct(strptime(ctd$Date,"%m/%d/%Y %H:%M", tz="EST"))
 
 # Select BVR and FCR for both CTD and YSI casts
 ysi_bvr <- ysi %>% filter(Reservoir=="BVR"&Site==50)
@@ -229,11 +227,11 @@ fcr_temp <- ggplot(fcr_layers,aes(Date,Temp_C,group=depth_f,color=as.factor(dept
 ggsave("C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Fig_Output/fcr_temp_depth.jpg",fcr_temp,width=15,height=10)
 
 fcr_thermo <- fcr_layers %>% spread(depth_f,Temp_C)
-colnames(fcr_thermo)[-1] = paste0('temp',colnames(fcr_thermo)[-1])
-names(fcr_thermo)[1] <- "DateTime"
+colnames(fcr_thermo)[-1] = paste0('wtr_',colnames(fcr_thermo)[-1])
+names(fcr_thermo)[1] <- "dateTime"
 
 # Export out .wtr for use in Lake Analyzer in Matlab
-write.table(fcr_thermo, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR.wtr", sep="\t")
+write.table(fcr_thermo, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR.wtr", sep="\t",row.names=FALSE)
 
 ## Do the same for BVR
 bvr_temp <- bvr_all %>% select(Date,Depth_m,Temp_C)
@@ -303,10 +301,10 @@ bvr_temp <- ggplot(bvr_layers,aes(Date,Temp_C,group=depth_f,color=as.factor(dept
 ggsave("C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Fig_Output/bvr_temp_depth.jpg",bvr_temp,width=15,height=10)
 
 bvr_thermo <- bvr_layers %>% spread(depth_f,Temp_C)
-colnames(bvr_thermo)[-1] = paste0('temp',colnames(bvr_thermo)[-1])
-names(bvr_thermo)[1] <- "DateTime"
+colnames(bvr_thermo)[-1] = paste0('wtr_',colnames(bvr_thermo)[-1])
+names(bvr_thermo)[1] <- "dateTime"
 
 # Export out .wtr for use in Lake Analyzer in Matlab
-write.table(bvr_thermo, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR.wtr", sep="\t")
+write.table(bvr_thermo, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR.wtr", sep="\t",row.names=FALSE)
 
 # Save Rfile as Thermocline_Data
