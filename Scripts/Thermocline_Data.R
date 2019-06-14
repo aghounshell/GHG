@@ -195,23 +195,23 @@ layer19<-fcr_temp %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m)
 # Define depth of layers
 layer1 <- layer1 %>% mutate(depth_f="0.1")
 layer2 <- layer2 %>% mutate(depth_f="0.5")
-layer3 <- layer3 %>% mutate(depth_f="1.0")
+layer3 <- layer3 %>% mutate(depth_f="1")
 layer4 <- layer4 %>% mutate(depth_f="1.5")
-layer5 <- layer5 %>% mutate(depth_f="2.0")
+layer5 <- layer5 %>% mutate(depth_f="2")
 layer6 <- layer6 %>% mutate(depth_f="2.5")
-layer7 <- layer7 %>% mutate(depth_f="3.0")
+layer7 <- layer7 %>% mutate(depth_f="3")
 layer8 <- layer8 %>% mutate(depth_f="3.5")
-layer9 <- layer9 %>% mutate(depth_f="4.0")
+layer9 <- layer9 %>% mutate(depth_f="4")
 layer10 <- layer10 %>% mutate(depth_f="4.5")
-layer11 <- layer11 %>% mutate(depth_f="5.0")
+layer11 <- layer11 %>% mutate(depth_f="5")
 layer12 <- layer12 %>% mutate(depth_f="5.5")
-layer13 <- layer13 %>% mutate(depth_f="6.0")
+layer13 <- layer13 %>% mutate(depth_f="6")
 layer14 <- layer14 %>% mutate(depth_f="6.5")
-layer15 <- layer15 %>% mutate(depth_f="7.0")
+layer15 <- layer15 %>% mutate(depth_f="7")
 layer16 <- layer16 %>% mutate(depth_f="7.5")
-layer17 <- layer17 %>% mutate(depth_f="8.0")
+layer17 <- layer17 %>% mutate(depth_f="8")
 layer18 <- layer18 %>% mutate(depth_f="8.5")
-layer19 <- layer19 %>% mutate(depth_f="9.0")
+layer19 <- layer19 %>% mutate(depth_f="9")
 
 # Combine all layers
 df.final = rbind(layer1,layer2,layer3,layer4,layer5,layer6,layer7,layer8,layer9,layer10,layer11,layer12,layer13,layer14,layer15,layer16,layer17,layer18,layer19)
@@ -230,8 +230,13 @@ fcr_thermo <- fcr_layers %>% spread(depth_f,Temp_C)
 colnames(fcr_thermo)[-1] = paste0('wtr_',colnames(fcr_thermo)[-1])
 names(fcr_thermo)[1] <- "dateTime"
 
+fcr_thermo2 <- fcr_layers %>% spread(depth_f,Temp_C)
+colnames(fcr_thermo2)[-1] = paste0('temp',colnames(fcr_thermo2)[-1])
+names(fcr_thermo2)[1] <- "DateTime"
+
 # Export out .wtr for use in Lake Analyzer in Matlab
 write.table(fcr_thermo, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR.wtr", sep="\t",row.names=FALSE)
+write.table(fcr_thermo2,"C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR2.wtr", sep="\t",row.names=FALSE)
 
 ## Do the same for BVR
 bvr_temp <- bvr_all %>% select(Date,Depth_m,Temp_C)
@@ -301,8 +306,9 @@ bvr_temp <- ggplot(bvr_layers,aes(Date,Temp_C,group=depth_f,color=as.factor(dept
 ggsave("C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Fig_Output/bvr_temp_depth.jpg",bvr_temp,width=15,height=10)
 
 bvr_thermo <- bvr_layers %>% spread(depth_f,Temp_C)
-colnames(bvr_thermo)[-1] = paste0('wtr_',colnames(bvr_thermo)[-1])
+colnames(bvr_thermo)[-1] = paste0('temp',colnames(bvr_thermo)[-1])
 names(bvr_thermo)[1] <- "dateTime"
+bvr_thermo <- bvr_thermo[-c(94),]
 
 # Export out .wtr for use in Lake Analyzer in Matlab
 write.table(bvr_thermo, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR.wtr", sep="\t",row.names=FALSE)
