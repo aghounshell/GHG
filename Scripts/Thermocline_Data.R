@@ -315,4 +315,8 @@ names(bvr_thermo2)[1] <- "dateTime"
 # Export out .wtr for use in Lake Analyzer in Matlab
 write.table(bvr_thermo2, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR.wtr", sep="\t",row.names=FALSE)
 
+## Try to plot temperature as a raster plot (geom_tile)
+# Start with FCR
+ggplot(fcr_temp,aes(x=Date,y=Depth_m,fill=Temp_C))+geom_tile()
+
 # Save Rfile as Thermocline_Data
