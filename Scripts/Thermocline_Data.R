@@ -306,11 +306,13 @@ bvr_temp <- ggplot(bvr_layers,aes(Date,Temp_C,group=depth_f,color=as.factor(dept
 ggsave("C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Fig_Output/bvr_temp_depth.jpg",bvr_temp,width=15,height=10)
 
 bvr_thermo <- bvr_layers %>% spread(depth_f,Temp_C)
-colnames(bvr_thermo)[-1] = paste0('temp',colnames(bvr_thermo)[-1])
-names(bvr_thermo)[1] <- "dateTime"
-bvr_thermo <- bvr_thermo[-c(94),]
+
+# Change the order of the columns to be from smallest to largest depths
+bvr_thermo2 <- bvr_thermo[,c(1:5,9:24,6:8)]
+colnames(bvr_thermo2)[-1] = paste0('temp',colnames(bvr_thermo2)[-1])
+names(bvr_thermo2)[1] <- "dateTime"
 
 # Export out .wtr for use in Lake Analyzer in Matlab
-write.table(bvr_thermo, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR.wtr", sep="\t",row.names=FALSE)
+write.table(bvr_thermo2, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR.wtr", sep="\t",row.names=FALSE)
 
 # Save Rfile as Thermocline_Data
