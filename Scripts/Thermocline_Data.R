@@ -234,9 +234,18 @@ fcr_thermo2 <- fcr_layers %>% spread(depth_f,Temp_C)
 colnames(fcr_thermo2)[-1] = paste0('temp',colnames(fcr_thermo2)[-1])
 names(fcr_thermo2)[1] <- "DateTime"
 
+# Remove rows with NA values for all depths
+fcr_thermo3 <- fcr_thermo2[rowSums(is.na(fcr_thermo2))<5,]
+
+# Remove rows with bad data (as verified w/ code in Matlab)
+fcr_thermo4 <- fcr_thermo3[-c(123:126,128,133,136,151,154,156,158,165,171,173,175,178,
+                              182,186,188,192,199,201,204,211,213,216),]
+
 # Export out .wtr for use in Lake Analyzer in Matlab
 write.table(fcr_thermo, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR.wtr", sep="\t",row.names=FALSE)
 write.table(fcr_thermo2,"C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR2.wtr", sep="\t",row.names=FALSE)
+write.table(fcr_thermo3,"C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR4.wtr", sep="\t",row.names=FALSE)
+write.table(fcr_thermo4,"C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR5.wtr", sep="\t",row.names=FALSE)
 
 ## Do the same for BVR
 bvr_temp <- bvr_all %>% select(Date,Depth_m,Temp_C)
@@ -312,11 +321,19 @@ bvr_thermo2 <- bvr_thermo[,c(1:5,9:24,6:8)]
 colnames(bvr_thermo2)[-1] = paste0('temp',colnames(bvr_thermo2)[-1])
 names(bvr_thermo2)[1] <- "dateTime"
 
+# Remove rows with NA values for all depths
+bvr_thermo3 <- bvr_thermo2[rowSums(is.na(bvr_thermo2))<5,]
+
+# Remove funky looking casts (as determined in Matlab)
+bvr_thermo4 <- bvr_thermo3[-c(6,55,96),]
+
 # Export out .wtr for use in Lake Analyzer in Matlab
 write.table(bvr_thermo2, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR.wtr", sep="\t",row.names=FALSE)
+write.table(bvr_thermo3, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR3.wtr", sep="\t",row.names=FALSE)
+write.table(bvr_thermo4, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR4.wtr", sep="\t",row.names=FALSE)
 
 ## Try to plot temperature as a raster plot (geom_tile)
 # Start with FCR
-ggplot(fcr_temp,aes(x=Date,y=Depth_m,fill=Temp_C))+geom_tile()
+ggplot(fcr_temp,aes(x=Date,y=Depth_m,fill=Temp_C))+geom_tile(na.rm=TRUE)
 
 # Save Rfile as Thermocline_Data
