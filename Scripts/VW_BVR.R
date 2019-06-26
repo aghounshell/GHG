@@ -95,4 +95,16 @@ ggplot(vw_temp,aes(Date,vw_temp))+geom_line()+theme_classic()
 
 ## Calculate VW Temp values for the: Epi, Meta, and Hypo using variable thermocline 
 ## depths
+# First round to the nearest whole depth (i.e., 1 m) for the Upper and Lower Meta
+thermo$SmetaB_round <- round(thermo$SmetaB_m,0)
+thermo$SmetaT_round <- round(thermo$SmetaT_m,0)
 
+# Tell R to match the meta Top to the correct depth and volume weight above that depth
+vw_epi <- rep(-99,length(casts_layers$Date))
+for(i in 1:length(casts_layers$Date)){
+  for (j in 1:length(depth_2$Depth_m)){
+    if(depth_2$Depth_m[j]==thermo$SmetaT_round[i]){
+      vw_epi[i] <- j
+    }
+  }
+}
