@@ -9,6 +9,7 @@ pacman::p_load(tidyverse,ggplot2)
 depth <- read_csv("C:/Users/ahounshell/OneDrive/VT/GHG/GHG_R/Data/BVR_Vol.csv")
 # BVR Thermocline data (as calculated by Lake Analyzer)
 thermo <- read_csv("C:/Users/ahounshell/OneDrive/VT/GHG/GHG_R/Data/BVR_Thermo.csv")
+thermo$DateTime <- as.POSIXct(strptime(thermo$DateTime, "%Y-%m-%d", tz = "EST"))
 # BVR merged YSI and CTD casts
 casts <- read_csv("C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR_CTDysi_merge.csv")
 casts$Date <- as.POSIXct(strptime(casts$Date, "%Y-%m-%d %H:%M", tz = "EST"))
@@ -89,9 +90,10 @@ for(i in 1:length(casts_layers$Date)){
 }
 
 vw_temp <- cbind(casts_layers,vw_temp)
+names(vw_temp)[1] <- "DateTime"
 
 # Check vw_temp values
-ggplot(vw_temp,aes(Date,vw_temp))+geom_line()+theme_classic()
+ggplot(vw_temp,aes(DateTime,vw_temp))+geom_line()+theme_classic()
 
 ## Calculate VW Temp values for the: Epi, Meta, and Hypo using variable thermocline 
 ## depths
@@ -99,12 +101,30 @@ ggplot(vw_temp,aes(Date,vw_temp))+geom_line()+theme_classic()
 thermo$SmetaB_round <- round(thermo$SmetaB_m,0)
 thermo$SmetaT_round <- round(thermo$SmetaT_m,0)
 
+# Merge the thermocline data from Lake Analyzer and vw_temp data by date
+# First remove time associated with datetime for vw_temp
+vw_temp2$Date <- as.POSIXct(strptime(vw_temp2$Date, "%Y-%m-%d", tz = "EST"))
+names(vw_temp2)[1] <- "DateTime"
+vw_temp3 <- aggregate(vw_temp2, by=list(vw_temp2$DateTime), FUN = "mean")
+date_merge <- merge(thermo, vw_temp3, by="DateTime", all.x=TRUE, all.y=TRUE)
+
 # Tell R to match the meta Top to the correct depth and volume weight above that depth
-vw_epi <- rep(-99,length(casts_layers$Date))
-for(i in 1:length(casts_layers$Date)){
+vw_epi <- rep(-99,length(vw_temp3$DateTime))
+for(i in 1:length(vw_temp3$DateTime)){
   for (j in 1:length(depth_2$Depth_m)){
     if(depth_2$Depth_m[j]==thermo$SmetaT_round[i]){
       vw_epi[i] <- j
     }
   }
 }
+
+vw_temp3 <- select(vw_temp3,starts_with("BVR"))
+vw_epi_temp <- matrix(rep(-99),nrow=57,ncol=10)
+for (i in 1:length(vw_temp3$Group.1)){
+  for (j in 1:vw_epi[i]){
+    vw_epi_temp[i,j] = vw_temp3[i,j]*depth_2$LayerVol_m3[j]
+    #vw_epi_temp2[i] = sum(vw_epi_temp[i,1:j])/sum(depth_2$LayerVol_m3[1:j])
+  }
+}
+
+### R DOES NOT LOOK AT LOOPS LIKE MATLAB??? LOOPS ARE EMBEDDED, NOT SEPARATE???
