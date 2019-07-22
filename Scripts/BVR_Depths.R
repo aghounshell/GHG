@@ -291,3 +291,167 @@ vw_ch4 <- cbind(ghg_layers_ch4,vw_ch4)
 
 # Plot to check
 ggplot(vw_ch4,aes(datetime,vw_ch4))+geom_line()+theme_classic()
+
+### Calculate VW CH4 for Epi, Meta, and Hypo
+### Calculate Epi VW CH4: defined as 0-4 m
+vw_epi_ch4 <- rep(-99,length(ghg_layers_ch4$datetime))
+for(i in 1:length(ghg_layers_ch4$datetime)){
+  vw_epi_ch4[i] <- sum(ghg_layers_ch4$BVR_1[i]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
+                      ghg_layers_ch4$BVR_2[i]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]))/sum(depth_2$LayerVol_m3[c(1:4)])
+}
+
+vw_epi_ch4[2] <- sum(ghg_layers_ch4$BVR_2[2]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]))/sum(depth_2$LayerVol_m3[c(1:4)])
+
+vw_epi_ch4[31] <- sum(ghg_layers_ch4$BVR_2[31]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]))/sum(depth_2$LayerVol_m3[c(1:4)])
+
+vw_epi_ch4[45] <- sum(ghg_layers_ch4$BVR_1[45]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]))/sum(depth_2$LayerVol_m3[c(1:4)])
+
+### Calculate Meta VW CH4: defined as 4-7m
+vw_meta_ch4 <- rep(-99,length(ghg_layers_ch4$datetime))
+for(i in 1:length(ghg_layers_ch4$datetime)){
+  vw_meta_ch4[i] <- sum(ghg_layers_ch4$BVR_3[i]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]))/sum(depth_2$LayerVol_m3[c(5:7)])
+}
+
+### Calculate Hypo VW CH4: defined as 7-11m
+vw_hypo_ch4 <- rep(-99,length(ghg_layers_ch4$datetime))
+for(i in 1:length(ghg_layers_ch4$datetime)){
+  vw_hypo_ch4[i] <- sum(ghg_layers_ch4$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
+                       ghg_layers_ch4$BVR_5[i]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(8:10)])
+}
+
+for(i in 38:45){
+  vw_hypo_ch4[i] <- sum(ghg_layers_ch4$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9],depth_2$LayerVol_m3[10]))/sum(depth_2$LayerVol_m3[c(8:10)])
+}
+
+### Concatenate into a single matrix and plot Temp by depth/whole water column
+vw_ch4f <- cbind.data.frame(vw_ch4$datetime,vw_ch4$vw_ch4,vw_epi_ch4,vw_meta_ch4,vw_hypo_ch4)
+names(vw_ch4f)[1] <- "DateTime"
+names(vw_ch4f)[2] <- "WaterCol"
+names(vw_ch4f)[3] <- "Epi"
+names(vw_ch4f)[4] <- "Meta"
+names(vw_ch4f)[5] <- "Hypo"
+
+# Plot to check
+ggplot(vw_ch4f,aes(x = DateTime, y = value, color = variable))+
+  geom_line(aes(y = WaterCol, col="WaterCol"))+
+  geom_line(aes(y = Epi, col="Epi"))+
+  geom_line(aes(y = Meta, col="Meta"))+
+  geom_line(aes(y = Hypo, col="Hypo"))+
+  xlab('Date')+
+  ylab('CH4')+
+  theme_classic()
+
+# Export out Temp Data VW averaged by depth
+write_csv(vw_ch4f, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_VW_ch4")
+
+### Calculate VW CO2 for FCR
+# Re-combine all depths then use spread to convert to wide form
+ghg_merge_co2 <- ghg_merge %>% select(datetime,co2_umol_L,grouping) %>% arrange(datetime)
+ghg_layers_co2 <- ghg_merge_co2 %>% spread(grouping,co2_umol_L)
+
+# Remove row 32 (only have 0.1m depth)
+ghg_layers_co2 <- ghg_layers_co2[-c(32),]
+
+# Calculate VW pCH4 for the entire water column
+vw_co2 <- rep(-99,length(ghg_layers_co2$datetime))
+for(i in 1:45){
+  vw_co2[i] <- sum(ghg_layers_co2$BVR_1[i]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
+                   ghg_layers_co2$BVR_2[i]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
+                   ghg_layers_co2$BVR_3[i]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
+                   ghg_layers_co2$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
+                   ghg_layers_co2$BVR_5[i]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
+}
+
+# Need to re-calculate VW pCH4 when there are Na values
+# Includes: Rows: 2, 18, 26, 31, 38-45
+vw_co2[2] <- sum(ghg_layers_co2$BVR_2[2]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
+                 ghg_layers_co2$BVR_3[2]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
+                 ghg_layers_co2$BVR_4[2]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
+                 ghg_layers_co2$BVR_5[2]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
+
+vw_co2[18] <- sum(ghg_layers_co2$BVR_1[18]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
+                 ghg_layers_co2$BVR_3[18]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
+                 ghg_layers_co2$BVR_4[18]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
+                 ghg_layers_co2$BVR_5[18]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
+
+vw_co2[26] <- sum(ghg_layers_co2$BVR_2[26]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
+                 ghg_layers_co2$BVR_3[26]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
+                 ghg_layers_co2$BVR_4[26]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
+                 ghg_layers_co2$BVR_5[26]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
+
+vw_co2[31] <- sum(ghg_layers_co2$BVR_2[31]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
+                  ghg_layers_co2$BVR_3[31]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
+                  ghg_layers_co2$BVR_4[31]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
+                  ghg_layers_co2$BVR_5[31]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
+
+for(i in 38:44){
+  vw_co2[i] <- sum(ghg_layers_co2$BVR_1[i]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
+                   ghg_layers_co2$BVR_2[i]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
+                   ghg_layers_co2$BVR_3[i]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
+                   ghg_layers_co2$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9],depth_2$LayerVol_m3[10]))/sum(depth_2$LayerVol_m3[c(1:10)])
+}
+
+vw_co2[45] <- sum(ghg_layers_co2$BVR_1[45]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
+                  ghg_layers_co2$BVR_3[45]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
+                  ghg_layers_co2$BVR_4[45]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9],depth_2$LayerVol_m3[10]))/sum(depth_2$LayerVol_m3[c(1:10)])
+
+vw_co2 <- cbind(ghg_layers_co2,vw_co2)
+
+# Plot to check
+ggplot(vw_co2,aes(datetime,vw_co2))+geom_line()+theme_classic()
+
+### Calculate VW CO2 for Epi, Meta, and Hypo
+### Calculate Epi VW CO2: defined as 0-4 m
+vw_epi_co2 <- rep(-99,length(ghg_layers_co2$datetime))
+for(i in 1:length(ghg_layers_co2$datetime)){
+  vw_epi_co2[i] <- sum(ghg_layers_co2$BVR_1[i]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
+                       ghg_layers_co2$BVR_2[i]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]))/sum(depth_2$LayerVol_m3[c(1:4)])
+}
+
+vw_epi_co2[2] <- sum(ghg_layers_co2$BVR_2[2]*sum(depth_2$LayerVol_m3[1:4]))/sum(depth_2$LayerVol_m3[c(1:4)])
+
+vw_epi_co2[18] <- sum(ghg_layers_co2$BVR_1[18]*sum(depth_2$LayerVol_m3[1:4]))/sum(depth_2$LayerVol_m3[c(1:4)])
+
+vw_epi_co2[26] <- sum(ghg_layers_co2$BVR_2[26]*sum(depth_2$LayerVol_m3[1:4]))/sum(depth_2$LayerVol_m3[c(1:4)])
+
+vw_epi_co2[31] <- sum(ghg_layers_co2$BVR_2[31]*sum(depth_2$LayerVol_m3[1:4]))/sum(depth_2$LayerVol_m3[c(1:4)])
+
+vw_epi_co2[45] <- sum(ghg_layers_co2$BVR_1[45]*sum(depth_2$LayerVol_m3[1:4]))/sum(depth_2$LayerVol_m3[c(1:4)])
+
+### Calculate Meta VW CO2: defined as 4-7m
+vw_meta_co2 <- rep(-99,length(ghg_layers_co2$datetime))
+for(i in 1:length(ghg_layers_co2$datetime)){
+  vw_meta_co2[i] <- sum(ghg_layers_co2$BVR_3[i]*sum(depth_2$LayerVol_m3[5:7]))/sum(depth_2$LayerVol_m3[c(5:7)])
+}
+
+### Calculate Hypo VW CO2: defined as 7-11m
+vw_hypo_co2 <- rep(-99,length(ghg_layers_co2$datetime))
+for(i in 1:length(ghg_layers_co2$datetime)){
+  vw_hypo_co2[i] <- sum(ghg_layers_co2$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
+                        ghg_layers_co2$BVR_5[i]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(8:10)])
+}
+
+for(i in 38:45){
+  vw_hypo_co2[i] <- sum(ghg_layers_co2$BVR_4[i]*sum(depth_2$LayerVol_m3[8:10]))/sum(depth_2$LayerVol_m3[c(8:10)])
+}
+
+### Concatenate into a single matrix and plot Temp by depth/whole water column
+vw_co2f <- cbind.data.frame(vw_co2$datetime,vw_co2$vw_co2,vw_epi_co2,vw_meta_co2,vw_hypo_co2)
+names(vw_co2f)[1] <- "DateTime"
+names(vw_co2f)[2] <- "WaterCol"
+names(vw_co2f)[3] <- "Epi"
+names(vw_co2f)[4] <- "Meta"
+names(vw_co2f)[5] <- "Hypo"
+
+# Plot to check
+ggplot(vw_co2f,aes(x = DateTime, y = value, color = variable))+
+  geom_line(aes(y = WaterCol, col="WaterCol"))+
+  geom_line(aes(y = Epi, col="Epi"))+
+  geom_line(aes(y = Meta, col="Meta"))+
+  geom_line(aes(y = Hypo, col="Hypo"))+
+  xlab('Date')+
+  ylab('CO2')+
+  theme_classic()
+
+# Export out Temp Data VW averaged by depth
+write_csv(vw_co2f, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_VW_co2.csv")
