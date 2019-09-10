@@ -235,20 +235,21 @@ interp_do_17$date <- as.Date(interp_do_17$x,origin="2016-01-01")
 temp_interp_17 <- ggplot(interp_temp_17, aes(x=date, y=y))+
   geom_raster(aes(fill=z))+
   scale_y_reverse()+
-  geom_hline(yintercept = 2.6, color="black")+
-  geom_hline(yintercept = 6.5, color="black")+
-  geom_hline(yintercept = 0.1, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 1.6, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 3.8, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 5, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 6.2, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 8, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 9, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 2.6, color="black", size=1)+
+  geom_hline(yintercept = 6.5, color="black", size=1)+
+  geom_hline(yintercept = 0.1, linetype="dashed", colour="white", size=1)+
+  geom_hline(yintercept = 1.6, linetype="dashed", colour="white", size=1)+
+  geom_hline(yintercept = 3.8, linetype="dashed", colour="white", size=1)+
+  geom_hline(yintercept = 5, linetype="dashed", colour="white", size=1)+
+  geom_hline(yintercept = 6.2, linetype="dashed", colour="white", size=1)+
+  geom_hline(yintercept = 8, linetype="dashed", colour="white", size=1)+
+  geom_hline(yintercept = 9, linetype="dashed", colour="white", size=1)+
+  geom_point(x=thermo$DateTime,y=0)+
   labs(x = "2017", y = "Depth (m)", fill=expression(''*~degree*C*''))+
   scale_fill_gradientn(colours = blue2green2red(60), na.value="gray")+
-  theme_classic()
+  theme_classic(base_size=15)
 
-ggsave("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Fig_Output/temp_interp_2017.jpg",temp_interp_17,width=15,height=10)
+ggsave("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Fig_Out,put/temp_interp_2017.jpg",temp_interp_17,width=15,height=10)
 
 # DO w/o variable metalimnion
 do_interp_17 <- ggplot(interp_do_17, aes(x=date, y=y))+
