@@ -7,7 +7,7 @@
 ### A Hounshell, 22Jul19
 
 # Load libraries needed
-pacman::p_load(tidyverse,ggplot2)
+pacman::p_load(tidyverse,ggplot2,ggpubr)
 
 # Load in data
 # FCR Volumes by depth
@@ -109,16 +109,31 @@ names(vw_tempf)[2] <- "WaterCol"
 names(vw_tempf)[3] <- "Epi"
 names(vw_tempf)[4] <- "Meta"
 names(vw_tempf)[5] <- "Hypo"
+vw_tempf_gather <- vw_tempf %>% gather(key=depth,value=vw_temp,-DateTime)
+vw_tempf_gather16 <- vw_tempf_gather %>% filter(DateTime>=as.Date('2016-01-01')&DateTime<=as.Date('2016-12-31'))
+vw_tempf_gather17 <- vw_tempf_gather %>% filter(DateTime>=as.Date('2017-01-01')&DateTime<=as.Date('2017-12-31'))
+vw_tempf_gather$depth<-factor(vw_tempf_gather$depth, levels=c("Epi", "Meta", "Hypo", "WaterCol"))
 
-# Plot to check
-ggplot(vw_tempf,aes(x = DateTime, y = value, color = variable))+
-  geom_line(aes(y = WaterCol, col="WaterCol"))+
-  geom_line(aes(y = Epi, col="Epi"))+
-  geom_line(aes(y = Meta, col="Meta"))+
-  geom_line(aes(y = Hypo, col="Hypo"))+
-  xlab('Date')+
-  ylab('Temp')+
-  theme_classic()
+# Plot to check: width = 1000; height = 500
+temp16 <- ggplot(vw_tempf_gather16,aes(x = DateTime, y = vw_temp, color = depth))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  labs(color="")+
+  xlab('2016')+
+  ylab(expression('Temperature ('*degree*C*')'))+
+  theme_classic(base_size = 15)
+
+temp17 <- ggplot(vw_tempf_gather17,aes(x = DateTime, y = vw_temp, color = depth))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  labs(color="")+
+  xlab('2017')+
+  ylab(expression('Temperature ('*degree*C*')'))+
+  theme_classic(base_size = 15)
+
+ggarrange(temp16,temp17,common.legend=TRUE,legend="right")
 
 # Export out Temp Data VW averaged by depth
 write_csv(vw_tempf, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/FCR_VW_Temp.csv")
@@ -177,16 +192,31 @@ names(vw_o2f)[2] <- "WaterCol"
 names(vw_o2f)[3] <- "Epi"
 names(vw_o2f)[4] <- "Meta"
 names(vw_o2f)[5] <- "Hypo"
+vw_o2f_gather <- vw_o2f %>% gather(key=depth,value=vw_o2,-DateTime)
+vw_o2f_gather16 <- vw_o2f_gather %>% filter(DateTime>=as.Date('2016-01-01')&DateTime<=as.Date('2016-12-31'))
+vw_o2f_gather17 <- vw_o2f_gather %>% filter(DateTime>=as.Date('2017-01-01')&DateTime<=as.Date('2017-12-31'))
+vw_o2f_gather$depth<-factor(vw_o2f_gather$depth, levels=c("Epi", "Meta", "Hypo", "WaterCol"))
 
 # Plot to check
-ggplot(vw_o2f,aes(x = DateTime, y = value, color = variable))+
-  geom_line(aes(y = WaterCol, col="WaterCol"))+
-  geom_line(aes(y = Epi, col="Epi"))+
-  geom_line(aes(y = Meta, col="Meta"))+
-  geom_line(aes(y = Hypo, col="Hypo"))+
-  xlab('Date')+
-  ylab('Temp')+
-  theme_classic()
+o16 <- ggplot(vw_o2f_gather16,aes(x = DateTime, y = vw_o2, color = depth))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  labs(color="")+
+  xlab('2016')+
+  ylab(expression("DO (mg L"^-1*")"))+
+  theme_classic(base_size = 15)
+
+o17 <- ggplot(vw_o2f_gather17,aes(x = DateTime, y = vw_o2, color = depth))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  labs(color="")+
+  xlab('2017')+
+  ylab(expression("DO (mg L"^-1*")"))+
+  theme_classic(base_size = 15)
+
+ggarrange(o16,o17,common.legend=TRUE,legend="right")
 
 # Export out Temp Data VW averaged by depth
 write_csv(vw_o2f, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/FCR_VW_o2.csv")
