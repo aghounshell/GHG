@@ -146,6 +146,22 @@ ggplot(ghg_select_plus_sd, aes(x = Date, y = ch4_umolL, group = as.factor(Depth_
         legend.title = element_blank(),
         axis.text.x = element_text(angle=90))
 
+# Zoom into 0-1 umol/L CH4
+ggplot(ghg_select_plus_sd, aes(x = Date, y = ch4_umolL, group = as.factor(Depth_m), color = as.factor(Depth_m), fill = as.factor(Depth_m)))+
+  geom_line(lwd = 1.5)+
+  geom_point(size = 4,pch = 21)+
+  geom_errorbar(aes(ymin=ch4_umolL-ch4_sd, ymax=ch4_umolL+ch4_sd), width=5,
+                position=position_dodge(0))+
+  xlab("")+
+  ylab(expression(umol/L~CH[4]))+
+  ylim(0,1)+
+  ggtitle("Select data")+
+  theme_classic()+
+  theme(axis.text=element_text(size=15),
+        axis.title=element_text(size=15),
+        legend.title = element_blank(),
+        axis.text.x = element_text(angle=90))
+
 #CO2: all data
 ggplot(ghg_all_plus_sd, aes(x = Date, y = co2_umolL, group = as.factor(Depth_m), color = as.factor(Depth_m), fill = as.factor(Depth_m)))+
   geom_line(lwd = 1.5)+
@@ -171,6 +187,23 @@ ggplot(ghg_select_plus_sd, aes(x = Date, y = co2_umolL, group = as.factor(Depth_
   ylim(0,700)+
   xlab("")+
   ylab(expression(umol/L~CO[2]))+
+  ggtitle("Select data")+
+  theme_classic()+
+  theme(axis.text=element_text(size=15),
+        axis.title=element_text(size=15),
+        legend.title = element_blank(),
+        axis.text.x = element_text(angle=90))
+
+#CO2: select data; zoom in
+ggplot(ghg_select_plus_sd, aes(x = Date, y = co2_umolL, group = as.factor(Depth_m), color = as.factor(Depth_m), fill = as.factor(Depth_m)))+
+  geom_line(lwd = 1.5)+
+  geom_point(size = 4,pch = 21)+
+  geom_errorbar(aes(ymin=co2_umolL-co2_sd, ymax=co2_umolL+co2_sd), width=5,
+                position=position_dodge(0))+
+  ylim(0,700)+
+  xlab("")+
+  ylab(expression(umol/L~CO[2]))+
+  ylim(300,800)+
   ggtitle("Select data")+
   theme_classic()+
   theme(axis.text=element_text(size=15),
