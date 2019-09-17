@@ -5,6 +5,7 @@
 ###     Meta: 3.8 m + 5.0 m (2.6 - 6.5m)
 ###     Hypo: 6.2 m + 8.0 m + 9.0 m (6.5 - 9m)
 ### A Hounshell, 22Jul19
+## RFile: VW_FCR
 
 # Load libraries needed
 pacman::p_load(tidyverse,ggplot2,ggpubr)
@@ -114,11 +115,16 @@ vw_tempf_gather16 <- vw_tempf_gather %>% filter(DateTime>=as.Date('2016-01-01')&
 vw_tempf_gather17 <- vw_tempf_gather %>% filter(DateTime>=as.Date('2017-01-01')&DateTime<=as.Date('2017-12-31'))
 vw_tempf_gather$depth<-factor(vw_tempf_gather$depth, levels=c("Epi", "Meta", "Hypo", "WaterCol"))
 
-# Plot to check: width = 1000; height = 500
+# Plot to check: width = 1000; height = 400
 temp16 <- ggplot(vw_tempf_gather16,aes(x = DateTime, y = vw_temp, color = depth))+
   geom_line(size=1)+
   geom_point(size=2)+
   scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  geom_vline(xintercept = as.POSIXct("2016-04-18"),linetype="longdash")+ #Oxygen on
+  geom_vline(xintercept = as.POSIXct("2016-10-09"))+ #Turnover
+  geom_vline(xintercept = as.POSIXct("2016-05-30"),linetype="dotted",color="grey")+ #EM
+  geom_vline(xintercept = as.POSIXct("2016-06-27"),linetype="dotted",color="grey")+ #EM
+  geom_vline(xintercept = as.POSIXct("2016-07-25"),linetype="dotted",color="grey")+ #EM
   labs(color="")+
   xlab('2016')+
   ylab(expression('Temperature ('*degree*C*')'))+
@@ -128,6 +134,10 @@ temp17 <- ggplot(vw_tempf_gather17,aes(x = DateTime, y = vw_temp, color = depth)
   geom_line(size=1)+
   geom_point(size=2)+
   scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  geom_vline(xintercept=as.POSIXct("2017-04-18"),linetype="longdash")+ #Oxygen on
+  geom_vline(xintercept=as.POSIXct("2017-05-29"),linetype="dotted",color="grey")+ #EM
+  geom_vline(xintercept=as.POSIXct("2017-07-07"),linetype="dotted",color="grey")+ #EM
+  geom_vline(xintercept=as.POSIXct("2017-10-25"))+ #Turnover
   labs(color="")+
   xlab('2017')+
   ylab(expression('Temperature ('*degree*C*')'))+
@@ -202,6 +212,11 @@ o16 <- ggplot(vw_o2f_gather16,aes(x = DateTime, y = vw_o2, color = depth))+
   geom_line(size=1)+
   geom_point(size=2)+
   scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  geom_vline(xintercept = as.POSIXct("2016-04-18"),linetype="longdash")+ #Oxygen on
+  geom_vline(xintercept = as.POSIXct("2016-10-09"))+ #Turnover
+  geom_vline(xintercept = as.POSIXct("2016-05-30"),linetype="dotted",color="grey")+ #EM
+  geom_vline(xintercept = as.POSIXct("2016-06-27"),linetype="dotted",color="grey")+ #EM
+  geom_vline(xintercept = as.POSIXct("2016-07-25"),linetype="dotted",color="grey")+ #EM
   labs(color="")+
   xlab('2016')+
   ylab(expression("DO (mg L"^-1*")"))+
@@ -211,6 +226,10 @@ o17 <- ggplot(vw_o2f_gather17,aes(x = DateTime, y = vw_o2, color = depth))+
   geom_line(size=1)+
   geom_point(size=2)+
   scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  geom_vline(xintercept=as.POSIXct("2017-04-18"),linetype="longdash")+ #Oxygen on
+  geom_vline(xintercept=as.POSIXct("2017-05-29"),linetype="dotted",color="grey")+ #EM
+  geom_vline(xintercept=as.POSIXct("2017-07-07"),linetype="dotted",color="grey")+ #EM
+  geom_vline(xintercept=as.POSIXct("2017-10-25"))+ #Turnover
   labs(color="")+
   xlab('2017')+
   ylab(expression("DO (mg L"^-1*")"))+
@@ -222,6 +241,7 @@ ggarrange(o16,o17,common.legend=TRUE,legend="right")
 write_csv(vw_o2f, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/FCR_VW_o2.csv")
 
 ### Calculate VW GHG's
+### NEED TO CALCULATE SEPARATELY FOR EACH REP; THEN AVERAGE AND SD TO REPRESENT ERROR
 # Separate by depth then recombine
 ghg_1 <- ghg %>% filter(depth==0.1) %>% group_by(datetime) %>% 
   summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="FCR_1")
@@ -315,16 +335,31 @@ names(vw_ch4f)[2] <- "WaterCol"
 names(vw_ch4f)[3] <- "Epi"
 names(vw_ch4f)[4] <- "Meta"
 names(vw_ch4f)[5] <- "Hypo"
+vw_ch4f_gather <- vw_ch4f %>% gather(key=depth,value=vw_ch4,-DateTime)
+vw_ch4f_gather16 <- vw_ch4f_gather %>% filter(DateTime>=as.Date('2016-01-01')&DateTime<=as.Date('2016-12-31'))
+vw_ch4f_gather17 <- vw_ch4f_gather %>% filter(DateTime>=as.Date('2017-01-01')&DateTime<=as.Date('2017-12-31'))
+vw_ch4f_gather$depth<-factor(vw_ch4f_gather$depth, levels=c("Epi", "Meta", "Hypo", "WaterCol"))
 
 # Plot to check
-ggplot(vw_ch4f,aes(x = DateTime, y = value, color = variable))+
-  geom_line(aes(y = WaterCol, col="WaterCol"))+
-  geom_line(aes(y = Epi, col="Epi"))+
-  geom_line(aes(y = Meta, col="Meta"))+
-  geom_line(aes(y = Hypo, col="Hypo"))+
-  xlab('Date')+
-  ylab('CH4')+
-  theme_classic()
+ggplot(vw_ch4f_gather16,aes(x = DateTime, y = vw_ch4, color = depth))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  labs(color="")+
+  xlab('2016')+
+  ylab(expression("CH"[4]*" ('mu*'mol L"^-1*")"))+
+  theme_classic(base_size = 15)
+
+ch417 <- ggplot(vw_o2f_gather17,aes(x = DateTime, y = vw_o2, color = depth))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  labs(color="")+
+  xlab('2017')+
+  ylab(expression("DO (mg L"^-1*")"))+
+  theme_classic(base_size = 15)
+
+ggarrange(o16,o17,common.legend=TRUE,legend="right")
 
 # Export out Temp Data VW averaged by depth
 write_csv(vw_ch4f, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/FCR_VW_ch4")
