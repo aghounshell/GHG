@@ -16,9 +16,8 @@ depth <- read_csv("C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data/FCR_Vol.csv")
 # FCR merged YSI and CTD casts
 casts <- read_csv("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/FCR_CTDysi_merge.csv")
 casts$Date <- as.POSIXct(strptime(casts$Date, "%Y-%m-%d", tz = "EST"))
-# FCR GHG data from 2016-2017
-### NEED TO FORMAT DATA DIFFERENTLY TO KEEP REPS - FOR BOTH GHG CONCENTRATIONS AND FLUX CALCS
-ghg <- read_csv("C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/GHG_FCR_16_17.csv")
+# FCR GHG data from 2016-2017: includes reps
+ghg <- read_csv("C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/GHG_FCR_16_17_reps.csv")
 ghg$datetime <- as.POSIXct(strptime(ghg$datetime, "%Y-%m-%d", tz="EST"))
 
 ### Start with temperature as a check...(code modified from VW_BVR.R)
@@ -242,28 +241,27 @@ ggarrange(o16,o17,common.legend=TRUE,legend="right")
 write_csv(vw_o2f, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/FCR_VW_o2.csv")
 
 ### Calculate VW GHG's
-### NEED TO CALCULATE SEPARATELY FOR EACH REP; THEN AVERAGE AND SD TO REPRESENT ERROR
 # Separate by depth then recombine
-ghg_1 <- ghg %>% filter(depth==0.1) %>% group_by(datetime) %>% 
-  summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="FCR_1")
+ghg_1 <- ghg %>% filter(depth==0.1) %>% group_by(datetime) %>% arrange(datetime) %>% 
+  mutate(grouping="FCR_1")
 
-ghg_2 <- ghg %>% filter(depth==1.6) %>% group_by(datetime) %>% 
-  summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="FCR_2")
+ghg_2 <- ghg %>% filter(depth==1.6) %>% group_by(datetime) %>% arrange(datetime) %>% 
+  mutate(grouping="FCR_2")
 
-ghg_3 <- ghg %>% filter(depth==3.8) %>% group_by(datetime) %>% 
-  summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="FCR_3")
+ghg_3 <- ghg %>% filter(depth==3.8) %>% group_by(datetime) %>%  arrange(datetime) %>% 
+  mutate(grouping="FCR_3")
 
-ghg_4 <- ghg %>% filter(depth==5.0) %>% group_by(datetime) %>% 
-  summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="FCR_4")
+ghg_4 <- ghg %>% filter(depth==5.0) %>% group_by(datetime) %>% arrange(datetime) %>% 
+  mutate(grouping="FCR_4")
 
-ghg_5 <- ghg %>% filter(depth==6.2) %>% group_by(datetime) %>% 
-  summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="FCR_5")
+ghg_5 <- ghg %>% filter(depth==6.2) %>% group_by(datetime) %>% arrange(datetime) %>% 
+  mutate(grouping="FCR_5")
 
-ghg_6 <- ghg %>% filter(depth==8.0) %>% group_by(datetime) %>% 
-  summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="FCR_6")
+ghg_6 <- ghg %>% filter(depth==8.0) %>% group_by(datetime) %>% arrange(datetime) %>% 
+  mutate(grouping="FCR_6")
 
-ghg_7 <- ghg %>% filter(depth==9.0) %>% group_by(datetime) %>% 
-  summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="FCR_7")
+ghg_7 <- ghg %>% filter(depth==9.0) %>% group_by(datetime) %>% arrange(datetime) %>% 
+  mutate(grouping="FCR_7")
 
 # Re-combine all depths then use spread to convert to wide form
 ghg_merge <- rbind(ghg_1,ghg_2,ghg_3,ghg_4,ghg_5,ghg_6,ghg_7)
