@@ -17,6 +17,7 @@ depth <- read_csv("C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data/FCR_Vol.csv")
 casts <- read_csv("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/FCR_CTDysi_merge.csv")
 casts$Date <- as.POSIXct(strptime(casts$Date, "%Y-%m-%d", tz = "EST"))
 # FCR GHG data from 2016-2017
+### NEED TO FORMAT DATA DIFFERENTLY TO KEEP REPS - FOR BOTH GHG CONCENTRATIONS AND FLUX CALCS
 ghg <- read_csv("C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/GHG_FCR_16_17.csv")
 ghg$datetime <- as.POSIXct(strptime(ghg$datetime, "%Y-%m-%d", tz="EST"))
 
