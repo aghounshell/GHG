@@ -679,84 +679,384 @@ write_csv(vw_ch4_all, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/FCR_
 
 ############################CO2##########################################################
 ## Calculate VW pCO2 for FCR
-ghg_merge_co2 <- ghg_merge %>% select(datetime,co2_umol_L,grouping) %>% arrange(datetime)
-ghg_layers_co2 <- ghg_merge_co2 %>% spread(grouping,co2_umol_L)
-
 # Calculate VW pCH4 for the entire water column
-vw_co2 <- rep(-99,length(ghg_layers_co2$datetime))
-for(i in 1:length(ghg_layers_co2$datetime)){
-  vw_co2[i] <- sum(ghg_layers_co2$FCR_1[i]*depth_2[1],
-                   ghg_layers_co2$FCR_2[i]*depth_2[2],
-                   ghg_layers_co2$FCR_3[i]*depth_2[3],
-                   ghg_layers_co2$FCR_4[i]*depth_2[4],
-                   ghg_layers_co2$FCR_5[i]*depth_2[5],
-                   ghg_layers_co2$FCR_6[i]*depth_2[6],
-                   ghg_layers_co2$FCR_7[i]*depth_2[7])/sum(depth_2[c(1:7)])
+# Remove outlier: Rep 1 ~627 umol/L while Rep 2 ~29 umol/L
+rep1_co2_layers$FCR_2[63] <- NA
+
+vw_co2_rep1 <- rep(-99,length(rep1_co2_layers$datetime))
+for(i in 1:length(rep1_co2_layers$datetime)){
+  vw_co2_rep1[i] <- sum(rep1_co2_layers$FCR_1[i]*depth_2[1],
+                        rep1_co2_layers$FCR_2[i]*depth_2[2],
+                        rep1_co2_layers$FCR_3[i]*depth_2[3],
+                        rep1_co2_layers$FCR_4[i]*depth_2[4],
+                        rep1_co2_layers$FCR_5[i]*depth_2[5],
+                        rep1_co2_layers$FCR_6[i]*depth_2[6],
+                        rep1_co2_layers$FCR_7[i]*depth_2[7])/sum(depth_2[c(1:7)])
 }
 
-vw_co2[39] <- sum(ghg_layers_co2$FCR_1[i]*depth_2[1],
-                  ghg_layers_co2$FCR_2[i]*depth_2[2],
-                  ghg_layers_co2$FCR_3[i]*depth_2[3],
-                  ghg_layers_co2$FCR_4[i]*depth_2[4],
-                  ghg_layers_co2$FCR_5[i]*depth_2[5],
-                  ghg_layers_co2$FCR_6[i]*sum(depth_2[6:7]))/sum(depth_2[c(1:7)])
+vw_co2_rep1[16] <- sum(rep1_co2_layers$FCR_1[16]*sum(depth_2[1:2]),
+                       rep1_co2_layers$FCR_3[16]*depth_2[3],
+                       rep1_co2_layers$FCR_4[16]*depth_2[4],
+                       rep1_co2_layers$FCR_5[16]*depth_2[5],
+                       rep1_co2_layers$FCR_6[16]*depth_2[6],
+                       rep1_co2_layers$FCR_7[16]*depth_2[7])/sum(depth_2[c(1:7)])
 
-vw_co2[66] <- sum(ghg_layers_co2$FCR_1[i]*depth_2[1],
-                  ghg_layers_co2$FCR_2[i]*depth_2[2],
-                  ghg_layers_co2$FCR_3[i]*depth_2[3],
-                  ghg_layers_co2$FCR_4[i]*sum(depth_2[4:5]),
-                  ghg_layers_co2$FCR_6[i]*depth_2[6],
-                  ghg_layers_co2$FCR_7[i]*depth_2[7])/sum(depth_2[c(1:7)])
+vw_co2_rep1[58] <- sum(rep1_co2_layers$FCR_1[58]*sum(depth_2[1:2]),
+                       rep1_co2_layers$FCR_3[58]*depth_2[3],
+                       rep1_co2_layers$FCR_4[58]*depth_2[4],
+                       rep1_co2_layers$FCR_5[58]*depth_2[5],
+                       rep1_co2_layers$FCR_6[58]*depth_2[6],
+                       rep1_co2_layers$FCR_7[58]*depth_2[7])/sum(depth_2[c(1:7)])
 
-vw_co2 <- cbind(ghg_layers_co2,vw_co2)
+vw_co2_rep1[63] <- sum(rep1_co2_layers$FCR_1[63]*sum(depth_2[1:2]),
+                       rep1_co2_layers$FCR_3[63]*depth_2[3],
+                       rep1_co2_layers$FCR_4[63]*depth_2[4],
+                       rep1_co2_layers$FCR_5[63]*depth_2[5],
+                       rep1_co2_layers$FCR_6[63]*depth_2[6],
+                       rep1_co2_layers$FCR_7[63]*depth_2[7])/sum(depth_2[c(1:7)])
+
+vw_co2_rep1[18] <- sum(rep1_co2_layers$FCR_1[18]*depth_2[1],
+                       rep1_co2_layers$FCR_2[18]*depth_2[2],
+                       rep1_co2_layers$FCR_3[18]*depth_2[3],
+                       rep1_co2_layers$FCR_5[18]*sum(depth_2[4:5]),
+                       rep1_co2_layers$FCR_6[18]*depth_2[6],
+                       rep1_co2_layers$FCR_7[18]*depth_2[7])/sum(depth_2[c(1:7)])
+
+vw_co2_rep1[66] <- sum(rep1_co2_layers$FCR_1[66]*depth_2[1],
+                       rep1_co2_layers$FCR_2[66]*depth_2[2],
+                       rep1_co2_layers$FCR_3[66]*depth_2[3],
+                       rep1_co2_layers$FCR_4[66]*sum(depth_2[4:5]),
+                       rep1_co2_layers$FCR_6[66]*depth_2[6],
+                       rep1_co2_layers$FCR_7[66]*depth_2[7])/sum(depth_2[c(1:7)])
+
+vw_co2_rep1[20] <- sum(rep1_co2_layers$FCR_1[20]*depth_2[1],
+                       rep1_co2_layers$FCR_2[20]*depth_2[2],
+                       rep1_co2_layers$FCR_3[20]*depth_2[3],
+                       rep1_co2_layers$FCR_4[20]*depth_2[4],
+                       rep1_co2_layers$FCR_5[20]*depth_2[5],
+                       rep1_co2_layers$FCR_7[20]*sum(depth_2[6:7]))/sum(depth_2[c(1:7)])
+
+vw_co2_rep1[39] <- sum(rep1_co2_layers$FCR_1[39]*depth_2[1],
+                       rep1_co2_layers$FCR_2[39]*depth_2[2],
+                       rep1_co2_layers$FCR_3[39]*depth_2[3],
+                       rep1_co2_layers$FCR_4[39]*depth_2[4],
+                       rep1_co2_layers$FCR_5[39]*depth_2[5],
+                       rep1_co2_layers$FCR_7[39]*sum(depth_2[6:7]))/sum(depth_2[c(1:7)])
+
+vw_co2_rep1[50] <- sum(rep1_co2_layers$FCR_1[50]*depth_2[1],
+                       rep1_co2_layers$FCR_2[50]*depth_2[2],
+                       rep1_co2_layers$FCR_3[50]*depth_2[3],
+                       rep1_co2_layers$FCR_4[50]*depth_2[4],
+                       rep1_co2_layers$FCR_5[50]*depth_2[5],
+                       rep1_co2_layers$FCR_7[50]*sum(depth_2[6:7]))/sum(depth_2[c(1:7)])
+
+vw_co2_rep1 <- cbind(rep1_co2_layers,vw_co2_rep1)
 
 # Plot to check
-ggplot(vw_co2,aes(datetime,vw_co2))+geom_line()+theme_classic()
+ggplot(vw_co2_rep1,aes(datetime,vw_co2_rep1))+geom_line()+theme_classic()
 
-### Calculate Epi VW pCO2: defined as 0-2.6 m
-vw_epi_co2 <- rep(-99,length(ghg_layers_co2$datetime))
-for(i in 1:length(ghg_layers_co2$datetime)){
-  vw_epi_co2[i] <- sum(ghg_layers_co2$FCR_1[i]*depth_2[1],
-                       ghg_layers_co2$FCR_2[i]*depth_2[2])/sum(depth_2[c(1:2)])
+# Calculate VW pCO2 for Rep 2
+vw_co2_rep2 <- rep(-99,length(rep2_co2_layers$datetime))
+for(i in 1:length(rep2_co2_layers$datetime)){
+  vw_co2_rep2[i] <- sum(rep2_co2_layers$FCR_1[i]*depth_2[1],
+                        rep2_co2_layers$FCR_2[i]*depth_2[2],
+                        rep2_co2_layers$FCR_3[i]*depth_2[3],
+                        rep2_co2_layers$FCR_4[i]*depth_2[4],
+                        rep2_co2_layers$FCR_5[i]*depth_2[5],
+                        rep2_co2_layers$FCR_6[i]*depth_2[6],
+                        rep2_co2_layers$FCR_7[i]*depth_2[7])/sum(depth_2[c(1:7)])
 }
 
-### Calculate Meta VW pCO2: defined as 2.6-6.5m
-vw_meta_co2 <- rep(-99,length(ghg_layers_co2$datetime))
-for(i in 1:length(ghg_layers_co2$datetime)){
-  vw_meta_co2[i] <- sum(ghg_layers_co2$FCR_3[i]*depth_2[3],
-                        ghg_layers_co2$FCR_4[i]*depth_2[4],
-                        ghg_layers_co2$FCR_5[i]*depth_2[5])/sum(depth_2[c(3:5)])
-}
+vw_co2_rep2[29] <- sum(rep2_co2_layers$FCR_2[29]*sum(depth_2[1:2]),
+                       rep2_co2_layers$FCR_3[29]*depth_2[3],
+                       rep2_co2_layers$FCR_4[29]*depth_2[4],
+                       rep2_co2_layers$FCR_5[29]*depth_2[5],
+                       rep2_co2_layers$FCR_6[29]*depth_2[6],
+                       rep2_co2_layers$FCR_7[29]*depth_2[7])/sum(depth_2[c(1:7)])
 
-vw_meta_co2[66] <- sum(ghg_layers_co2$FCR_3[i]*depth_2[3],
-                       ghg_layers_co2$FCR_4[i]*sum(depth_2[4:5]))/sum(depth_2[c(3:5)])
+vw_co2_rep2[41] <- sum(rep2_co2_layers$FCR_2[41]*sum(depth_2[1:2]),
+                       rep2_co2_layers$FCR_3[41]*depth_2[3],
+                       rep2_co2_layers$FCR_4[41]*depth_2[4],
+                       rep2_co2_layers$FCR_5[41]*depth_2[5],
+                       rep2_co2_layers$FCR_6[41]*depth_2[6],
+                       rep2_co2_layers$FCR_7[41]*depth_2[7])/sum(depth_2[c(1:7)])
 
-### Calculate Hypo VW Temp: defined as 6.5-9m
-vw_hypo_co2 <- rep(-99,length(ghg_layers_co2$datetime))
-for(i in 1:length(ghg_layers_co2$datetime)){
-  vw_hypo_co2[i] <- sum(ghg_layers_co2$FCR_6[i]*depth_2[6],
-                        ghg_layers_co2$FCR_7[i]*depth_2[7])/sum(depth_2[c(6:7)])
-}
+vw_co2_rep2[56] <- sum(rep2_co2_layers$FCR_2[56]*sum(depth_2[1:2]),
+                       rep2_co2_layers$FCR_3[56]*depth_2[3],
+                       rep2_co2_layers$FCR_4[56]*depth_2[4],
+                       rep2_co2_layers$FCR_5[56]*depth_2[5],
+                       rep2_co2_layers$FCR_6[56]*depth_2[6],
+                       rep2_co2_layers$FCR_7[56]*depth_2[7])/sum(depth_2[c(1:7)])
 
-vw_hypo_co2[39] <- sum(ghg_layers_co2$FCR_6[i]*sum(depth_2[6:7]))/sum(depth_2[c(6:7)])
+vw_co2_rep2[33] <- sum(rep2_co2_layers$FCR_2[33]*sum(depth_2[1:2]),
+                       rep2_co2_layers$FCR_3[33]*depth_2[3],
+                       rep2_co2_layers$FCR_4[33]*depth_2[4],
+                       rep2_co2_layers$FCR_5[33]*depth_2[5],
+                       rep2_co2_layers$FCR_7[33]*sum(depth_2[6:7]))/sum(depth_2[c(1:7)])
 
-### Concatenate into a single matrix and plot Temp by depth/whole water column
-vw_co2f <- cbind.data.frame(vw_co2$datetime,vw_co2$vw_co2,vw_epi_co2,vw_meta_co2,vw_hypo_co2)
-names(vw_co2f)[1] <- "DateTime"
-names(vw_co2f)[2] <- "WaterCol"
-names(vw_co2f)[3] <- "Epi"
-names(vw_co2f)[4] <- "Meta"
-names(vw_co2f)[5] <- "Hypo"
+vw_co2_rep2[66] <- sum(rep2_co2_layers$FCR_1[66]*sum(depth_2[1:2]),
+                       rep2_co2_layers$FCR_3[66]*depth_2[3],
+                       rep2_co2_layers$FCR_4[66]*sum(depth_2[4:5]),
+                       rep2_co2_layers$FCR_6[66]*depth_2[6],
+                       rep2_co2_layers$FCR_7[66]*depth_2[7])/sum(depth_2[c(1:7)])
+
+vw_co2_rep2[6] <- sum(rep2_co2_layers$FCR_1[6]*depth_2[1],
+                      rep2_co2_layers$FCR_2[6]*depth_2[2],
+                      rep2_co2_layers$FCR_3[6]*depth_2[3],
+                      rep2_co2_layers$FCR_5[6]*sum(depth_2[4:5]),
+                      rep2_co2_layers$FCR_6[6]*depth_2[6],
+                      rep2_co2_layers$FCR_7[6]*depth_2[7])/sum(depth_2[c(1:7)])
+
+vw_co2_rep2[34] <- sum(rep2_co2_layers$FCR_1[34]*depth_2[1],
+                       rep2_co2_layers$FCR_2[34]*depth_2[2],
+                       rep2_co2_layers$FCR_3[34]*depth_2[3],
+                       rep2_co2_layers$FCR_4[34]*sum(depth_2[4:5]),
+                       rep2_co2_layers$FCR_6[34]*depth_2[6],
+                       rep2_co2_layers$FCR_7[34]*depth_2[7])/sum(depth_2[c(1:7)])
+
+vw_co2_rep2[53] <- sum(rep2_co2_layers$FCR_1[53]*depth_2[1],
+                       rep2_co2_layers$FCR_2[53]*depth_2[2],
+                       rep2_co2_layers$FCR_3[53]*depth_2[3],
+                       rep2_co2_layers$FCR_4[53]*sum(depth_2[4:5]),
+                       rep2_co2_layers$FCR_6[53]*depth_2[6],
+                       rep2_co2_layers$FCR_7[53]*depth_2[7])/sum(depth_2[c(1:7)])
+
+vw_co2_rep2[58] <- sum(rep2_co2_layers$FCR_1[58]*depth_2[1],
+                       rep2_co2_layers$FCR_2[58]*depth_2[2],
+                       rep2_co2_layers$FCR_3[58]*depth_2[3],
+                       rep2_co2_layers$FCR_4[58]*sum(depth_2[4:5]),
+                       rep2_co2_layers$FCR_6[58]*depth_2[6],
+                       rep2_co2_layers$FCR_7[58]*depth_2[7])/sum(depth_2[c(1:7)])
+
+vw_co2_rep2[27] <- sum(rep2_co2_layers$FCR_1[27]*depth_2[1],
+                       rep2_co2_layers$FCR_2[27]*depth_2[2],
+                       rep2_co2_layers$FCR_3[27]*depth_2[3],
+                       rep2_co2_layers$FCR_4[27]*depth_2[4],
+                       rep2_co2_layers$FCR_5[27]*depth_2[5],
+                       rep2_co2_layers$FCR_7[27]*sum(depth_2[6:7]))/sum(depth_2[c(1:7)])
+
+vw_co2_rep2[39] <- sum(rep2_co2_layers$FCR_1[39]*depth_2[1],
+                       rep2_co2_layers$FCR_2[39]*depth_2[2],
+                       rep2_co2_layers$FCR_3[39]*depth_2[3],
+                       rep2_co2_layers$FCR_4[39]*depth_2[4],
+                       rep2_co2_layers$FCR_5[39]*depth_2[5],
+                       rep2_co2_layers$FCR_7[39]*sum(depth_2[6:7]))/sum(depth_2[c(1:7)])
+
+vw_co2_rep2 <- cbind(rep2_co2_layers,vw_co2_rep2)
 
 # Plot to check
-ggplot(vw_co2f,aes(x = DateTime, y = value, color = variable))+
-  geom_line(aes(y = WaterCol, col="WaterCol"))+
-  geom_line(aes(y = Epi, col="Epi"))+
-  geom_line(aes(y = Meta, col="Meta"))+
-  geom_line(aes(y = Hypo, col="Hypo"))+
-  xlab('Date')+
-  ylab('CO2')+
+ggplot(vw_co2_rep2,aes(datetime,vw_co2_rep2))+geom_line()+theme_classic()
+
+# Calculate Avg and Stdev for Water Col VW
+vw_co2 <- cbind(vw_co2_rep1$vw_co2_rep1,vw_co2_rep2$vw_co2_rep2)
+
+vw_co2_avg <- rowMeans(vw_co2)
+vw_co2_stdev <- apply(vw_co2,1,FUN=sd)
+
+vw_co2_all <- cbind.data.frame(vw_co2_rep1$datetime,vw_co2_avg,vw_co2_stdev)
+names(vw_co2_all)[1] <- "datetime"
+names(vw_co2_all)[2] <- "vw_avg"
+names(vw_co2_all)[3] <- "vw_std"
+
+# Plot to check: avg and stdev
+ggplot(vw_co2_all,aes(datetime,vw_avg))+
+  geom_line()+
+  geom_point()+
+  geom_errorbar(aes(ymin=vw_avg-vw_std, ymax=vw_avg+vw_std))+
   theme_classic()
 
+### Calculate Epi VW pCO2: defined as 0-2.6 m
+# Calculate as Rep 1 and Rep 2 then combine
+epi_co2_rep1 <- rep(-99,length(rep1_co2_layers$datetime))
+for(i in 1:67){
+  epi_co2_rep1[i] <- sum(rep1_co2_layers$FCR_1[i]*depth_2[1],
+                         rep1_co2_layers$FCR_2[i]*depth_2[2])/sum(depth_2[c(1:2)])
+}
+
+epi_co2_rep1[16] <- rep1_co2_layers$FCR_1[16]
+epi_co2_rep1[58] <- rep1_co2_layers$FCR_1[58]
+epi_co2_rep1[63] <- rep1_co2_layers$FCR_1[63]
+
+# Epi Rep 2 CO2
+epi_co2_rep2 <- rep(-99,length(rep2_co2_layers$datetime))
+for(i in 1:67){
+  epi_co2_rep2[i] <- sum(rep2_co2_layers$FCR_1[i]*depth_2[1],
+                         rep2_co2_layers$FCR_2[i]*depth_2[2])/sum(depth_2[c(1:2)])
+}
+
+epi_co2_rep2[66] <- rep2_co2_layers$FCR_1[66]
+
+epi_co2_rep2[29] <- rep2_co2_layers$FCR_2[29]
+epi_co2_rep2[33] <- rep2_co2_layers$FCR_2[33]
+epi_co2_rep2[41] <- rep2_co2_layers$FCR_2[41]
+epi_co2_rep2[56] <- rep2_co2_layers$FCR_2[56]
+
+epi_co2 <- cbind(epi_co2_rep1,epi_co2_rep2)
+epi_co2_avg <- rowMeans(epi_co2)
+epi_co2_stdev <- apply(epi_co2,1,FUN=sd)
+
+vw_co2_all <- cbind.data.frame(vw_co2_all,epi_co2_avg,epi_co2_stdev)
+names(vw_co2_all)[4] <- "epi_avg"
+names(vw_co2_all)[5] <- "epi_std"
+
+# Plot to check
+ggplot(vw_co2_all,aes(datetime,epi_avg))+
+  geom_line()+
+  geom_point()+
+  geom_errorbar(aes(ymin=epi_avg-epi_std, ymax=epi_avg+epi_std))+
+  theme_classic()
+
+### Calculate Meta VW pCO2: defined as 2.6-6.5m
+### Calculate Rep 1 and 2 seperately
+meta_co2_rep1 <- rep(-99,length(rep1_co2_layers$datetime))
+for(i in 1:67){
+  meta_co2_rep1[i] <- sum(rep1_co2_layers$FCR_3[i]*depth_2[3],
+                          rep1_co2_layers$FCR_4[i]*depth_2[4],
+                          rep1_co2_layers$FCR_5[i]*depth_2[5])/sum(depth_2[c(3:5)])
+}
+
+meta_co2_rep1[18] <- sum(rep1_co2_layers$FCR_3[18]*sum(depth_2[3:4]),
+                         rep1_co2_layers$FCR_5[18]*depth_2[5])/sum(depth_2[c(3:5)])
+
+meta_co2_rep1[66] <- sum(rep1_co2_layers$FCR_3[66]*depth_2[3],
+                         rep1_co2_layers$FCR_4[66]*sum(depth_2[4:5]))/sum(depth_2[c(3:5)])
+
+# Meta, rep 2, CH4
+meta_co2_rep2 <- rep(-99,length(rep2_co2_layers$datetime))
+for(i in 1:67){
+  meta_co2_rep2[i] <- sum(rep2_co2_layers$FCR_3[i]*depth_2[3],
+                          rep2_co2_layers$FCR_4[i]*depth_2[4],
+                          rep2_co2_layers$FCR_5[i]*depth_2[5])/sum(depth_2[c(3:5)])
+}
+
+meta_co2_rep2[6] <- sum(rep2_co2_layers$FCR_3[6]*sum(depth_2[3:4]),
+                        rep2_co2_layers$FCR_5[6]*depth_2[5])/sum(depth_2[c(3:5)])
+
+meta_co2_rep2[34] <- sum(rep2_co2_layers$FCR_3[34]*depth_2[3],
+                         rep2_co2_layers$FCR_4[34]*sum(depth_2[4:5]))/sum(depth_2[c(3:5)])
+meta_co2_rep2[53] <- sum(rep2_co2_layers$FCR_3[53]*depth_2[3],
+                         rep2_co2_layers$FCR_4[53]*sum(depth_2[4:5]))/sum(depth_2[c(3:5)])
+meta_co2_rep2[58] <- sum(rep2_co2_layers$FCR_3[58]*depth_2[3],
+                         rep2_co2_layers$FCR_4[58]*sum(depth_2[4:5]))/sum(depth_2[c(3:5)])
+meta_co2_rep2[66] <- sum(rep2_co2_layers$FCR_3[66]*depth_2[3],
+                         rep2_co2_layers$FCR_4[66]*sum(depth_2[4:5]))/sum(depth_2[c(3:5)])
+
+meta_co2 <- cbind(meta_co2_rep1,meta_co2_rep2)
+meta_co2_avg <- rowMeans(meta_co2)
+meta_co2_stdev <- apply(meta_co2,1,FUN=sd)
+
+vw_co2_all <- cbind.data.frame(vw_co2_all,meta_co2_avg,meta_co2_stdev)
+names(vw_co2_all)[6] <- "meta_avg"
+names(vw_co2_all)[7] <- "meta_std"
+
+# Plot to check
+ggplot(vw_co2_all,aes(datetime,meta_avg))+
+  geom_line()+
+  geom_point()+
+  geom_errorbar(aes(ymin=meta_avg-meta_std, ymax=meta_avg+meta_std))+
+  theme_classic()
+
+### Calculate Hypo VW Temp: defined as 6.5-9m
+### Calculate Rep 1 and Rep 2; then combine
+hypo_co2_rep1 <- rep(-99,length(rep1_co2_layers$datetime))
+for(i in 1:67){
+  hypo_co2_rep1[i] <- sum(rep1_co2_layers$FCR_6[i]*depth_2[6],
+                          rep1_co2_layers$FCR_7[i]*depth_2[7])/sum(depth_2[c(6:7)])
+}
+
+hypo_co2_rep1[20] <- rep1_co2_layers$FCR_7[20]
+hypo_co2_rep1[39] <- rep1_co2_layers$FCR_7[39]
+hypo_co2_rep1[50] <- rep1_co2_layers$FCR_7[50]
+
+# Hypo, rep 2, CH4
+hypo_co2_rep2 <- rep(-99,length(rep2_co2_layers$datetime))
+for(i in 1:67){
+  hypo_co2_rep2[i] <- sum(rep2_co2_layers$FCR_6[i]*depth_2[6],
+                          rep2_co2_layers$FCR_7[i]*depth_2[7])/sum(depth_2[c(6:7)])
+}
+
+hypo_co2_rep2[27] <- rep2_co2_layers$FCR_7[27]
+hypo_co2_rep2[33] <- rep2_co2_layers$FCR_7[33]
+hypo_co2_rep2[39] <- rep2_co2_layers$FCR_7[39]
+
+hypo_co2 <- cbind(hypo_co2_rep1,hypo_co2_rep2)
+hypo_co2_avg <- rowMeans(hypo_co2)
+hypo_co2_stdev <- apply(hypo_co2,1,FUN=sd)
+
+vw_co2_all <- cbind.data.frame(vw_co2_all,hypo_co2_avg,hypo_co2_stdev)
+names(vw_co2_all)[8] <- "hypo_avg"
+names(vw_co2_all)[9] <- "hypo_std"
+
+# Plot to check
+ggplot(vw_co2_all,aes(datetime,hypo_avg))+
+  geom_line()+
+  geom_point()+
+  geom_errorbar(aes(ymin=hypo_avg-hypo_std, ymax=hypo_avg+hypo_std))+
+  theme_classic()
+
+## Separate into years (2016; 2017): width = 1000; height = 400
+vw_co2_16 <- vw_co2_all %>% filter(datetime>=as.Date('2016-02-01')&datetime<=as.Date('2016-12-31'))
+vw_co2_17 <- vw_co2_all %>% filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
+
+co216 <- ggplot(vw_co2_16)+
+  geom_line(mapping=aes(datetime,epi_avg),color='#F5793A',size=1)+
+  geom_point(mapping=aes(datetime,epi_avg),color='#F5793A',size=2)+
+  geom_errorbar(aes(x=datetime,ymin=epi_avg-epi_std,ymax=epi_avg+epi_std),
+                color='#F5793A',size=1)+
+  geom_line(mapping=aes(datetime,meta_avg),color='#A95AA1',size=1)+
+  geom_point(mapping=aes(datetime,meta_avg),color='#A95AA1',size=2)+
+  geom_errorbar(aes(x=datetime,ymin=meta_avg-meta_std,ymax=meta_avg+meta_std),
+                color='#A95AA1',size=1)+
+  geom_line(mapping=aes(datetime,hypo_avg),color='#85C0F9',size=1)+
+  geom_point(mapping=aes(datetime,hypo_avg),color='#85C0F9',size=2)+
+  geom_errorbar(aes(x=datetime,ymin=hypo_avg-hypo_std,ymax=hypo_avg+hypo_std),
+                color='#85C0F9',size=1)+
+  geom_line(mapping=aes(datetime,vw_avg),color='#0F2080',size=1)+
+  geom_point(mapping=aes(datetime,vw_avg),color='#0F2080',size=2)+
+  geom_errorbar(aes(x=datetime,ymin=vw_avg-vw_std,ymax=vw_avg+vw_std),
+                color='#0F2080',size=1)+
+  geom_vline(xintercept = as.POSIXct("2016-04-18"),linetype="longdash")+ #Oxygen on
+  geom_vline(xintercept = as.POSIXct("2016-10-09"))+ #Turnover
+  geom_vline(xintercept = as.POSIXct("2016-05-30"),linetype="dotted",color="grey")+ #EM
+  geom_vline(xintercept = as.POSIXct("2016-06-27"),linetype="dotted",color="grey")+ #EM
+  geom_vline(xintercept = as.POSIXct("2016-07-25"),linetype="dotted",color="grey")+ #EM
+  scale_color_manual(labels=c("Epi","Meta","Hypo","WaterCol"),
+                     values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  labs(color="")+
+  xlab('2016')+
+  ylab(expression(paste("CO"[2]*" (", mu,"mol L"^-1*")")))+
+  theme_classic(base_size=15)
+
+co217 <- ggplot(vw_co2_17)+
+  geom_line(mapping=aes(datetime,epi_avg,color='#F5793A'),size=1)+
+  geom_point(mapping=aes(datetime,epi_avg,color='#F5793A'),size=2)+
+  geom_errorbar(aes(x=datetime,ymin=epi_avg-epi_std,ymax=epi_avg+epi_std,
+                    color='#F5793A'),size=1)+
+  geom_line(mapping=aes(datetime,meta_avg,color='#A95AA1'),size=1)+
+  geom_point(mapping=aes(datetime,meta_avg,color='#A95AA1'),size=2)+
+  geom_errorbar(aes(x=datetime,ymin=meta_avg-meta_std,ymax=meta_avg+meta_std,
+                    color='#A95AA1'),size=1)+
+  geom_line(mapping=aes(datetime,hypo_avg,color='#85C0F9'),size=1)+
+  geom_point(mapping=aes(datetime,hypo_avg,color='#85C0F9'),size=2)+
+  geom_errorbar(aes(x=datetime,ymin=hypo_avg-hypo_std,ymax=hypo_avg+hypo_std,
+                    color='#85C0F9'),size=1)+
+  geom_line(mapping=aes(datetime,vw_avg,color='#0F2080'),size=1)+
+  geom_point(mapping=aes(datetime,vw_avg,color='#0F2080'),size=2)+
+  geom_errorbar(aes(x=datetime,ymin=vw_avg-vw_std,ymax=vw_avg+vw_std,
+                    color='#0F2080'),size=1)+
+  geom_vline(xintercept=as.POSIXct("2017-04-18"),linetype="longdash")+ #Oxygen on
+  geom_vline(xintercept=as.POSIXct("2017-05-29"),linetype="dotted",color="grey")+ #EM
+  geom_vline(xintercept=as.POSIXct("2017-07-07"),linetype="dotted",color="grey")+ #EM
+  geom_vline(xintercept=as.POSIXct("2017-10-25"))+ #Turnover
+  scale_color_manual(labels=c("Epi","Meta","Hypo","WaterCol"),
+                     values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  labs(color="")+
+  xlab('2017')+
+  ylab(expression(paste("CO"[2]*" (", mu,"mol L"^-1*")")))+
+  ylim(0,800)+
+  theme_classic(base_size=15)
+
+ggarrange(co216,co217,common.legend=TRUE,legend="right")
+
 # Export out Temp Data VW averaged by depth
-write_csv(vw_co2f, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/FCR_VW_co2")
+write_csv(vw_co2_all, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/FCR_VW_co2_stats")
