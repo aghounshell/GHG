@@ -612,55 +612,49 @@ ggplot(vw_ch4_all,aes(datetime,hypo_avg))+
   theme_classic()
 
 ## Separate into years (2016; 2017): width = 1000; height = 400
-vw_ch4_16 <- vw_ch4_all %>% filter(datetime>=as.Date('2016-02-01')&datetime<=as.Date('2016-12-31'))
-vw_ch4_17 <- vw_ch4_all %>% filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
+vw_ch4_avg <- vw_ch4_all %>% select(datetime,vw_avg,epi_avg,meta_avg,hypo_avg)
+names(vw_ch4_avg)[2] <- 'WaterCol'
+names(vw_ch4_avg)[3] <- 'Epi'
+names(vw_ch4_avg)[4] <- 'Meta'
+names(vw_ch4_avg)[5] <- 'Hypo'
 
-ch416 <- ggplot(vw_ch4_16)+
-  geom_line(mapping=aes(datetime,epi_avg),color='#F5793A',size=1)+
-  geom_point(mapping=aes(datetime,epi_avg),color='#F5793A',size=2)+
-  geom_errorbar(aes(x=datetime,ymin=epi_avg-epi_std,ymax=epi_avg+epi_std),
-                color='#F5793A',size=1)+
-  geom_line(mapping=aes(datetime,meta_avg),color='#A95AA1',size=1)+
-  geom_point(mapping=aes(datetime,meta_avg),color='#A95AA1',size=2)+
-  geom_errorbar(aes(x=datetime,ymin=meta_avg-meta_std,ymax=meta_avg+meta_std),
-                color='#A95AA1',size=1)+
-  geom_line(mapping=aes(datetime,hypo_avg),color='#85C0F9',size=1)+
-  geom_point(mapping=aes(datetime,hypo_avg),color='#85C0F9',size=2)+
-  geom_errorbar(aes(x=datetime,ymin=hypo_avg-hypo_std,ymax=hypo_avg+hypo_std),
-                color='#85C0F9',size=1)+
-  geom_line(mapping=aes(datetime,vw_avg),color='#0F2080',size=1)+
-  geom_point(mapping=aes(datetime,vw_avg),color='#0F2080',size=2)+
-  geom_errorbar(aes(x=datetime,ymin=vw_avg-vw_std,ymax=vw_avg+vw_std),
-                color='#0F2080',size=1)+
+vw_ch4_avg_long <- vw_ch4_avg %>% pivot_longer(-datetime,names_to="depth",values_to="ch4_avg")
+
+vw_ch4_std <- vw_ch4_all %>% select(datetime,vw_std,epi_std,meta_std,hypo_std)
+names(vw_ch4_std)[2] <- 'WaterCol'
+names(vw_ch4_std)[3] <- 'Epi'
+names(vw_ch4_std)[4] <- 'Meta'
+names(vw_ch4_std)[5] <- 'Hypo'
+
+vw_ch4_std_long <- vw_ch4_std %>% pivot_longer(-datetime,names_to="depth",values_to="ch4_std")
+
+vw_ch4_long <- merge(vw_ch4_avg_long,vw_ch4_std_long,by=c("datetime","depth"))
+
+vw_ch4_16 <- vw_ch4_long %>% filter(datetime>=as.Date('2016-01-01')&datetime<=as.Date('2016-12-31'))
+vw_ch4_17 <- vw_ch4_long %>% filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
+
+ch416 <- ggplot(vw_ch4_16,aes(x = datetime, y = ch4_avg, color = depth))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  geom_errorbar(aes(ymin=ch4_avg-ch4_std,ymax=ch4_avg+ch4_std))+
+  scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),
+                     values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
   geom_vline(xintercept = as.POSIXct("2016-04-18"),linetype="longdash")+ #Oxygen on
   geom_vline(xintercept = as.POSIXct("2016-10-09"))+ #Turnover
   geom_vline(xintercept = as.POSIXct("2016-05-30"),linetype="dotted",color="grey")+ #EM
   geom_vline(xintercept = as.POSIXct("2016-06-27"),linetype="dotted",color="grey")+ #EM
   geom_vline(xintercept = as.POSIXct("2016-07-25"),linetype="dotted",color="grey")+ #EM
-  scale_color_manual(labels=c("Epi","Meta","Hypo","WaterCol"),
-                     values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
   labs(color="")+
   xlab('2016')+
   ylab(expression(paste("CH"[4]*" (", mu,"mol L"^-1*")")))+
-  theme_classic(base_size=15)
+  theme_classic(base_size = 15)
 
-ch417 <- ggplot(vw_ch4_17)+
-  geom_line(mapping=aes(datetime,epi_avg,color='#F5793A'),size=1)+
-  geom_point(mapping=aes(datetime,epi_avg,color='#F5793A'),size=2)+
-  geom_errorbar(aes(x=datetime,ymin=epi_avg-epi_std,ymax=epi_avg+epi_std,
-                color='#F5793A'),size=1)+
-  geom_line(mapping=aes(datetime,meta_avg,color='#A95AA1'),size=1)+
-  geom_point(mapping=aes(datetime,meta_avg,color='#A95AA1'),size=2)+
-  geom_errorbar(aes(x=datetime,ymin=meta_avg-meta_std,ymax=meta_avg+meta_std,
-                color='#A95AA1'),size=1)+
-  geom_line(mapping=aes(datetime,hypo_avg,color='#85C0F9'),size=1)+
-  geom_point(mapping=aes(datetime,hypo_avg,color='#85C0F9'),size=2)+
-  geom_errorbar(aes(x=datetime,ymin=hypo_avg-hypo_std,ymax=hypo_avg+hypo_std,
-                color='#85C0F9'),size=1)+
-  geom_line(mapping=aes(datetime,vw_avg,color='#0F2080'),size=1)+
-  geom_point(mapping=aes(datetime,vw_avg,color='#0F2080'),size=2)+
-  geom_errorbar(aes(x=datetime,ymin=vw_avg-vw_std,ymax=vw_avg+vw_std,
-                color='#0F2080'),size=1)+
+ch417 <- ggplot(vw_ch4_17,aes(x = datetime, y = ch4_avg, color = depth))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  geom_errorbar(aes(ymin=ch4_avg-ch4_std,ymax=ch4_avg+ch4_std))+
+  scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),
+                     values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
   geom_vline(xintercept=as.POSIXct("2017-04-18"),linetype="longdash")+ #Oxygen on
   geom_vline(xintercept=as.POSIXct("2017-05-29"),linetype="dotted",color="grey")+ #EM
   geom_vline(xintercept=as.POSIXct("2017-07-07"),linetype="dotted",color="grey")+ #EM
@@ -995,55 +989,49 @@ ggplot(vw_co2_all,aes(datetime,hypo_avg))+
   theme_classic()
 
 ## Separate into years (2016; 2017): width = 1000; height = 400
-vw_co2_16 <- vw_co2_all %>% filter(datetime>=as.Date('2016-02-01')&datetime<=as.Date('2016-12-31'))
-vw_co2_17 <- vw_co2_all %>% filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
+vw_co2_avg <- vw_co2_all %>% select(datetime,vw_avg,epi_avg,meta_avg,hypo_avg)
+names(vw_co2_avg)[2] <- 'WaterCol'
+names(vw_co2_avg)[3] <- 'Epi'
+names(vw_co2_avg)[4] <- 'Meta'
+names(vw_co2_avg)[5] <- 'Hypo'
 
-co216 <- ggplot(vw_co2_16)+
-  geom_line(mapping=aes(datetime,epi_avg),color='#F5793A',size=1)+
-  geom_point(mapping=aes(datetime,epi_avg),color='#F5793A',size=2)+
-  geom_errorbar(aes(x=datetime,ymin=epi_avg-epi_std,ymax=epi_avg+epi_std),
-                color='#F5793A',size=1)+
-  geom_line(mapping=aes(datetime,meta_avg),color='#A95AA1',size=1)+
-  geom_point(mapping=aes(datetime,meta_avg),color='#A95AA1',size=2)+
-  geom_errorbar(aes(x=datetime,ymin=meta_avg-meta_std,ymax=meta_avg+meta_std),
-                color='#A95AA1',size=1)+
-  geom_line(mapping=aes(datetime,hypo_avg),color='#85C0F9',size=1)+
-  geom_point(mapping=aes(datetime,hypo_avg),color='#85C0F9',size=2)+
-  geom_errorbar(aes(x=datetime,ymin=hypo_avg-hypo_std,ymax=hypo_avg+hypo_std),
-                color='#85C0F9',size=1)+
-  geom_line(mapping=aes(datetime,vw_avg),color='#0F2080',size=1)+
-  geom_point(mapping=aes(datetime,vw_avg),color='#0F2080',size=2)+
-  geom_errorbar(aes(x=datetime,ymin=vw_avg-vw_std,ymax=vw_avg+vw_std),
-                color='#0F2080',size=1)+
+vw_co2_avg_long <- vw_co2_avg %>% pivot_longer(-datetime,names_to="depth",values_to="co2_avg")
+
+vw_co2_std <- vw_co2_all %>% select(datetime,vw_std,epi_std,meta_std,hypo_std)
+names(vw_co2_std)[2] <- 'WaterCol'
+names(vw_co2_std)[3] <- 'Epi'
+names(vw_co2_std)[4] <- 'Meta'
+names(vw_co2_std)[5] <- 'Hypo'
+
+vw_co2_std_long <- vw_co2_std %>% pivot_longer(-datetime,names_to="depth",values_to="co2_std")
+
+vw_co2_long <- merge(vw_co2_avg_long,vw_co2_std_long,by=c("datetime","depth"))
+
+vw_co2_16 <- vw_co2_long %>% filter(datetime>=as.Date('2016-01-01')&datetime<=as.Date('2016-12-31'))
+vw_co2_17 <- vw_co2_long %>% filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
+
+co216 <- ggplot(vw_co2_16,aes(x = datetime, y = co2_avg, color = depth))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  geom_errorbar(aes(ymin=co2_avg-co2_std,ymax=co2_avg+co2_std))+
+  scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),
+                     values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
   geom_vline(xintercept = as.POSIXct("2016-04-18"),linetype="longdash")+ #Oxygen on
   geom_vline(xintercept = as.POSIXct("2016-10-09"))+ #Turnover
   geom_vline(xintercept = as.POSIXct("2016-05-30"),linetype="dotted",color="grey")+ #EM
   geom_vline(xintercept = as.POSIXct("2016-06-27"),linetype="dotted",color="grey")+ #EM
   geom_vline(xintercept = as.POSIXct("2016-07-25"),linetype="dotted",color="grey")+ #EM
-  scale_color_manual(labels=c("Epi","Meta","Hypo","WaterCol"),
-                     values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
   labs(color="")+
   xlab('2016')+
   ylab(expression(paste("CO"[2]*" (", mu,"mol L"^-1*")")))+
-  theme_classic(base_size=15)
+  theme_classic(base_size = 15)
 
-co217 <- ggplot(vw_co2_17)+
-  geom_line(mapping=aes(datetime,epi_avg,color='#F5793A'),size=1)+
-  geom_point(mapping=aes(datetime,epi_avg,color='#F5793A'),size=2)+
-  geom_errorbar(aes(x=datetime,ymin=epi_avg-epi_std,ymax=epi_avg+epi_std,
-                    color='#F5793A'),size=1)+
-  geom_line(mapping=aes(datetime,meta_avg,color='#A95AA1'),size=1)+
-  geom_point(mapping=aes(datetime,meta_avg,color='#A95AA1'),size=2)+
-  geom_errorbar(aes(x=datetime,ymin=meta_avg-meta_std,ymax=meta_avg+meta_std,
-                    color='#A95AA1'),size=1)+
-  geom_line(mapping=aes(datetime,hypo_avg,color='#85C0F9'),size=1)+
-  geom_point(mapping=aes(datetime,hypo_avg,color='#85C0F9'),size=2)+
-  geom_errorbar(aes(x=datetime,ymin=hypo_avg-hypo_std,ymax=hypo_avg+hypo_std,
-                    color='#85C0F9'),size=1)+
-  geom_line(mapping=aes(datetime,vw_avg,color='#0F2080'),size=1)+
-  geom_point(mapping=aes(datetime,vw_avg,color='#0F2080'),size=2)+
-  geom_errorbar(aes(x=datetime,ymin=vw_avg-vw_std,ymax=vw_avg+vw_std,
-                    color='#0F2080'),size=1)+
+co217 <- ggplot(vw_co2_17,aes(x = datetime, y = co2_avg, color = depth))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  geom_errorbar(aes(ymin=co2_avg-co2_std,ymax=co2_avg+co2_std))+
+  scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),
+                     values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
   geom_vline(xintercept=as.POSIXct("2017-04-18"),linetype="longdash")+ #Oxygen on
   geom_vline(xintercept=as.POSIXct("2017-05-29"),linetype="dotted",color="grey")+ #EM
   geom_vline(xintercept=as.POSIXct("2017-07-07"),linetype="dotted",color="grey")+ #EM
