@@ -4,6 +4,7 @@
 ### Overlay: Calculated MetaS, MetaB, Thermocline; Sampling dates; Defined Epi, Meta, Hypo 
 ### used for calculations
 ### A Hounshell, 15 July 2019; Following: FCR_HEATMAPS_2018
+# Rfile: FCR_Heatmaps
 
 # Load libraries
 pacman::p_load(akima,dplyr,ggplot2,tidyverse,reshape2,gridExtra,grid,colorRamps,RColorBrewer,lubridate)
@@ -117,44 +118,6 @@ temp_interp_meta <- ggplot(interp_temp, aes(x=date, y=y))+
 
 ggsave("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Fig_Output/temp_interp_meta_2016.jpg",temp_interp_meta,width=15,height=10)
 
-# Temp w/o variable metalimnion
-temp_interp_16 <- ggplot(interp_temp, aes(x=date, y=y))+
-  geom_raster(aes(fill=z))+
-  scale_y_reverse()+
-  geom_hline(yintercept = 2.6, color="black")+
-  geom_hline(yintercept = 6.5, color="black")+
-  geom_hline(yintercept = 0.1, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 1.6, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 3.8, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 5, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 6.2, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 8, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 9, linetype="dashed", colour="white")+
-  labs(x = "2016", y = "Depth (m)", fill=expression(''*~degree*C*''))+
-  scale_fill_gradientn(colours = blue2green2red(60), na.value="gray")+
-  theme_classic()
-
-ggsave("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Fig_Output/temp_interp_2016.jpg",temp_interp_16,width=15,height=10)
-
-# DO w/o variable metalimnion
-do_interp_16 <- ggplot(interp_do, aes(x=date, y=y))+
-  geom_raster(aes(fill=z))+
-  scale_y_reverse()+
-  geom_hline(yintercept = 2.6, color="black")+
-  geom_hline(yintercept = 6.5, color="black")+
-  geom_hline(yintercept = 0.1, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 1.6, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 3.8, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 5, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 6.2, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 8, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 9, linetype="dashed", colour="white")+
-  labs(x = "2016", y = "Depth (m)", fill=expression('DO (mg/L)'))+
-  scale_fill_gradientn(colours = rev(blue2green2red(60)), na.value="gray")+
-  theme_classic()
-
-ggsave("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Fig_Output/do_interp_2016.jpg",do_interp_16,width=15,height=10)
-
 ## Now do the same for 2017
 # Filter out depths in the CTD cast that are closest to these specified values.
 df.final<-data.frame()
@@ -228,28 +191,76 @@ interp_do_17 <- interp(x=do_17$DOY, y = do_17$Depth_m, z = do_17$DO_mgL,
 interp_do_17 <- interp2xyz(interp_do_17, data.frame=T)
 
 # Plot
-interp_temp_17$date <- as.Date(interp_temp_17$x,origin="2016-01-01")
-interp_do_17$date <- as.Date(interp_do_17$x,origin="2016-01-01")
+interp_temp_17$date <- as.Date(interp_temp_17$x,origin="2017-01-01")
+interp_do_17$date <- as.Date(interp_do_17$x,origin="2017-01-01")
 
 # Temp w/o variable metalimnion
+temp_interp_16 <- ggplot(interp_temp, aes(x=date, y=y))+
+  geom_raster(aes(fill=z))+
+  scale_y_reverse()+
+  geom_hline(yintercept = 2.6, color="black")+
+  geom_hline(yintercept = 6.5, color="black")+
+  geom_hline(yintercept = 0.1, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 1.6, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 3.8, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 5, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 6.2, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 8, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 9, linetype="dashed", colour="white")+
+  geom_point(aes(x = as.Date("2016-04-18"),y = 0),shape=25, color="black", fill="black",size=2)+ #Oxygen on
+  geom_point(aes(x = as.Date("2016-10-09"),y = 0),shape=15, size=2)+ #Turnover
+  geom_point(aes(x = as.Date("2016-05-30"),y = 0),shape=6, size=2)+ #EM
+  geom_point(aes(x = as.Date("2016-06-27"),y = 0),shape=6, size=2)+ #EM
+  geom_point(aes(x = as.Date("2016-07-25"),y = 0),shape=6, size=2)+ #EM
+  labs(x = "2016", y = "Depth (m)", fill=expression(''*~degree*C*''))+
+  scale_fill_gradientn(colours = blue2green2red(60), na.value="gray")+
+  theme_classic(base_size=15)
+
+# Temp w/o variable metalimnion
+# temp_interp_17
 temp_interp_17 <- ggplot(interp_temp_17, aes(x=date, y=y))+
   geom_raster(aes(fill=z))+
   scale_y_reverse()+
   geom_hline(yintercept = 2.6, color="black", size=1)+
   geom_hline(yintercept = 6.5, color="black", size=1)+
-  geom_hline(yintercept = 0.1, linetype="dashed", colour="white", size=1)+
-  geom_hline(yintercept = 1.6, linetype="dashed", colour="white", size=1)+
-  geom_hline(yintercept = 3.8, linetype="dashed", colour="white", size=1)+
-  geom_hline(yintercept = 5, linetype="dashed", colour="white", size=1)+
-  geom_hline(yintercept = 6.2, linetype="dashed", colour="white", size=1)+
-  geom_hline(yintercept = 8, linetype="dashed", colour="white", size=1)+
-  geom_hline(yintercept = 9, linetype="dashed", colour="white", size=1)+
-  geom_point(x=thermo$DateTime,y=0)+
+  geom_hline(yintercept = 0.1, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 1.6, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 3.8, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 5, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 6.2, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 8, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 9, linetype="dashed", colour="white")+
+  geom_point(aes(x = as.Date("2017-04-18"),y = 0),shape=25,color="black",fill="black",size=2)+ #Oxygen on
+  geom_point(aes(x = as.Date("2017-05-29"),y = 0),shape=6,size=2)+ #EM
+  geom_point(aes(x = as.Date("2017-07-07"),y = 0),shape=6, size=2)+ #EM
+  geom_point(aes(x = as.Date("2017-10-25"),y = 0),shape=15, size=2)+ #Turnover
   labs(x = "2017", y = "Depth (m)", fill=expression(''*~degree*C*''))+
   scale_fill_gradientn(colours = blue2green2red(60), na.value="gray")+
   theme_classic(base_size=15)
 
-ggsave("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Fig_Out,put/temp_interp_2017.jpg",temp_interp_17,width=15,height=10)
+ggarrange(temp_interp_16,temp_interp_17,common.legend=TRUE,legend="right")
+
+# DO w/o variable metalimnion
+do_interp_16 <- ggplot(interp_do, aes(x=date, y=y))+
+  geom_raster(aes(fill=z))+
+  scale_y_reverse()+
+  geom_hline(yintercept = 2.6, color="black")+
+  geom_hline(yintercept = 6.5, color="black")+
+  geom_hline(yintercept = 0.1, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 1.6, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 3.8, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 5, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 6.2, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 8, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 9, linetype="dashed", colour="white")+
+  geom_point(aes(x = as.Date("2016-04-18"),y = 0),shape=25, color="black", fill="black",size=2)+ #Oxygen on
+  geom_point(aes(x = as.Date("2016-10-09"),y = 0),shape=15, size=2)+ #Turnover
+  geom_point(aes(x = as.Date("2016-05-30"),y = 0),shape=6, size=2)+ #EM
+  geom_point(aes(x = as.Date("2016-06-27"),y = 0),shape=6, size=2)+ #EM
+  geom_point(aes(x = as.Date("2016-07-25"),y = 0),shape=6, size=2)+ #EM
+  labs(x = "2016", y = "Depth (m)", fill=expression("DO (mg L"^-1*")"))+
+  scale_fill_gradientn(colours = rev(blue2green2red(60)), na.value="gray")+
+  theme_classic(base_size=15)
 
 # DO w/o variable metalimnion
 do_interp_17 <- ggplot(interp_do_17, aes(x=date, y=y))+
@@ -264,8 +275,12 @@ do_interp_17 <- ggplot(interp_do_17, aes(x=date, y=y))+
   geom_hline(yintercept = 6.2, linetype="dashed", colour="white")+
   geom_hline(yintercept = 8, linetype="dashed", colour="white")+
   geom_hline(yintercept = 9, linetype="dashed", colour="white")+
-  labs(x = "2017", y = "Depth (m)", fill=expression('DO (mg/L)'))+
+  geom_point(aes(x = as.Date("2017-04-18"),y = 0),shape=25,color="black",fill="black",size=2)+ #Oxygen on
+  geom_point(aes(x = as.Date("2017-05-29"),y = 0),shape=6,size=2)+ #EM
+  geom_point(aes(x = as.Date("2017-07-07"),y = 0),shape=6, size=2)+ #EM
+  geom_point(aes(x = as.Date("2017-10-25"),y = 0),shape=15, size=2)+ #Turnover
+  labs(x = "2017", y = "Depth (m)", fill=expression("DO (mg L"^-1*")"))+
   scale_fill_gradientn(colours = rev(blue2green2red(60)), na.value="gray")+
-  theme_classic()
+  theme_classic(base_size=15)
 
-ggsave("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Fig_Output/do_interp_2017.jpg",do_interp_17,width=15,height=10)
+ggarrange(do_interp_16,do_interp_17,common.legend=TRUE,legend="right")
