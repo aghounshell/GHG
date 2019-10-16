@@ -849,26 +849,56 @@ ggplot(vw_co2_all,aes(datetime,hypo_avg))+
   geom_errorbar(aes(ymin=hypo_avg-hypo_std, ymax=hypo_avg+hypo_std))+
   theme_classic()
 
-#########################NEED TO FINISH UPDATING!!!!!########################
+## Separate into years (2016; 2017): width = 1000; height = 400
+vw_co2_avg <- vw_co2_all %>% select(datetime,vw_avg,epi_avg,meta_avg,hypo_avg)
+names(vw_co2_avg)[2] <- 'WaterCol'
+names(vw_co2_avg)[3] <- 'Epi'
+names(vw_co2_avg)[4] <- 'Meta'
+names(vw_co2_avg)[5] <- 'Hypo'
 
+vw_co2_avg_long <- vw_co2_avg %>% pivot_longer(-datetime,names_to="depth",values_to="co2_avg")
 
-### Concatenate into a single matrix and plot Temp by depth/whole water column
-vw_co2f <- cbind.data.frame(vw_co2$datetime,vw_co2$vw_co2,vw_epi_co2,vw_meta_co2,vw_hypo_co2)
-names(vw_co2f)[1] <- "DateTime"
-names(vw_co2f)[2] <- "WaterCol"
-names(vw_co2f)[3] <- "Epi"
-names(vw_co2f)[4] <- "Meta"
-names(vw_co2f)[5] <- "Hypo"
+vw_co2_std <- vw_co2_all %>% select(datetime,vw_std,epi_std,meta_std,hypo_std)
+names(vw_co2_std)[2] <- 'WaterCol'
+names(vw_co2_std)[3] <- 'Epi'
+names(vw_co2_std)[4] <- 'Meta'
+names(vw_co2_std)[5] <- 'Hypo'
 
-# Plot to check
-ggplot(vw_co2f,aes(x = DateTime, y = value, color = variable))+
-  geom_line(aes(y = WaterCol, col="WaterCol"))+
-  geom_line(aes(y = Epi, col="Epi"))+
-  geom_line(aes(y = Meta, col="Meta"))+
-  geom_line(aes(y = Hypo, col="Hypo"))+
-  xlab('Date')+
-  ylab('CO2')+
-  theme_classic()
+vw_co2_std_long <- vw_co2_std %>% pivot_longer(-datetime,names_to="depth",values_to="co2_std")
+
+vw_co2_long <- merge(vw_co2_avg_long,vw_co2_std_long,by=c("datetime","depth"))
+
+vw_co2_16 <- vw_co2_long %>% filter(datetime>=as.Date('2016-01-01')&datetime<=as.Date('2016-12-31'))
+vw_co2_17 <- vw_co2_long %>% filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
+
+co216 <- ggplot(vw_co2_16,aes(x = datetime, y = co2_avg, color = depth))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  geom_errorbar(aes(ymin=co2_avg-co2_std,ymax=co2_avg+co2_std))+
+  scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),
+                     values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  geom_vline(xintercept = as.POSIXct("2016-11-11"))+ #Turnover
+  labs(color="")+
+  xlab('2016')+
+  ylab(expression(paste("CO"[2]*" (", mu,"mol L"^-1*")")))+
+  theme_classic(base_size = 15)
+
+co217 <- ggplot(vw_co2_17,aes(x = datetime, y = co2_avg, color = depth))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  geom_errorbar(aes(ymin=co2_avg-co2_std,ymax=co2_avg+co2_std))+
+  scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),
+                     values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  geom_vline(xintercept=as.POSIXct("2017-11-07"))+ #Turnover
+  scale_color_manual(labels=c("Epi","Meta","Hypo","WaterCol"),
+                     values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  labs(color="")+
+  xlab('2017')+
+  ylab(expression(paste("CO"[2]*" (", mu,"mol L"^-1*")")))+
+  ylim(0,800)+
+  theme_classic(base_size=15)
+
+ggarrange(co216,co217,common.legend=TRUE,legend="right")
 
 # Export out Temp Data VW averaged by depth
-write_csv(vw_co2f, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_VW_co2.csv")
+write_csv(vw_co2_all, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_VW_co2_stats.csv")
