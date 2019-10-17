@@ -5,7 +5,7 @@
 ### A Hounshell, 15 July 2019; Following: FCR_HEATMAPS_2018
 
 # Load libraries
-pacman::p_load(akima,dplyr,ggplot2,tidyverse,reshape2,gridExtra,grid,colorRamps,RColorBrewer,lubridate)
+pacman::p_load(akima,dplyr,ggplot2,tidyverse,reshape2,gridExtra,grid,colorRamps,RColorBrewer,lubridate,ggpubr)
 
 # Load in merged CTD and YSI casts for the 2016-2017 period
 # Will need to divide into Summer 2016 and Summer 2017
@@ -88,38 +88,6 @@ interp_do <- interp2xyz(interp_do, data.frame=T)
 interp_temp$date <- as.Date(interp_temp$x,origin="2016-01-01")
 interp_do$date <- as.Date(interp_do$x,origin="2016-01-01")
 
-# Temp w/o variable metalimnion
-do_interp_16 <- ggplot(interp_temp, aes(x=date, y=y))+
-  geom_raster(aes(fill=z))+
-  scale_y_reverse()+
-  geom_hline(yintercept = 4, color="black")+
-  geom_hline(yintercept = 7, color="black")+
-  geom_hline(yintercept = 0.1, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 3, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 6, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 9, linetype="dashed", colour="white")+
-  labs(x = "2016", y = "Depth (m)", fill=expression(''*~degree*C*''))+
-  scale_fill_gradientn(colours = blue2green2red(60), na.value="gray")+
-  theme_classic()
-
-ggsave("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Fig_Output/temp_bvr_interp_2016.jpg",do_interp_16,width=15,height=10)
-
-# DO w/o variable metalimnion
-do_interp_16 <- ggplot(interp_do, aes(x=date, y=y))+
-  geom_raster(aes(fill=z))+
-  scale_y_reverse()+
-  geom_hline(yintercept = 4, color="black")+
-  geom_hline(yintercept = 7, color="black")+
-  geom_hline(yintercept = 0.1, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 3, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 6, linetype="dashed", colour="white")+
-  geom_hline(yintercept = 9, linetype="dashed", colour="white")+
-  labs(x = "2016", y = "Depth (m)", fill=expression('DO (mg/L)'))+
-  scale_fill_gradientn(colours = rev(blue2green2red(60)), na.value="gray")+
-  theme_classic()
-
-ggsave("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Fig_Output/do_bvr_interp_2016.jpg",do_interp_16,width=15,height=10)
-
 # Do the same for 2017
 df.final<-data.frame()
 
@@ -195,6 +163,22 @@ interp_do_17 <- interp2xyz(interp_do_17, data.frame=T)
 interp_temp_17$date <- as.Date(interp_temp_17$x,origin="2017-01-01")
 interp_do_17$date <- as.Date(interp_do_17$x,origin="2017-01-01")
 
+
+# Temp w/o variable metalimnion
+temp_interp_16 <- ggplot(interp_temp, aes(x=date, y=y))+
+  geom_raster(aes(fill=z))+
+  scale_y_reverse()+
+  geom_hline(yintercept = 4, color="black")+
+  geom_hline(yintercept = 7, color="black")+
+  geom_hline(yintercept = 0.1, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 3, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 6, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 9, linetype="dashed", colour="white")+
+  geom_point(aes(x = as.Date("2016-11-11"),y=0),shape=15,size=2)+ #Turnover
+  labs(x = "2016", y = "Depth (m)", fill=expression(''*~degree*C*''))+
+  scale_fill_gradientn(colours = blue2green2red(60), na.value="gray")+
+  theme_classic(base_size=15)
+
 # Temp w/o variable metalimnion
 temp_interp_17 <- ggplot(interp_temp_17, aes(x=date, y=y))+
   geom_raster(aes(fill=z))+
@@ -205,11 +189,27 @@ temp_interp_17 <- ggplot(interp_temp_17, aes(x=date, y=y))+
   geom_hline(yintercept = 3, linetype="dashed", colour="white")+
   geom_hline(yintercept = 6, linetype="dashed", colour="white")+
   geom_hline(yintercept = 9, linetype="dashed", colour="white")+
+  geom_point(aes(x=as.Date("2017-11-07"),y=0),shape=15,size=2)+ #Turnover
   labs(x = "2017", y = "Depth (m)", fill=expression(''*~degree*C*''))+
   scale_fill_gradientn(colours = blue2green2red(60), na.value="gray")+
-  theme_classic()
+  theme_classic(base_size=15)
 
-ggsave("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Fig_Output/temp_bvr_interp_2017.jpg",temp_interp_17,width=15,height=10)
+ggarrange(temp_interp_16,temp_interp_17,common.legend=TRUE,legend="right")
+
+# DO w/o variable metalimnion
+do_interp_16 <- ggplot(interp_do, aes(x=date, y=y))+
+  geom_raster(aes(fill=z))+
+  scale_y_reverse()+
+  geom_hline(yintercept = 4, color="black")+
+  geom_hline(yintercept = 7, color="black")+
+  geom_hline(yintercept = 0.1, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 3, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 6, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 9, linetype="dashed", colour="white")+
+  geom_point(aes(x = as.Date("2016-11-11"),y=0),shape=15,size=2)+ #Turnover
+  labs(x = "2016", y = "Depth (m)", fill=expression("DO (mg L"^-1*")"))+
+  scale_fill_gradientn(colours = rev(blue2green2red(60)), na.value="gray")+
+  theme_classic(base_size=15)
 
 # DO w/o variable metalimnion
 do_interp_17 <- ggplot(interp_do_17, aes(x=date, y=y))+
@@ -221,9 +221,9 @@ do_interp_17 <- ggplot(interp_do_17, aes(x=date, y=y))+
   geom_hline(yintercept = 3, linetype="dashed", colour="white")+
   geom_hline(yintercept = 6, linetype="dashed", colour="white")+
   geom_hline(yintercept = 9, linetype="dashed", colour="white")+
-  labs(x = "2017", y = "Depth (m)", fill=expression('DO (mg/L)'))+
+  geom_point(aes(x=as.Date("2017-11-07"),y=0),shape=15,size=2)+ #Turnover
+  labs(x = "2017", y = "Depth (m)", fill=expression("DO (mg L"^-1*")"))+
   scale_fill_gradientn(colours = rev(blue2green2red(60)), na.value="gray")+
-  theme_classic()
+  theme_classic(base_size=15)
 
-ggsave("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Fig_Output/do_bvr_interp_2017.jpg",do_interp_17,width=15,height=10)
-
+ggarrange(do_interp_16,do_interp_17,common.legend=TRUE,legend="right")
