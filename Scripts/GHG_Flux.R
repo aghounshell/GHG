@@ -3,6 +3,8 @@
 ### Updated to include separate reps for 0.1 m; constrained to Summer 2016 and 2017
 ### 21 Oct 2019
 
+# Saved RFile as GHG_Flux
+
 # Load libraries
 library(LakeMetabolizer)
 library(zoo)
@@ -43,48 +45,155 @@ names(k600data)[1] <- "datetime"
 fcr_ghg_1 <- merge(k600data, fcr_1, by="datetime", all.x=TRUE, all.y=TRUE)
 fcr_ghg_1$co2_umol_L <- na.approx(fcr_ghg_1$co2_umol_L,na.rm=FALSE)
 fcr_ghg_1$ch4_umol_L <- na.approx(fcr_ghg_1$ch4_umol_L,na.rm=FALSE)
+fcr_ghg_1_16 <- fcr_ghg_1 %>% 
+  filter(datetime>=as.Date('2016-01-01')&datetime<=as.Date('2016-12-31'))
+fcr_ghg_1_17 <- fcr_ghg_1 %>% 
+  filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
 
 fcr_ghg_2 <- merge(k600data, fcr_2, by="datetime", all.x=TRUE, all.y=TRUE)
 fcr_ghg_2$co2_umol_L <- na.approx(fcr_ghg_2$co2_umol_L,na.rm=FALSE)
 fcr_ghg_2$ch4_umol_L <- na.approx(fcr_ghg_2$ch4_umol_L,na.rm=FALSE)
+fcr_ghg_2_16 <- fcr_ghg_2 %>% 
+  filter(datetime>=as.Date('2016-01-01')&datetime<=as.Date('2016-12-31'))
+fcr_ghg_2_17 <- fcr_ghg_2 %>% 
+  filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
+
+# Load in GHG atmospheric data: calculated from Flux Tower data at Savannah River Labs
+# See code: Atm_ch4 and Atm_co2
+atm_ch4_16 <- read.csv('C:/Users/ahoun/OneDrive/Desktop/Fluxes/atm_ch4_2016.csv')
+atm_ch4_16$datetime <- as.POSIXct(strptime(atm_ch4_16$datetime, "%Y-%m-%d", tz="EST"))
+atm_ch4_17 <- read.csv('C:/Users/ahoun/OneDrive/Desktop/Fluxes/atm_ch4_2017.csv')
+atm_ch4_17$datetime <- as.POSIXct(strptime(atm_ch4_17$datetime, "%Y-%m-%d", tz="EST"))
+atm_co2_16 <- read.csv('C:/Users/ahoun/OneDrive/Desktop/Fluxes/atm_co2_2016.csv')
+atm_co2_16$datetime <- as.POSIXct(strptime(atm_co2_16$datetime, "%Y-%m-%d", tz="EST"))
+atm_co2_17 <- read.csv('C:/Users/ahoun/OneDrive/Desktop/Fluxes/atm_co2_2017.csv')
+atm_co2_17$datetime <- as.POSIXct(strptime(atm_co2_17$datetime, "%Y-%m-%d", tz="EST"))
 
 # Calculate GHG flux
-ch4flux_1<-rep(-99,length(fcr_ghg_1$datetime)) # assuming Catm = 1.8 ppm or 0.1125 umol
-co2flux_1<-rep(-99,length(fcr_ghg_1$datetime))
-ch4flux_2<-rep(-99,length(fcr_ghg_2$datetime)) 
-co2flux_2<-rep(-99,length(fcr_ghg_2$datetime))
+ch4flux_1_16<-rep(-99,length(fcr_ghg_1_16$datetime))
+ch4flux_2_16<-rep(-99,length(fcr_ghg_2_16$datetime)) # assuming Catm = 1.8 ppm or 0.1125 umol
 
-###########STOPPED TO PLAY AROUND WITH NET CDF FILES FOR ATMOS CONCENTRATIONS
+ch4flux_1_17<-rep(-99,length(fcr_ghg_1_17$datetime))
+ch4flux_2_17<-rep(-99,length(fcr_ghg_2_17$datetime))
 
-# Need to figure out where to get CH4 and CO2 atmospheric values***
-# Aka: what are the subtracted values below??
+co2flux_1_16<-rep(-99,length(fcr_ghg_1_16$datetime))
+co2flux_2_16<-rep(-99,length(fcr_ghg_2_16$datetime)) 
+
+co2flux_1_17<-rep(-99,length(fcr_ghg_1_17$datetime))
+co2flux_2_17<-rep(-99,length(fcr_ghg_2_17$datetime))
+
+# Separate k600 data by year
+k600_16 <- k600data %>% filter(datetime>=as.Date('2016-01-01')&datetime<=as.Date('2016-12-31'))
+k600_16$datetime <- as.POSIXct(strptime(k600_16$datetime, "%Y-%m-%d", tz="EST"))
+k600_17 <- k600data %>% filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
+k600_17$datetime <- as.POSIXct(strptime(k600_17$datetime, "%Y-%m-%d", tz="EST"))
+
 # Rates in umol/m2/d
-for(i in 1:length(fcr_ghg$datetime)){
-  ch4flux[i]<-1000*k600[i]*((fcr_ghg$ch4_umol_L[i])-0.0118)
-  co2flux[i]<-1000*k600[i]*((fcr_ghg$co2_umol_L[i])-21.53)
+for(i in 1:length(fcr_ghg_1_16$datetime)){
+  ch4flux_1_16[i] <- 1000*k600_16$k600[i]*((fcr_ghg_1_16$ch4_umol_L[i])-atm_ch4_16$ch4_umol_l[i])
+  ch4flux_2_16[i] <- 1000*k600_16$k600[i]*((fcr_ghg_2_16$ch4_umol_L[i])-atm_ch4_16$ch4_umol_l[i])
+  co2flux_1_16[i] <- 1000*k600_16$k600[i]*((fcr_ghg_1_16$co2_umol_L[i])-atm_co2_16$co2_umol_l[i])
+  co2flux_2_16[i] <- 1000*k600_16$k600[i]*((fcr_ghg_2_16$co2_umol_L[i])-atm_co2_16$co2_umol_l[i])
+}
+
+# Calculate for 2017
+for(i in 1:length(fcr_ghg_1_17$datetime)){
+  ch4flux_1_17[i] <- 1000*k600_17$k600[i]*((fcr_ghg_1_17$ch4_umol_L[i])-atm_ch4_17$ch4_umol_l[i])
+  ch4flux_2_17[i] <- 1000*k600_17$k600[i]*((fcr_ghg_2_17$ch4_umol_L[i])-atm_ch4_17$ch4_umol_l[i])
+  co2flux_1_17[i] <- 1000*k600_17$k600[i]*((fcr_ghg_1_17$co2_umol_L[i])-atm_co2_17$co2_umol_l[i])
+  co2flux_2_17[i] <- 1000*k600_17$k600[i]*((fcr_ghg_2_17$co2_umol_L[i])-atm_co2_17$co2_umol_l[i])
 }
 
 # Also calculate fluxes for days where there are discrete measurements
-fcr_ghg_dis <- merge(k600data, fcr, by="datetime", all.x=TRUE, all.y=TRUE)
+fcr_1_16 <- fcr_1 %>% filter(datetime>=as.Date('2016-01-01')&datetime<=as.Date('2016-12-31'))
+fcr_2_16 <- fcr_2 %>% filter(datetime>=as.Date('2016-01-01')&datetime<=as.Date('2016-12-31'))
+fcr_1_17 <- fcr_1 %>% filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
+fcr_2_17 <- fcr_2 %>% filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
+
+fcr_ghg_dis_16_1 <- merge(k600_16, fcr_1_16, by="datetime", all.x=TRUE, all.y=TRUE)
+fcr_ghg_dis_16_1 <- merge(fcr_ghg_dis_16_1,atm_ch4_16,by="datetime",all.x=TRUE,all.y=TRUE)
+fcr_ghg_dis_16_1 <- merge(fcr_ghg_dis_16_1,atm_co2_16,by="datetime",all.x=TRUE,all.y=TRUE)
+
+fcr_ghg_dis_16_2 <- merge(k600_16, fcr_2_16, by="datetime", all.x=TRUE, all.y=TRUE)
+fcr_ghg_dis_16_2 <- merge(fcr_ghg_dis_16_2,atm_ch4_16,by="datetime",all.x=TRUE,all.y=TRUE)
+fcr_ghg_dis_16_2 <- merge(fcr_ghg_dis_16_2,atm_co2_16,by="datetime",all.x=TRUE,all.y=TRUE)
+
+fcr_ghg_dis_17_1 <- merge(k600_17, fcr_1_17, by="datetime", all.x=TRUE, all.y=TRUE)
+fcr_ghg_dis_17_1 <- merge(fcr_ghg_dis_17_1,atm_ch4_17,by="datetime",all.x=TRUE,all.y=TRUE)
+fcr_ghg_dis_17_1 <- merge(fcr_ghg_dis_17_1,atm_co2_17,by="datetime",all.x=TRUE,all.y=TRUE)
+
+fcr_ghg_dis_17_2 <- merge(k600_17, fcr_2_17, by="datetime", all.x=TRUE, all.y=TRUE)
+fcr_ghg_dis_17_2 <- merge(fcr_ghg_dis_17_2,atm_ch4_17,by="datetime",all.x=TRUE,all.y=TRUE)
+fcr_ghg_dis_17_2 <- merge(fcr_ghg_dis_17_2,atm_co2_17,by="datetime",all.x=TRUE,all.y=TRUE)
 
 # Calculate GHG flux
-ch4flux_dis<-rep(-99,length(fcr_ghg_dis$datetime)) # assuming Catm = 1.8 ppm or 0.1125 umol
-co2flux_dis<-rep(-99,length(fcr_ghg_dis$datetime))
+ch4flux_dis_16_1<-rep(-99,length(fcr_ghg_dis_16_1$datetime))
+ch4flux_dis_16_2<-rep(-99,length(fcr_ghg_dis_16_2$datetime))
 
-# Need to figure out where to get CH4 and CO2 atmospheric values***
-# Aka: what are the subtracted values below??
+co2flux_dis_16_1<-rep(-99,length(fcr_ghg_dis_16_1$datetime))
+co2flux_dis_16_2<-rep(-99,length(fcr_ghg_dis_16_2$datetime))
+
+ch4flux_dis_17_1<-rep(-99,length(fcr_ghg_dis_17_1$datetime))
+ch4flux_dis_17_2<-rep(-99,length(fcr_ghg_dis_17_2$datetime))
+
+co2flux_dis_17_1<-rep(-99,length(fcr_ghg_dis_17_1$datetime))
+co2flux_dis_17_2<-rep(-99,length(fcr_ghg_dis_17_2$datetime))
+
 # Rates in umol/m2/d
-for(i in 1:length(fcr_ghg_dis$datetime)){
-  ch4flux_dis[i]<-1000*k600[i]*((fcr_ghg_dis$ch4_umol_L[i])-0.0118)
-  co2flux_dis[i]<-1000*k600[i]*((fcr_ghg_dis$co2_umol_L[i])-21.53)
+for(i in 1:length(fcr_ghg_dis_16_1$datetime)){
+  ch4flux_dis_16_1[i] <- 1000*fcr_ghg_dis_16_1$k600[i]*((fcr_ghg_dis_16_1$ch4_umol_L[i])-
+                                                          fcr_ghg_dis_16_1$ch4_umol_l[i])
+  ch4flux_dis_16_2[i] <- 1000*fcr_ghg_dis_16_2$k600[i]*((fcr_ghg_dis_16_2$ch4_umol_L[i])-
+                                                          fcr_ghg_dis_16_2$ch4_umol_l[i])
+  co2flux_dis_16_1[i] <- 1000*fcr_ghg_dis_16_1$k600[i]*((fcr_ghg_dis_16_1$co2_umol_L[i])-
+                                                          fcr_ghg_dis_16_1$co2_umol_l[i])
+  co2flux_dis_16_2[i] <- 1000*fcr_ghg_dis_16_2$k600[i]*((fcr_ghg_dis_16_2$co2_umol_L[i])-
+                                                          fcr_ghg_dis_16_2$co2_umol_l[i])
 }
 
-# Combine data frames
-fcr_flux <- cbind.data.frame(fcr_ghg$datetime,ch4flux,co2flux,ch4flux_dis,co2flux_dis)
-names(fcr_flux)[1] <- "datetime"
-fcr_flux$datetime <- as.POSIXct(strptime(fcr_flux$datetime,format="%Y-%m-%dT%H:%M:%SZ", tz = "EST"))
+# Calculate discrete fluxes for 2017 data
+for(i in 1:length(fcr_ghg_dis_17_1$datetime)){
+  ch4flux_dis_17_1[i] <- 1000*fcr_ghg_dis_17_1$k600[i]*((fcr_ghg_dis_17_1$ch4_umol_L[i])-
+                                                          fcr_ghg_dis_17_1$ch4_umol_l[i])
+  ch4flux_dis_17_2[i] <- 1000*fcr_ghg_dis_17_2$k600[i]*((fcr_ghg_dis_17_2$ch4_umol_L[i])-
+                                                          fcr_ghg_dis_17_2$ch4_umol_l[i])
+  co2flux_dis_17_1[i] <- 1000*fcr_ghg_dis_17_1$k600[i]*((fcr_ghg_dis_17_1$co2_umol_L[i])-
+                                                          fcr_ghg_dis_17_1$co2_umol_l[i])
+  co2flux_dis_17_2[i] <- 1000*fcr_ghg_dis_17_2$k600[i]*((fcr_ghg_dis_17_2$co2_umol_L[i])-
+                                                          fcr_ghg_dis_17_2$co2_umol_l[i])
+}
 
-write_csv(fcr_flux,path = "C:/Users/ahounshell/OneDrive/VT/GHG/GHG_R/Data_Output/FCR_Flux_All.csv")
+# Calculate avg and std for each time point and combine data frames
+fcr_flux_16 <- as.data.frame(fcr_ghg_dis_16_1$datetime)
+names(fcr_flux_16)[1] <- "datetime"
+
+ch4flux_16 <- cbind(ch4flux_1_16,ch4flux_2_16)
+fcr_flux_16$ch4_avg <- rowMeans(ch4flux_16)
+fcr_flux_16$ch4_std <- apply(ch4flux_16,1,FUN=sd)
+
+co2flux_16 <- cbind(co2flux_1_16,co2flux_2_16)
+fcr_flux_16$co2_avg <- rowMeans(co2flux_16)
+fcr_flux_16$co2_std <- apply(co2flux_16,1,FUN=sd)
+
+ch4flux_dis_16 <- cbind(ch4flux_dis_16_1,ch4flux_dis_16_2)
+fcr_flux_16$ch4_dis_avg <- rowMeans(ch4flux_dis_16)
+fcr_flux_16$ch4_dis_std <- apply(ch4flux_dis_16,1,FUN=sd)
+
+co2flux_dis_16 <- cbind(co2flux_dis_16_1,co2flux_dis_16_2)
+fcr_flux_16$co2_dis_avg <- rowMeans(co2flux_dis_16)
+fcr_flux_16$co2_dis_std <- apply(co2flux_dis_16,1,FUN=sd)
+
+fcr_flux_16$doy <- strftime(fcr_flux_16$datetime, format = "%j")
+
+## Try plotting FCR fluxes?
+ggplot(fcr_flux_16)+
+  geom_line(mapping=aes(x=datetime,y=ch4_avg/1000,color='CH4'))+
+  geom_line(mapping=aes(x=datetime,y=co2_avg/1000,color='CO2'))+
+  geom_point(mapping=aes(x=datetime,y=ch4_dis_avg/1000,color='CH4'))+
+  geom_point(mapping=aes(x=datetime,y=co2_dis_avg/1000,color='CO2'))+
+  theme_classic(base_size=17)
+
+##############NEED TO DO THE SAME FOR 2017 and make graphs pretty : )
 
 ### Do the same for BVR - calculate fluxes
 
