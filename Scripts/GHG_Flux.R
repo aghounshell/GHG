@@ -193,6 +193,36 @@ ggplot(fcr_flux_16)+
   geom_point(mapping=aes(x=datetime,y=co2_dis_avg/1000,color='CO2'))+
   theme_classic(base_size=17)
 
+# Calculate for 2017
+fcr_flux_17 <- as.data.frame(fcr_ghg_dis_17_1$datetime)
+names(fcr_flux_17)[1] <- "datetime"
+
+ch4flux_17 <- cbind(ch4flux_1_17,ch4flux_2_17)
+fcr_flux_17$ch4_avg <- rowMeans(ch4flux_17)
+fcr_flux_17$ch4_std <- apply(ch4flux_17,1,FUN=sd)
+
+co2flux_17 <- cbind(co2flux_1_17,co2flux_2_17)
+fcr_flux_17$co2_avg <- rowMeans(co2flux_17)
+fcr_flux_17$co2_std <- apply(co2flux_17,1,FUN=sd)
+
+ch4flux_dis_17 <- cbind(ch4flux_dis_17_1,ch4flux_dis_17_2)
+fcr_flux_17$ch4_dis_avg <- rowMeans(ch4flux_dis_17)
+fcr_flux_17$ch4_dis_std <- apply(ch4flux_dis_17,1,FUN=sd)
+
+co2flux_dis_17 <- cbind(co2flux_dis_17_1,co2flux_dis_17_2)
+fcr_flux_17$co2_dis_avg <- rowMeans(co2flux_dis_17)
+fcr_flux_17$co2_dis_std <- apply(co2flux_dis_17,1,FUN=sd)
+
+fcr_flux_17$doy <- strftime(fcr_flux_17$datetime, format = "%j")
+
+## Try plotting FCR fluxes for 2017
+ggplot(fcr_flux_17)+
+  geom_line(mapping=aes(x=datetime,y=ch4_avg/1000,color='CH4'))+
+  geom_line(mapping=aes(x=datetime,y=co2_avg/1000,color='CO2'))+
+  geom_point(mapping=aes(x=datetime,y=ch4_dis_avg/1000,color='CH4'))+
+  geom_point(mapping=aes(x=datetime,y=co2_dis_avg/1000,color='CO2'))+
+  theme_classic(base_size=17)
+
 ##############NEED TO DO THE SAME FOR 2017 and make graphs pretty : )
 
 ### Do the same for BVR - calculate fluxes
