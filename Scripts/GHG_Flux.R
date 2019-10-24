@@ -394,21 +394,27 @@ ggplot(bvr_flux_17)+
 
 ############PLOTS##############
 # Plot both reservoirs on the same plot, but for different years
+# Just plot discrete points and connect with lines; remove NA's from dataset
+fcr_flux_16_na <- fcr_flux_16 %>% subset(!is.na(ch4_dis_avg))
+fcr_flux_17_na <- fcr_flux_17 %>% subset(!is.na(ch4_dis_avg))
+bvr_flux_16_na <- bvr_flux_16 %>% subset(!is.na(ch4_dis_avg))
+bvr_flux_17_na <- bvr_flux_17 %>% subset(!is.na(ch4_dis_avg))
+
 # Methane
 ch4_16 <- ggplot()+
-  geom_line(fcr_flux_16,mapping=aes(x=datetime,y=ch4_avg/1000,group=1,color='FCR'),size=1.1)+
-  geom_line(bvr_flux_16,mapping=aes(x=datetime,y=ch4_avg/1000,group=1,color='BVR'),size=1.1)+
-  geom_errorbar(fcr_flux_16,mapping=aes(x=datetime,y=ch4_dis_avg/1000,
+  geom_line(fcr_flux_16_na,mapping=aes(x=datetime,y=ch4_dis_avg/1000,group=1,color='FCR'),size=1.1)+
+  geom_line(bvr_flux_16_na,mapping=aes(x=datetime,y=ch4_dis_avg/1000,group=1,color='BVR'),size=1.1)+
+  geom_errorbar(fcr_flux_16_na,mapping=aes(x=datetime,y=ch4_dis_avg/1000,
                                         ymin=(ch4_dis_avg-ch4_dis_std)/1000,
                                         ymax=(ch4_dis_avg+ch4_dis_std)/1000,color='FCR'),
                 size=1)+
-  geom_errorbar(bvr_flux_16,mapping=aes(x=datetime,y=ch4_dis_avg/1000,
+  geom_errorbar(bvr_flux_16_na,mapping=aes(x=datetime,y=ch4_dis_avg/1000,
                                        ymin=(ch4_dis_avg-ch4_dis_std)/1000,
                                        ymax=(ch4_dis_avg+ch4_dis_std)/1000,color="BVR"),
                 size=1)+
-  geom_point(fcr_flux_16,mapping=aes(x=datetime,y=ch4_dis_avg/1000,group=1,color='FCR'),
+  geom_point(fcr_flux_16_na,mapping=aes(x=datetime,y=ch4_dis_avg/1000,group=1,color='FCR'),
              size=4)+
-  geom_point(bvr_flux_16,mapping=aes(x=datetime,y=ch4_dis_avg/1000,group=1,color='BVR'),
+  geom_point(bvr_flux_16_na,mapping=aes(x=datetime,y=ch4_dis_avg/1000,group=1,color='BVR'),
              size=4)+
   geom_hline(yintercept=0,color="gray",size=0.6)+
   geom_vline(xintercept = as.POSIXct("2016-11-11"),linetype="dashed",color="#F5793A")+ #Turnover
@@ -416,25 +422,25 @@ ch4_16 <- ggplot()+
   scale_color_manual(breaks=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
-  xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-12"))+
+  xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-12-13"))+
   xlab('2016')+
   ylab(expression(paste("CH"[4]*" flux (mmol m"^-2*" d"^-1*")")))+
   theme_classic(base_size=17)
 
 ch4_17 <- ggplot()+
-  geom_line(fcr_flux_17,mapping=aes(x=datetime,y=ch4_avg/1000,group=1,color='FCR'),size=1.1)+
-  geom_line(bvr_flux_17,mapping=aes(x=datetime,y=ch4_avg/1000,group=1,color='BVR'),size=1.1)+
-  geom_errorbar(fcr_flux_17,mapping=aes(x=datetime,y=ch4_dis_avg/1000,
+  geom_line(fcr_flux_17_na,mapping=aes(x=datetime,y=ch4_dis_avg/1000,group=1,color='FCR'),size=1.1)+
+  geom_line(bvr_flux_17_na,mapping=aes(x=datetime,y=ch4_dis_avg/1000,group=1,color='BVR'),size=1.1)+
+  geom_errorbar(fcr_flux_17_na,mapping=aes(x=datetime,y=ch4_dis_avg/1000,
                                         ymin=(ch4_dis_avg-ch4_dis_std)/1000,
                                         ymax=(ch4_dis_avg+ch4_dis_std)/1000,color='FCR'),
                 size=1)+
-  geom_errorbar(bvr_flux_17,mapping=aes(x=datetime,y=ch4_dis_avg/1000,
+  geom_errorbar(bvr_flux_17_na,mapping=aes(x=datetime,y=ch4_dis_avg/1000,
                                         ymin=(ch4_dis_avg-ch4_dis_std)/1000,
                                         ymax=(ch4_dis_avg+ch4_dis_std)/1000,color="BVR"),
                 size=1)+
-  geom_point(fcr_flux_17,mapping=aes(x=datetime,y=ch4_dis_avg/1000,group=1,color='FCR'),
+  geom_point(fcr_flux_17_na,mapping=aes(x=datetime,y=ch4_dis_avg/1000,group=1,color='FCR'),
              size=4)+
-  geom_point(bvr_flux_17,mapping=aes(x=datetime,y=ch4_dis_avg/1000,group=1,color='BVR'),
+  geom_point(bvr_flux_17_na,mapping=aes(x=datetime,y=ch4_dis_avg/1000,group=1,color='BVR'),
              size=4)+
   geom_hline(yintercept=0,color="gray",size=0.6)+
   geom_vline(xintercept = as.POSIXct("2017-11-07"),linetype="dashed",color="#F5793A")+ #Turnover
@@ -442,8 +448,7 @@ ch4_17 <- ggplot()+
   scale_color_manual(breaks=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
-  xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-11-12"))+
-  ylim(-0.1,0.5)+
+  xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-12-13"))+
   xlab('2017')+
   ylab('')+
   theme_classic(base_size=17)
@@ -452,19 +457,19 @@ ggarrange(ch4_16,ch4_17,common.legend=TRUE,legend="right")
 
 # CO2
 co2_16 <- ggplot()+
-  geom_line(fcr_flux_16,mapping=aes(x=datetime,y=co2_avg/1000,group=1,color='FCR'),size=1.1)+
-  geom_line(bvr_flux_16,mapping=aes(x=datetime,y=co2_avg/1000,group=1,color='BVR'),size=1.1)+
-  geom_errorbar(fcr_flux_16,mapping=aes(x=datetime,y=co2_dis_avg/1000,
+  geom_line(fcr_flux_16_na,mapping=aes(x=datetime,y=co2_dis_avg/1000,group=1,color='FCR'),size=1.1)+
+  geom_line(bvr_flux_16_na,mapping=aes(x=datetime,y=co2_dis_avg/1000,group=1,color='BVR'),size=1.1)+
+  geom_errorbar(fcr_flux_16_na,mapping=aes(x=datetime,y=co2_dis_avg/1000,
                                         ymin=(co2_dis_avg-co2_dis_std)/1000,
                                         ymax=(co2_dis_avg+co2_dis_std)/1000,color='FCR'),
                 size=1)+
-  geom_errorbar(bvr_flux_16,mapping=aes(x=datetime,y=co2_dis_avg/1000,
+  geom_errorbar(bvr_flux_16_na,mapping=aes(x=datetime,y=co2_dis_avg/1000,
                                         ymin=(co2_dis_avg-co2_dis_std)/1000,
                                         ymax=(co2_dis_avg+co2_dis_std)/1000,color="BVR"),
                 size=1)+
-  geom_point(fcr_flux_16,mapping=aes(x=datetime,y=co2_dis_avg/1000,group=1,color='FCR'),
+  geom_point(fcr_flux_16_na,mapping=aes(x=datetime,y=co2_dis_avg/1000,group=1,color='FCR'),
              size=4)+
-  geom_point(bvr_flux_16,mapping=aes(x=datetime,y=co2_dis_avg/1000,group=1,color='BVR'),
+  geom_point(bvr_flux_16_na,mapping=aes(x=datetime,y=co2_dis_avg/1000,group=1,color='BVR'),
              size=4)+
   geom_hline(yintercept=0,color="gray",size=0.6)+
   geom_vline(xintercept = as.POSIXct("2016-11-11"),linetype="dashed",color="#F5793A")+ #Turnover
@@ -472,25 +477,25 @@ co2_16 <- ggplot()+
   scale_color_manual(breaks=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
-  xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-12"))+
+  xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-12-13"))+
   xlab('2016')+
   ylab(expression(paste("CO"[2]*" flux (mmol m"^-2*" d"^-1*")")))+
   theme_classic(base_size=17)
 
 co2_17 <- ggplot()+
-  geom_line(fcr_flux_17,mapping=aes(x=datetime,y=co2_avg/1000,group=1,color='FCR'),size=1.1)+
-  geom_line(bvr_flux_17,mapping=aes(x=datetime,y=co2_avg/1000,group=1,color='BVR'),size=1.1)+
+  geom_line(fcr_flux_17_na,mapping=aes(x=datetime,y=co2_dis_avg/1000,group=1,color='FCR'),size=1.1)+
+  geom_line(bvr_flux_17_na,mapping=aes(x=datetime,y=co2_dis_avg/1000,group=1,color='BVR'),size=1.1)+
   geom_errorbar(fcr_flux_17,mapping=aes(x=datetime,y=co2_dis_avg/1000,
                                         ymin=(co2_dis_avg-co2_dis_std)/1000,
                                         ymax=(co2_dis_avg+co2_dis_std)/1000,color='FCR'),
                 size=1)+
-  geom_errorbar(bvr_flux_17,mapping=aes(x=datetime,y=co2_dis_avg/1000,
+  geom_errorbar(bvr_flux_17_na,mapping=aes(x=datetime,y=co2_dis_avg/1000,
                                         ymin=(co2_dis_avg-co2_dis_std)/1000,
                                         ymax=(co2_dis_avg+co2_dis_std)/1000,color="BVR"),
                 size=1)+
-  geom_point(fcr_flux_17,mapping=aes(x=datetime,y=co2_dis_avg/1000,group=1,color='FCR'),
+  geom_point(fcr_flux_17_na,mapping=aes(x=datetime,y=co2_dis_avg/1000,group=1,color='FCR'),
              size=4)+
-  geom_point(bvr_flux_17,mapping=aes(x=datetime,y=co2_dis_avg/1000,group=1,color='BVR'),
+  geom_point(bvr_flux_17_na,mapping=aes(x=datetime,y=co2_dis_avg/1000,group=1,color='BVR'),
              size=4)+
   geom_hline(yintercept=0,color="gray",size=0.6)+
   geom_vline(xintercept = as.POSIXct("2017-11-07"),linetype="dashed",color="#F5793A")+ #Turnover
@@ -498,7 +503,7 @@ co2_17 <- ggplot()+
   scale_color_manual(breaks=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
-  xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-11-12"))+
+  xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-12-13"))+
   xlab('2017')+
   ylab('')+
   ylim(-11,11)+
