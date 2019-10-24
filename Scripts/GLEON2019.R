@@ -78,7 +78,7 @@ co2_16 <- ggplot()+
   scale_color_manual(breaks=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
-  xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-12"))+
+  xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-12-13"))+
   xlab('2016')+
   ylab(expression(paste("V.W. Hypo. pCO"[2]*" (", mu,"mol L"^-1*")")))+
   ylim(0,800)+
@@ -98,7 +98,7 @@ co2_17 <- ggplot()+
   scale_color_manual(breaks=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
-  xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-11-12"))+
+  xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-12-13"))+
   xlab('2017')+
   ylab('')+
   ylim(0,800)+
@@ -122,7 +122,7 @@ ch4_16 <- ggplot()+
   scale_color_manual(breaks=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
-  xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-12"))+
+  xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-12-13"))+
   xlab('2016')+
   ylim(0,500)+
   ylab(expression(paste("V.W. Hypo. pCH"[4]*" (", mu,"mol L"^-1*")")))+
@@ -142,7 +142,7 @@ ch4_17 <- ggplot()+
   scale_color_manual(breaks=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
-  xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-11-12"))+
+  xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-12-13"))+
   xlab('2017')+
   ylab('')+
   ylim(0,500)+
