@@ -367,20 +367,20 @@ bvr_flux_17 <- as.data.frame(bvr_ghg_dis_17_1$datetime)
 names(bvr_flux_17)[1] <- "datetime"
 
 bvr_ch4flux_17 <- cbind(bvr_ch4flux_1_17,bvr_ch4flux_2_17)
-bvr_flux_17$ch4_avg <- rowMeans(bvr_ch4flux_17)
-bvr_flux_17$ch4_std <- apply(bvr_ch4flux_17,1,FUN=sd)
+bvr_flux_17$ch4_avg <- rowMeans(bvr_ch4flux_17,na.rm=TRUE)
+bvr_flux_17$ch4_std <- apply(bvr_ch4flux_17,1,FUN=sd,na.rm=TRUE)
 
 bvr_co2flux_17 <- cbind(bvr_co2flux_1_17,bvr_co2flux_2_17)
-bvr_flux_17$co2_avg <- rowMeans(bvr_co2flux_17)
-bvr_flux_17$co2_std <- apply(bvr_co2flux_17,1,FUN=sd)
+bvr_flux_17$co2_avg <- rowMeans(bvr_co2flux_17,na.rm=TRUE)
+bvr_flux_17$co2_std <- apply(bvr_co2flux_17,1,FUN=sd,na.rm=TRUE)
 
 bvr_ch4flux_dis_17 <- cbind(bvr_ch4flux_dis_17_1,bvr_ch4flux_dis_17_2)
-bvr_flux_17$ch4_dis_avg <- rowMeans(bvr_ch4flux_dis_17)
-bvr_flux_17$ch4_dis_std <- apply(bvr_ch4flux_dis_17,1,FUN=sd)
+bvr_flux_17$ch4_dis_avg <- rowMeans(bvr_ch4flux_dis_17,na.rm=TRUE)
+bvr_flux_17$ch4_dis_std <- apply(bvr_ch4flux_dis_17,1,FUN=sd,na.rm=TRUE)
 
 bvr_co2flux_dis_17 <- cbind(bvr_co2flux_dis_17_1,bvr_co2flux_dis_17_2)
-bvr_flux_17$co2_dis_avg <- rowMeans(bvr_co2flux_dis_17)
-bvr_flux_17$co2_dis_std <- apply(bvr_co2flux_dis_17,1,FUN=sd)
+bvr_flux_17$co2_dis_avg <- rowMeans(bvr_co2flux_dis_17,na.rm=TRUE)
+bvr_flux_17$co2_dis_std <- apply(bvr_co2flux_dis_17,1,FUN=sd,na.rm=TRUE)
 
 bvr_flux_17$doy <- as.numeric(strftime(bvr_flux_17$datetime, format = "%j"))
 
