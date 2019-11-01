@@ -2,21 +2,13 @@
 ### Primary Author of this script: Ryan P McClure ###
 ### Last updated: 070518 ###
 ### Adapted, A.G. Hounshell, 19 Sep 2019 ####
+### Updated to include last BVR 2017 sampling (11/7/17), 01 Nov 2019
 
-# load libraries (Only need tidyverse for now)
-library(dplyr)
-library(ggplot2)
-library(zoo)
-library(gridExtra)
-library(grid)
-library(tidyverse)
-library(lubridate)
-
-#setWD
-setwd("C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data")
+# load libraries
+pacman::p_load(dplyr,ggplot2,zoo,gridExtra,grid,tidyverse,lubridate)
 
 # Read in the Dissolved GHG data from '15 through '17
-GHG <- read_csv("Initial Dissolved DATA 15_17.csv")
+GHG <- read_csv("C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data/Initial Dissolved DATA 15_17.csv")
 
 # Convert excel dates to date-time in R
 GHG$datetime <- as.POSIXct(strptime(GHG$datetime, "%m/%d/%Y", tz = "EST"))
