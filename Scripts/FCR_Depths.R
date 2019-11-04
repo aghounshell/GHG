@@ -1003,6 +1003,23 @@ names(vw_co2_std)[3] <- 'Epi'
 names(vw_co2_std)[4] <- 'Meta'
 names(vw_co2_std)[5] <- 'Hypo'
 
+## Calculate Hypo 'averaged' concentration over each summer
+# First select the correct date range for each summer
+# April 1 - Turnover
+vw_co2_avg_16 <- vw_co2_avg %>% filter(datetime>=as.Date('2016-04-01')&
+                                         datetime<=as.Date('2016-10-14'))
+vw_co2_avg_17 <- vw_co2_avg %>% filter(datetime>=as.Date('2017-04-01')&
+                                         datetime<=as.Date('2017-12-12'))
+
+vw_ch4_avg_16 <- vw_ch4_avg %>% filter(datetime>=as.Date('2016-04-01')&datetime<=as.Date('2016-10-14'))
+vw_ch4_avg_17 <- vw_ch4_avg %>% filter(datetime>=as.Date('2017-04-01')&datetime<=as.Date('2017-12-12'))
+
+vw_hypo_co2_16 <- sum(vw_co2_avg_16$Hypo)/length(vw_co2_avg_16$Hypo)
+vw_hypo_co2_17 <- sum(vw_co2_avg_17$Hypo)/length(vw_co2_avg_17$Hypo)
+vw_hypo_ch4_16 <- sum(vw_ch4_avg_16$Hypo)/length(vw_ch4_avg_16$Hypo)
+vw_hypo_ch4_17 <- sum(vw_ch4_avg_17$Hypo)/length(vw_ch4_avg_17$Hypo)
+
+
 vw_co2_std_long <- vw_co2_std %>% pivot_longer(-datetime,names_to="depth",values_to="co2_std")
 
 vw_co2_long <- merge(vw_co2_avg_long,vw_co2_std_long,by=c("datetime","depth"))
