@@ -605,7 +605,7 @@ ch417 <- ggplot(vw_ch4_17,aes(x = datetime, y = ch4_avg, color = depth))+
 ggarrange(ch416,ch417,common.legend=TRUE,legend="right")
 
 # Export out Temp Data VW averaged by depth
-write_csv(vw_ch4_all, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_VW_ch4_stats")
+write_csv(vw_ch4_all, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_VW_ch4_stats.csv")
 
 ### Calculate VW CO2 for FCR
 # Calculate VW pCH4 for the entire water column
@@ -866,6 +866,22 @@ names(vw_co2_std)[2] <- 'WaterCol'
 names(vw_co2_std)[3] <- 'Epi'
 names(vw_co2_std)[4] <- 'Meta'
 names(vw_co2_std)[5] <- 'Hypo'
+
+## Calculate Hypo 'averaged' concentration over each summer
+# First select the correct date range for each summer
+# April 1 - Turnover
+vw_co2_avg_16 <- vw_co2_avg %>% filter(datetime>=as.Date('2016-04-01')&
+                                                  datetime<=as.Date('2016-11-11'))
+vw_co2_avg_17 <- vw_co2_avg %>% filter(datetime>=as.Date('2017-04-01')&
+                                                  datetime<=as.Date('2017-11-07'))
+
+vw_ch4_avg_16 <- vw_ch4_avg %>% filter(datetime>=as.Date('2016-04-01')&datetime<=as.Date('2016-11-11'))
+vw_ch4_avg_17 <- vw_ch4_avg %>% filter(datetime>=as.Date('2017-04-01')&datetime<=as.Date('2017-11-07'))
+
+vw_hypo_co2_16 <- sum(vw_co2_avg_16$Hypo)/length(vw_co2_avg_16$Hypo)
+vw_hypo_co2_17 <- sum(vw_co2_avg_17$Hypo)/length(vw_co2_avg_17$Hypo)
+vw_hypo_ch4_16 <- sum(vw_ch4_avg_16$Hypo)/length(vw_ch4_avg_16$Hypo)
+vw_hypo_ch4_17 <- sum(vw_ch4_avg_17$Hypo)/length(vw_ch4_avg_17$Hypo)
 
 vw_co2_std_long <- vw_co2_std %>% pivot_longer(-datetime,names_to="depth",values_to="co2_std")
 
