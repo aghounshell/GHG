@@ -72,7 +72,7 @@ atm_co2_17$datetime <- as.POSIXct(strptime(atm_co2_17$datetime, "%Y-%m-%d", tz="
 
 # Calculate GHG flux
 ch4flux_1_16<-rep(-99,length(fcr_ghg_1_16$datetime))
-ch4flux_2_16<-rep(-99,length(fcr_ghg_2_16$datetime)) # assuming Catm = 1.8 ppm or 0.1125 umol
+ch4flux_2_16<-rep(-99,length(fcr_ghg_2_16$datetime))
 
 ch4flux_1_17<-rep(-99,length(fcr_ghg_1_17$datetime))
 ch4flux_2_17<-rep(-99,length(fcr_ghg_2_17$datetime))
@@ -506,7 +506,23 @@ co2_17 <- ggplot()+
   xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-12-13"))+
   xlab('2017')+
   ylab('')+
-  ylim(-11,11)+
   theme_classic(base_size=17)
 
 ggarrange(co2_16,co2_17,common.legend=TRUE,legend="right")
+
+## Calculate averaged flux over each summer/reservoir using discrete points
+# BVR: Data is already constrained to the summer stratified period
+avg_flux_bvr_16_ch4 <- sum(bvr_flux_16_na$ch4_avg)/length(bvr_flux_16_na$ch4_avg)/1000
+avg_flux_bvr_17_ch4 <- sum(bvr_flux_17_na$ch4_avg)/length(bvr_flux_17_na$ch4_avg)/1000
+
+avg_flux_bvr_16_co2 <- sum(bvr_flux_16_na$co2_avg)/length(bvr_flux_16_na$co2_avg)/1000
+avg_flux_bvr_17_co2 <- sum(bvr_flux_17_na$co2_avg)/length(bvr_flux_17_na$co2_avg)/1000
+
+# FCR: Select for 04-01 to end of year
+fcr_flux_16_lim <- fcr_flux_16_na %>% filter(datetime>=as.Date('2016-04-01')&datetime<=as.Date('2016-12-31'))
+fcr_flux_17_lim <- fcr_flux_17_na %>% filter(datetime>=as.Date('2017-04-01')&datetime<=as.Date('2017-12-31'))
+
+avg_flux_fcr_16_ch4 <- sum(fcr_flux_16_lim$ch4_avg)/length(fcr_flux_16_lim$ch4_avg)/1000
+avg_flux_fcr_17_ch4 <- sum(fcr_flux_17_lim$ch4_avg)/length(fcr_flux_17_lim$ch4_avg)/1000
+avg_flux_fcr_16_co2 <- sum(fcr_flux_16_lim$co2_avg)/length(fcr_flux_16_lim$co2_avg)/1000
+avg_flux_fcr_17_co2 <- sum(fcr_flux_17_lim$co2_avg)/length(fcr_flux_17_lim$co2_avg)/1000
