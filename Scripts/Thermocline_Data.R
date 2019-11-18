@@ -1,15 +1,18 @@
 ## Script to format CTD and YSI data (as needed) to determine thermocline depth
 ## in Lake Analyzer for both BVR and FCR
 ## A Hounshell, 12 Jun 2019
+## Updated, 18 Nov 2019
+##  To include 2018 data
+##  No longer using Lake Analyzer to calculate thermocline depth - defining stable Epi, Meta, and Hypo
 
 # Load in libraries
 # install.packages('pacman')
 pacman::p_load(tidyverse,zoo,rLakeAnalyzer)
 
 # Set working directory
-setwd("C:/Users/ahounshell/OneDrive/VT/GHG/GHG_R/Data")
+setwd("C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data")
 
-# Load in CTD file: for all reservoirs, 2013-2018
+# Load in YSI and CTD files: for all reservoirs, 2013-2018
 ysi <- read_csv('YSI_Profiles.csv')
 ysi$DateTime <- as.POSIXct(strptime(ysi$DateTime, "%m/%d/%Y %H:%M", tz = "EST"))
 ctd <- read_csv('CTD_Casts.csv')
@@ -21,11 +24,15 @@ ysi_fcr <- ysi %>% filter(Reservoir=="FCR"&Site==50)
 ctd_bvr <- ctd %>% filter(Reservoir=="BVR"&Site==50)
 ctd_fcr <- ctd %>% filter(Reservoir=="FCR"&Site==50)
 
-# Filter dates from 2016 to 2017
-ysi_bvr_date <- ysi_bvr %>% filter(ysi_bvr$DateTime>=as.Date("2016-01-01")&ysi_bvr$DateTime<=as.Date("2017-12-31"))
-ysi_fcr_date <- ysi_fcr %>% filter(ysi_fcr$DateTime>=as.Date("2016-01-01")&ysi_fcr$DateTime<=as.Date("2017-12-31"))
-ctd_bvr_date <- ctd_bvr %>% filter(ctd_bvr$Date>=as.Date("2016-01-01")&ctd_bvr$Date<=as.Date("2017-12-31"))
-ctd_fcr_date <- ctd_fcr %>% filter(ctd_fcr$Date>=as.Date("2016-01-01")&ctd_fcr$Date<=as.Date("2017-12-31"))
+# Filter dates from 2016 to 2018
+ysi_bvr_date <- ysi_bvr %>% filter(ysi_bvr$DateTime>=as.Date("2016-01-01")&
+                                     ysi_bvr$DateTime<=as.Date("2018-12-31"))
+ysi_fcr_date <- ysi_fcr %>% filter(ysi_fcr$DateTime>=as.Date("2016-01-01")&
+                                     ysi_fcr$DateTime<=as.Date("2018-12-31"))
+ctd_bvr_date <- ctd_bvr %>% filter(ctd_bvr$Date>=as.Date("2016-01-01")&
+                                     ctd_bvr$Date<=as.Date("2018-12-31"))
+ctd_fcr_date <- ctd_fcr %>% filter(ctd_fcr$Date>=as.Date("2016-01-01")&
+                                     ctd_fcr$Date<=as.Date("2018-12-31"))
 
 # Select unique dates from both CTD and YSI casts
 ysi_bvr_date_list <- as.data.frame(unique(as.Date(ysi_bvr_date$DateTime)))
@@ -106,7 +113,7 @@ fcr_date_list <- as.data.frame(unique(as.Date(fcr_all$Date)))
 # Export out fcr_all as .csv
 # Includes merged data from CTD and YSI casts on unique dates
 # For dates with both a CTD and YSI cast, CTD casts were selected
-write_csv(fcr_all, path = "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR_CTDysi_merge.csv")
+write_csv(fcr_all, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/FCR_CTDysi_merge16to18.csv")
 
 ### Merge data CTD and YSI datasets for BVR
 names(ysi_bvr_date)[3] <- "Date"
@@ -164,7 +171,7 @@ bvr_date_list <- as.data.frame(unique(as.Date(bvr_all$Date)))
 # Export out fcr_all as .csv
 # Includes merged data from CTD and YSI casts on unique dates
 # For dates with both a CTD and YSI cast, CTD casts were selected
-write_csv(bvr_all, path = "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR_CTDysi_merge.csv")
+write_csv(bvr_all, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/BVR_CTDysi_merge16to18.csv")
 
 ### Format merged CTD-YSI data for use in Lake Analyzer: specifically Temp data
 # FCR: select FCR temp data
@@ -219,12 +226,21 @@ df.final = rbind(layer1,layer2,layer3,layer4,layer5,layer6,layer7,layer8,layer9,
 fcr_layers <- df.final %>% select(Date,depth_f,Temp_C)
 fcr_layers <- arrange(fcr_layers, Date)
 
-# Plot 1.0 m layer and 8.0 m layer to verify turn-over for FCR
-fcr_temp <- ggplot(fcr_layers,aes(Date,Temp_C,group=depth_f,color=as.factor(depth_f)))+
+# Plot data
+ggplot(fcr_layers,aes(Date,Temp_C,group=depth_f,color=as.factor(depth_f)))+
   geom_line()+
   theme_classic()
 
-ggsave("C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Fig_Output/fcr_temp_depth.jpg",fcr_temp,width=15,height=10)
+# Plot 1.0 m layer and 8.0 m layer to verify turn-over for FCR
+# Select 1.0 m and 8.0 for FCR
+fcr_layers_to <- fcr_layers %>% filter(depth_f %in% c(1.0,8.0))
+
+# Plot data
+ggplot(fcr_layers_to,aes(Date,Temp_C,group=depth_f,color=as.factor(depth_f)))+
+  geom_line()+
+  geom_point()+
+  theme_classic()
+
 
 fcr_thermo <- fcr_layers %>% spread(depth_f,Temp_C)
 colnames(fcr_thermo)[-1] = paste0('wtr_',colnames(fcr_thermo)[-1])
@@ -238,14 +254,61 @@ names(fcr_thermo2)[1] <- "DateTime"
 fcr_thermo3 <- fcr_thermo2[rowSums(is.na(fcr_thermo2))<5,]
 
 # Remove rows with bad data (as verified w/ code in Matlab)
-fcr_thermo4 <- fcr_thermo3[-c(123:126,128,133,136,151,154,156,158,165,171,173,175,178,
-                              182,186,188,192,199,201,204,211,213,216),]
+fcr_thermo4 <- fcr_thermo3[-c(123:126,128,133,136,151,154,156,158,162,165,171,173,175,178,
+                              182,186,188,192,195,199,201,203,204,209,211,213,216),]
 
+# Gather data back to long form
+fcr_thermo5 <- fcr_thermo4 %>% gather(depth_f,Temp_C,2:20)
+
+# Plot to check
+ggplot(fcr_thermo5,aes(DateTime,Temp_C,group=depth_f,color=as.factor(depth_f)))+
+  geom_line()+
+  geom_point()+
+  theme_classic()
+
+# Now check turn-over
+fcr_layers_to <- fcr_thermo5 %>% filter(depth_f %in% c('temp1','temp8'))
+
+# Plot data
+ggplot(fcr_layers_to,aes(DateTime,Temp_C,group=depth_f,color=as.factor(depth_f)))+
+  geom_line()+
+  geom_point()+
+  theme_classic()
+
+# Clean-up final FCR Thermo data and export
+fcr_thermo5$depth_f <- as.character(fcr_thermo5$depth_f)
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp0.1"] <- "0.1"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp0.5"] <- "0.5"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp1"] <- "1.0"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp1.5"] <- "1.5"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp2"] <- "2.0"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp2.5"] <- "2.5"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp3"] <- "3.0"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp3.5"] <- "3.5"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp4"] <- "4.0"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp4.5"] <- "4.5"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp5"] <- "5.0"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp5.5"] <- "5.5"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp6"] <- "6.0"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp6.5"] <- "6.5"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp7"] <- "7.0"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp7.5"] <- "7.5"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp8"] <- "8.0"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp8.5"] <- "8.5"
+fcr_thermo5$depth_f[fcr_thermo5$depth_f == "temp9"] <- "9.0"
+
+fcr_thermo5 <- fcr_thermo5 %>% sort(DateTime)
+
+# Export 'cleaned' data
+write_csv(fcr_thermo5, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/FCR_CTDysi_merge16to18_clean.csv")
+
+###### NO LONGER USED
 # Export out .wtr for use in Lake Analyzer in Matlab
-write.table(fcr_thermo, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR.wtr", sep="\t",row.names=FALSE)
-write.table(fcr_thermo2,"C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR2.wtr", sep="\t",row.names=FALSE)
-write.table(fcr_thermo3,"C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR4.wtr", sep="\t",row.names=FALSE)
-write.table(fcr_thermo4,"C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR5.wtr", sep="\t",row.names=FALSE)
+# write.table(fcr_thermo, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR.wtr", sep="\t",row.names=FALSE)
+# write.table(fcr_thermo2,"C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR2.wtr", sep="\t",row.names=FALSE)
+# write.table(fcr_thermo3,"C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR4.wtr", sep="\t",row.names=FALSE)
+# write.table(fcr_thermo4,"C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/FCR5.wtr", sep="\t",row.names=FALSE)
+######
 
 ## Do the same for BVR
 bvr_temp <- bvr_all %>% select(Date,Depth_m,Temp_C)
@@ -308,11 +371,9 @@ bvr_layers <- df.final %>% select(Date,depth_f,Temp_C)
 bvr_layers <- arrange(bvr_layers, Date)
 
 # Plot layers for BVR
-bvr_temp <- ggplot(bvr_layers,aes(Date,Temp_C,group=depth_f,color=as.factor(depth_f)))+
+ggplot(bvr_layers,aes(Date,Temp_C,group=depth_f,color=as.factor(depth_f)))+
   geom_line()+
   theme_classic()
-
-ggsave("C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Fig_Output/bvr_temp_depth.jpg",bvr_temp,width=15,height=10)
 
 bvr_thermo <- bvr_layers %>% spread(depth_f,Temp_C)
 
@@ -327,13 +388,60 @@ bvr_thermo3 <- bvr_thermo2[rowSums(is.na(bvr_thermo2))<5,]
 # Remove funky looking casts (as determined in Matlab)
 bvr_thermo4 <- bvr_thermo3[-c(6,55,96),]
 
+# Gather data back to long form
+bvr_thermo5 <- bvr_thermo4 %>% gather(depth_f,Temp_C,2:24)
+
+# Plot to check
+ggplot(bvr_thermo5,aes(dateTime,Temp_C,group=depth_f,color=as.factor(depth_f)))+
+  geom_line()+
+  geom_point()+
+  theme_classic()
+
+# Now check turn-over
+bvr_layers_to <- bvr_thermo5 %>% filter(depth_f %in% c('temp1.0','temp8.0'))
+
+# Plot data
+ggplot(bvr_layers_to,aes(dateTime,Temp_C,group=depth_f,color=as.factor(depth_f)))+
+  geom_line()+
+  geom_point()+
+  theme_classic()
+
+# Clean-up final FCR Thermo data and export
+bvr_thermo5$depth_f <- as.character(bvr_thermo5$depth_f)
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp0.1"] <- "0.1"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp0.5"] <- "0.5"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp1.0"] <- "1.0"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp1.5"] <- "1.5"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp2.0"] <- "2.0"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp2.5"] <- "2.5"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp3.0"] <- "3.0"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp3.5"] <- "3.5"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp4.0"] <- "4.0"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp4.5"] <- "4.5"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp5.0"] <- "5.0"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp5.5"] <- "5.5"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp6.0"] <- "6.0"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp6.5"] <- "6.5"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp7.0"] <- "7.0"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp7.5"] <- "7.5"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp8.0"] <- "8.0"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp8.5"] <- "8.5"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp9.0"] <- "9.0"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp9.5"] <- "9.5"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp10.0"] <- "10.0"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp10.5"] <- "10.5"
+bvr_thermo5$depth_f[bvr_thermo5$depth_f == "temp11.0"] <- "11.0"
+
+bvr_thermo5 <- bvr_thermo5 %>% sort(dateTime)
+
+# Export 'cleaned' data
+write_csv(bvr_thermo5, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/BVR_CTDysi_merge16to18_clean.csv")
+
+###### NO LONGER USED
 # Export out .wtr for use in Lake Analyzer in Matlab
-write.table(bvr_thermo2, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR.wtr", sep="\t",row.names=FALSE)
-write.table(bvr_thermo3, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR3.wtr", sep="\t",row.names=FALSE)
-write.table(bvr_thermo4, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR4.wtr", sep="\t",row.names=FALSE)
+# write.table(bvr_thermo2, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR.wtr", sep="\t",row.names=FALSE)
+# write.table(bvr_thermo3, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR3.wtr", sep="\t",row.names=FALSE)
+# write.table(bvr_thermo4, "C:/Users/ahounshell/OneDrive/VT/GHG/GHG/Data_Output/BVR4.wtr", sep="\t",row.names=FALSE)
+######
 
-## Try to plot temperature as a raster plot (geom_tile)
-# Start with FCR
-ggplot(fcr_temp,aes(x=Date,y=Depth_m,fill=Temp_C))+geom_tile(na.rm=TRUE)
-
-# Save Rfile as Thermocline_Data
+## Saved RFile as CTDMergeYSI.R
