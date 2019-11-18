@@ -3,16 +3,22 @@
 ### For Temp and DO
 ### Overlay: Defined Epi, Meta, Hypo used for calculations
 ### A Hounshell, 15 July 2019; Following: FCR_HEATMAPS_2018
+### Updated: 18 Nov 19
+###   To include 2018 data
+###   Plot as a continuous heat map, but 'grey out' dates post-turnover
 
 # Load libraries
 pacman::p_load(akima,dplyr,ggplot2,tidyverse,reshape2,gridExtra,grid,colorRamps,RColorBrewer,lubridate,ggpubr)
 
 # Load in merged CTD and YSI casts for the 2016-2017 period
 # Will need to divide into Summer 2016 and Summer 2017
-casts <- read_csv("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_CTDysi_merge.csv")
+casts <- read_csv("C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/BVR_CTDysi_merge16to18.csv")
 casts$Date <- as.POSIXct(strptime(casts$Date, "%Y-%m-%d", tz = "EST"))
+
+# Calculate each year separately, then merge back together and plot
 casts16 <- casts %>% filter(casts$Date>=as.Date("2016-01-01")&casts$Date<=as.Date("2016-12-31"))
 casts17 <- casts %>% filter(casts$Date>=as.Date("2017-01-01")&casts$Date<=as.Date("2017-12-31"))
+casts18 <- casts %>% filter(casts$Date>=as.Date("2018-01-01")&casts$Date<=as.Date("2018-12-31"))
 
 df.final<-data.frame()
 
@@ -163,6 +169,110 @@ interp_do_17 <- interp2xyz(interp_do_17, data.frame=T)
 interp_temp_17$date <- as.Date(interp_temp_17$x,origin="2017-01-01")
 interp_do_17$date <- as.Date(interp_do_17$x,origin="2017-01-01")
 
+## Calculate for 2018
+df.final<-data.frame()
+
+ctd1<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 0.1)))
+ctd2<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 0.4)))
+ctd3<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 0.7)))
+ctd4<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 1)))
+ctd5<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 1.3)))
+ctd6<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 1.6)))
+ctd7<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 1.9)))
+ctd8<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 2.3)))
+ctd9<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 2.6)))
+ctd10<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 2.9)))
+ctd11<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 3.2)))
+ctd12<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 3.5)))
+ctd13<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 3.8)))
+ctd14<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 4.1)))
+ctd15<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 4.4)))
+ctd16<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 4.7)))
+ctd17<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 5)))
+ctd18<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 5.3)))
+ctd19<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 5.6)))
+ctd20<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 5.9)))
+ctd21<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 6.2)))
+ctd22<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 6.5)))
+ctd23<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 6.8)))
+ctd24<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 7.1)))
+ctd25<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 7.4)))
+ctd26<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 7.7)))
+ctd27<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 8)))
+ctd28<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 8.3)))
+ctd29<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 8.7)))
+ctd30<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 9)))
+ctd31<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 9.3)))
+ctd32<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 9.6)))
+ctd33<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 9.9)))
+ctd34<-casts18 %>% group_by(Date) %>% slice(which.min(abs(as.numeric(Depth_m) - 10.2)))
+
+df.final = rbind(ctd1,ctd2,ctd3,ctd4,ctd5,ctd6,ctd7,ctd8,ctd9,ctd10,ctd11,ctd12,ctd13,ctd14,ctd15,ctd16,ctd17,ctd18,ctd19,
+                 ctd20,ctd21,ctd22,ctd23,ctd24,ctd25,ctd26,ctd27,ctd28,ctd29,ctd30,ctd31,ctd32,ctd33,ctd34,
+                 deparse.level = 1)
+
+ctd_18 <- arrange(df.final, Date)
+ctd_18$Depth_m <- round(as.numeric(ctd_18$Depth_m), digits = 1)
+
+ctd_18 <- ctd_18 %>% group_by(Date,Depth_m) %>% summarise_each(funs(mean))
+ctd_18$DOY <- yday(ctd_18$Date)
+
+# Select and make each CTD variable a separate dataframe
+temp_18 <- select(ctd_18, Date, DOY, Depth_m, Temp_C)
+temp_18 <- na.omit(temp_18)
+do_18 <- select(ctd_18, Date, DOY, Depth_m, DO_mgL)
+do_18 <- na.omit(do_18)
+
+# Complete data interpolation for the heatmaps
+# interative processes here
+
+#temperature
+interp_temp_18 <- interp(x=temp_18$DOY, y = temp_18$Depth_m, z = temp_18$Temp_C,
+                         xo = seq(min(temp_18$DOY), max(temp_18$DOY), by = .1), 
+                         yo = seq(0.1, 9.6, by = 0.01),
+                         extrap = F, linear = T, duplicate = "strip")
+interp_temp_18 <- interp2xyz(interp_temp_18, data.frame=T)
+
+#dissolved oxygen
+interp_do_18 <- interp(x=do_18$DOY, y = do_18$Depth_m, z = do_18$DO_mgL,
+                       xo = seq(min(do_18$DOY), max(do_18$DOY), by = .1), 
+                       yo = seq(0.1, 10.2, by = 0.01),
+                       extrap = F, linear = T, duplicate = "strip")
+interp_do_18 <- interp2xyz(interp_do_18, data.frame=T)
+
+# Plot
+interp_temp_18$date <- as.Date(interp_temp_18$x,origin="2018-01-01")
+interp_do_18$date <- as.Date(interp_do_18$x,origin="2018-01-01")
+
+### Put data from each year in one data matrix
+interp_do_all <- rbind.data.frame(interp_do,interp_do_17,interp_do_18)
+interp_temp_all <- rbind.data.frame(interp_temp,interp_temp_17,interp_temp_18)
+
+## Export out data: to combine with FCR data to generate one plot with both reservoirs
+write_csv(interp_do, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/BVR_DOinterp_16.csv")
+write_csv(interp_do_17, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/BVR_DOinterp_17.csv")
+write_csv(interp_do_18, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/BVR_DOinterp_18.csv")
+
+write_csv(interp_temp, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/BVR_TempInterp_16.csv")
+write_csv(interp_temp_17, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/BVR_TempInterp_17.csv")
+write_csv(interp_temp_18, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/BVR_TempInterp_18.csv")
+
+## Try plotting all three years on one graph
+ggplot(interp_temp_all,aes(x=date,y=y))+
+  geom_tile(aes(fill=z))+
+  scale_y_reverse()+
+  geom_hline(yintercept = 4, color="black")+
+  geom_hline(yintercept = 7, color="black")+
+  geom_hline(yintercept = 0.1, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 3, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 6, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 9, linetype="dashed", colour="white")+
+  geom_point(aes(x = as.Date("2016-11-11"),y=0),shape=15,size=2)+ #Turnover
+  geom_point(aes(x=as.Date("2017-11-07"),y=0),shape=15,size=2)+ #Turnover
+  geom_point(aes(x=as.Date("2018-10-29"),y=0),shape=15,size=2)+ #Turnover
+  labs(x = "", y = "Depth (m)", fill=expression(''*~degree*C*''))+
+  scale_fill_gradientn(colours = blue2green2red(60), na.value="gray")+
+  theme_classic(base_size=15)
 
 # Temp w/o variable metalimnion
 temp_interp_16 <- ggplot(interp_temp, aes(x=date, y=y))+
