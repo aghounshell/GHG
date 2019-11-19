@@ -52,8 +52,6 @@ bvr_temp_16$date <- as.Date(bvr_temp_16$x,origin="2016-01-01")
 bvr_temp_17$date <- as.Date(bvr_temp_17$x,origin="2017-01-01")
 bvr_temp_18$date <- as.Date(bvr_temp_18$x,origin="2018-01-01")
 
-## Need to update date ranges: 01Apr to 30Nov
-
 # FCR DO 16
 fcr_do_16_plot <- ggplot(fcr_do_16, aes(x=date, y=y))+
   geom_raster(aes(fill=z))+
@@ -172,13 +170,13 @@ do_heatmap <- ggarrange(fcr_do_16_plot, fcr_do_17_plot, fcr_do_18_plot, bvr_do_1
                         bvr_do_17_plot, bvr_do_18_plot, common.legend=TRUE,legend="right", 
                         ncol=3, nrow=2)
 
-ggsave("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Fig_Output/DO_heatmap.jpg",do_heatmap,width=10,height=6,
+ggsave("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Fig_Output/DO_heatmap_2.jpg",do_heatmap,width=12,height=6,
        units=c("in"))
 
 ##################TEMP Plotting########################
 
 # FCR Temp 16
-temp_interp_16 <- ggplot(interp_temp, aes(x=date, y=y))+
+fcr_temp_16_plot <- ggplot(fcr_temp_16, aes(x=date, y=y))+
   geom_raster(aes(fill=z))+
   scale_y_reverse()+
   geom_hline(yintercept = 2.6, color="black")+
@@ -196,11 +194,12 @@ temp_interp_16 <- ggplot(interp_temp, aes(x=date, y=y))+
   geom_point(aes(x = as.Date("2016-06-27"),y = 0),shape=6, size=2)+ #EM
   geom_point(aes(x = as.Date("2016-07-25"),y = 0),shape=6, size=2)+ #EM
   labs(x = "2016", y = "Depth (m)", fill=expression(''*~degree*C*''))+
+  xlim(as.Date("2016-04-01"),as.Date("2016-11-30"))+
   scale_fill_gradientn(colours = blue2green2red(60), na.value="gray")+
   theme_classic(base_size=15)
 
 # FCR Temp 17
-temp_interp_17 <- ggplot(interp_temp_17, aes(x=date, y=y))+
+fcr_temp_17_plot <- ggplot(fcr_temp_17, aes(x=date, y=y))+
   geom_raster(aes(fill=z))+
   scale_y_reverse()+
   geom_hline(yintercept = 2.6, color="black", size=1)+
@@ -216,14 +215,34 @@ temp_interp_17 <- ggplot(interp_temp_17, aes(x=date, y=y))+
   geom_point(aes(x = as.Date("2017-05-29"),y = 0),shape=6,size=2)+ #EM
   geom_point(aes(x = as.Date("2017-07-07"),y = 0),shape=6, size=2)+ #EM
   geom_point(aes(x = as.Date("2017-10-25"),y = 0),shape=15, size=2)+ #Turnover
-  labs(x = "2017", y = "Depth (m)", fill=expression(''*~degree*C*''))+
+  labs(x = "2017", y = "", fill=expression(''*~degree*C*''))+
+  xlim(as.Date("2017-04-01"),as.Date("2017-11-30"))+
   scale_fill_gradientn(colours = blue2green2red(60), na.value="gray")+
   theme_classic(base_size=15)
 
 # FCR Temp 18
+fcr_temp_18_plot <- ggplot(fcr_temp_18, aes(x=date, y=y))+
+  geom_raster(aes(fill=z))+
+  scale_y_reverse()+
+  geom_hline(yintercept = 2.6, color="black")+
+  geom_hline(yintercept = 6.5, color="black")+
+  geom_hline(yintercept = 0.1, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 1.6, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 3.8, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 5, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 6.2, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 8, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 9, linetype="dashed", colour="white")+
+  geom_point(aes(x = as.Date("2018-04-23"),y = 0),shape=25,color="black",fill="black",size=2)+ #Oxygen on
+  geom_point(aes(x = as.Date("2018-07-30"),y = 0),shape=17,size=2)+ #SSS Off
+  geom_point(aes(x = as.Date("2018-10-21"),y = 0),shape=15, size=2)+ #Turnover
+  labs(x = "2018", y = "", fill=expression(''*~degree*C*''))+
+  scale_fill_gradientn(colours = rev(blue2green2red(60)), na.value="gray")+
+  xlim(as.Date("2018-04-01"),as.Date("2018-11-30"))+
+  theme_classic(base_size=15)
 
 # BVR Temp 16
-temp_interp_16 <- ggplot(interp_temp, aes(x=date, y=y))+
+bvr_temp_16_plot <- ggplot(bvr_temp_16, aes(x=date, y=y))+
   geom_raster(aes(fill=z))+
   scale_y_reverse()+
   geom_hline(yintercept = 4, color="black")+
@@ -234,11 +253,12 @@ temp_interp_16 <- ggplot(interp_temp, aes(x=date, y=y))+
   geom_hline(yintercept = 9, linetype="dashed", colour="white")+
   geom_point(aes(x = as.Date("2016-11-11"),y=0),shape=15,size=2)+ #Turnover
   labs(x = "2016", y = "Depth (m)", fill=expression(''*~degree*C*''))+
+  xlim(as.Date("2016-04-01"),as.Date("2016-11-30"))+
   scale_fill_gradientn(colours = blue2green2red(60), na.value="gray")+
   theme_classic(base_size=15)
 
 # BVR Temp 17
-temp_interp_17 <- ggplot(interp_temp_17, aes(x=date, y=y))+
+bvr_temp_17_plot <- ggplot(bvr_temp_17, aes(x=date, y=y))+
   geom_raster(aes(fill=z))+
   scale_y_reverse()+
   geom_hline(yintercept = 4, color="black")+
@@ -248,6 +268,30 @@ temp_interp_17 <- ggplot(interp_temp_17, aes(x=date, y=y))+
   geom_hline(yintercept = 6, linetype="dashed", colour="white")+
   geom_hline(yintercept = 9, linetype="dashed", colour="white")+
   geom_point(aes(x=as.Date("2017-11-07"),y=0),shape=15,size=2)+ #Turnover
-  labs(x = "2017", y = "Depth (m)", fill=expression(''*~degree*C*''))+
+  labs(x = "2017", y = "", fill=expression(''*~degree*C*''))+
+  xlim(as.Date("2017-04-01"),as.Date("2017-11-30"))+
   scale_fill_gradientn(colours = blue2green2red(60), na.value="gray")+
   theme_classic(base_size=15)
+
+# BVR Temp 18
+bvr_temp_18_plot <- ggplot(bvr_temp_18, aes(x=date, y=y))+
+  geom_raster(aes(fill=z))+
+  scale_y_reverse()+
+  geom_hline(yintercept = 4, color="black")+
+  geom_hline(yintercept = 7, color="black")+
+  geom_hline(yintercept = 0.1, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 3, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 6, linetype="dashed", colour="white")+
+  geom_hline(yintercept = 9, linetype="dashed", colour="white")+
+  geom_point(aes(x=as.Date("2018-10-29"),y=0),shape=15,size=2)+ #Turnover
+  labs(x = "2018", y = "", fill=expression(''*~degree*C*''))+
+  scale_fill_gradientn(colours = rev(blue2green2red(60)), na.value="gray")+
+  xlim(as.Date("2018-04-01"),as.Date("2018-11-30"))+
+  theme_classic(base_size=15)
+
+temp_heatmap <- ggarrange(fcr_temp_16_plot, fcr_temp_17_plot, fcr_temp_18_plot, bvr_temp_16_plot, 
+                        bvr_temp_17_plot, bvr_temp_18_plot, common.legend=TRUE,legend="right", 
+                        ncol=3, nrow=2)
+
+ggsave("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Fig_Output/Temp_heatmap.jpg",temp_heatmap,width=12,height=6,
+       units=c("in"))
