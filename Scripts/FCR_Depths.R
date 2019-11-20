@@ -8,8 +8,7 @@
 ### Updated: 20Nov19
 ###   Include Summer 2018: updated CTD/YSI casts and GHG data
 
-
-## RFile: VW_FCR
+## RFile: VW_FCR_16to18
 
 # Load libraries needed
 pacman::p_load(tidyverse,ggplot2,ggpubr,matrixStats)
