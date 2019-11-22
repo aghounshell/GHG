@@ -2,6 +2,7 @@
 ### Following: GHG_DataReps
 ### Updated to include data from 2016, 2017, and 2018
 ### A Hounshell, 20 Nov 2019
+###   Updated to remove NA values from dates w/o data on 22 Nov 2019
 
 ### Saved RFile as: 20Nov19_GHGReps
 
