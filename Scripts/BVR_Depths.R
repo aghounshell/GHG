@@ -5,22 +5,24 @@
 ###     Meta: 6.0 m (4 - 7m)
 ###     Hypo: 9.0 m + 11.0 m (7 - 11m)
 ### A Hounshell, 16Jul19
-
 ### Updated to include final BVR sampling in 2017, 01 Nov 2019
+### Updated on 25 Nov 2019
+###   Include 2018 data
+###   Only use 9 m for WaterCol and Hypo calculations (too many Na's for 11 m!)
 
-# RFile: VW_BVR
+# RFile: VW_BVR_16to18
 
 # Load libraries needed
-pacman::p_load(tidyverse,ggplot2,ggpubr)
+pacman::p_load(tidyverse,ggplot2,ggpubr,matrixStats,zoo)
 
 # Load in data
 # BVR Volumes by depth
 depth <- read_csv("C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data/BVR_Vol.csv")
 # BVR merged YSI and CTD casts
-casts <- read_csv("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_CTDysi_merge.csv")
+casts <- read_csv("C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/BVR_CTDysi_merge16to18.csv")
 casts$Date <- as.POSIXct(strptime(casts$Date, "%Y-%m-%d", tz = "EST"))
 # BVR GHG data from 2016-2017
-ghg <- read_csv("C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/GHG_BVR_16_17_reps.csv")
+ghg <- read_csv("C:/Users/ahoun/Dropbox/VT_GHG/GHG_R/Data_Output/GHG_BVR_16_18_reps.csv")
 ghg$datetime <- as.POSIXct(strptime(ghg$datetime, "%Y-%m-%d", tz="EST"))
 
 ### Start with temperature as a check...(code modified from VW_BVR.R)
@@ -99,7 +101,7 @@ ggplot(vw_temp,aes(DateTime,vw_temp))+geom_line()+theme_classic()
 
 ### Calculate Epi VW Temp: defined as 0-4 m
 vw_epi_temp <- rep(-99,length(casts_layers$Date))
-for(i in 1:57){
+for(i in 1:length(casts_layers$Date)){
   vw_epi_temp[i] <- sum(casts_layers$BVR_1[i]*depth_2$LayerVol_m3[1],
                     casts_layers$BVR_2[i]*depth_2$LayerVol_m3[2],
                     casts_layers$BVR_3[i]*depth_2$LayerVol_m3[3],
@@ -108,7 +110,7 @@ for(i in 1:57){
 
 ### Calculate Meta VW Temp: defined as 4-7m
 vw_meta_temp <- rep(-99,length(casts_layers$Date))
-for(i in 1:57){
+for(i in 1:length(casts_layers$Date)){
   vw_meta_temp[i] <- sum(casts_layers$BVR_5[i]*depth_2$LayerVol_m3[5],
                         casts_layers$BVR_6[i]*depth_2$LayerVol_m3[6],
                         casts_layers$BVR_7[i]*depth_2$LayerVol_m3[7])/sum(depth_2$LayerVol_m3[c(5:7)])
@@ -133,6 +135,7 @@ names(vw_tempf)[5] <- "Hypo"
 vw_tempf_gather <- vw_tempf %>% gather(key=depth,value=vw_temp,-DateTime)
 vw_tempf_gather16 <- vw_tempf_gather %>% filter(DateTime>=as.Date('2016-01-01')&DateTime<=as.Date('2016-12-31'))
 vw_tempf_gather17 <- vw_tempf_gather %>% filter(DateTime>=as.Date('2017-01-01')&DateTime<=as.Date('2017-12-31'))
+vw_tempf_gather18 <- vw_tempf_gather %>% filter(DateTime>=as.Date('2018-01-01')&DateTime<=as.Date('2018-12-31'))
 vw_tempf_gather$depth<-factor(vw_tempf_gather$depth, levels=c("Epi", "Meta", "Hypo", "WaterCol"))
 
 # Plot to check
@@ -145,6 +148,7 @@ temp16 <- ggplot(vw_tempf_gather16,aes(x = DateTime, y = vw_temp, color = depth)
   xlab('2016')+
   ylab(expression('Temperature ('*degree*C*')'))+
   ylim(0,30)+
+  xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-30"))+
   theme_classic(base_size = 15)
 
 temp17 <- ggplot(vw_tempf_gather17,aes(x = DateTime, y = vw_temp, color = depth))+
@@ -156,12 +160,25 @@ temp17 <- ggplot(vw_tempf_gather17,aes(x = DateTime, y = vw_temp, color = depth)
   xlab('2017')+
   ylab(expression('Temperature ('*degree*C*')'))+
   ylim(0,30)+
+  xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-11-30"))+
   theme_classic(base_size = 15)
 
-ggarrange(temp16,temp17,common.legend=TRUE,legend="right")
+temp18 <- ggplot(vw_tempf_gather18,aes(x = DateTime, y = vw_temp, color = depth))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  geom_vline(xintercept=as.POSIXct("2018-10-29"))+ #Turnover
+  labs(color="")+
+  xlab('2018')+
+  ylab(expression('Temperature ('*degree*C*')'))+
+  ylim(0,30)+
+  xlim(as.POSIXct("2018-04-01"),as.POSIXct("2018-11-30"))+
+  theme_classic(base_size = 15)
+
+ggarrange(temp16,temp17,temp18,common.legend=TRUE,legend="right",ncol=3,nrow=1)
 
 # Export out Temp Data VW averaged by depth
-write_csv(vw_tempf, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_VW_Temp")
+write_csv(vw_tempf, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_VW_Temp_16to18.csv")
 
 ### Calculate the same for oxygen
 # Re-combine all casts then use spread to convert to wide form
@@ -179,7 +196,7 @@ casts_layers_o2 <- na.omit(casts_layers_o2)
 # Calculate volume weighted average O2 for the entire water column
 # Use for loop to calculate volume weighted averages for each time point
 vw_o2 <- rep(-99,length(casts_layers_o2$Date))
-for(i in 1:56){
+for(i in 1:length(casts_layers_o2$Date)){
   vw_o2[i] <- sum(casts_layers_o2$BVR_1[i]*depth_2$LayerVol_m3[1],
                     casts_layers_o2$BVR_2[i]*depth_2$LayerVol_m3[2],
                     casts_layers_o2$BVR_3[i]*depth_2$LayerVol_m3[3],
@@ -200,7 +217,7 @@ ggplot(vw_o2,aes(DateTime,vw_o2))+geom_line()+theme_classic()
 
 ### Calculate Epi VW O2: defined as 0-4 m
 vw_epi_o2 <- rep(-99,length(casts_layers_o2$Date))
-for(i in 1:56){
+for(i in 1:length(casts_layers_o2$Date)){
   vw_epi_o2[i] <- sum(casts_layers_o2$BVR_1[i]*depth_2$LayerVol_m3[1],
                         casts_layers_o2$BVR_2[i]*depth_2$LayerVol_m3[2],
                         casts_layers_o2$BVR_3[i]*depth_2$LayerVol_m3[3],
@@ -209,7 +226,7 @@ for(i in 1:56){
 
 ### Calculate Meta VW O2: defined as 4-7m
 vw_meta_o2 <- rep(-99,length(casts_layers_o2$Date))
-for(i in 1:56){
+for(i in 1:length(casts_layers_o2$Date)){
   vw_meta_o2[i] <- sum(casts_layers_o2$BVR_5[i]*depth_2$LayerVol_m3[5],
                          casts_layers_o2$BVR_6[i]*depth_2$LayerVol_m3[6],
                          casts_layers_o2$BVR_7[i]*depth_2$LayerVol_m3[7])/sum(depth_2$LayerVol_m3[c(5:7)])
@@ -234,6 +251,7 @@ names(vw_o2f)[5] <- "Hypo"
 vw_o2f_gather <- vw_o2f %>% gather(key=depth,value=vw_o2,-DateTime)
 vw_o2f_gather16 <- vw_o2f_gather %>% filter(DateTime>=as.Date('2016-01-01')&DateTime<=as.Date('2016-12-31'))
 vw_o2f_gather17 <- vw_o2f_gather %>% filter(DateTime>=as.Date('2017-01-01')&DateTime<=as.Date('2017-12-31'))
+vw_o2f_gather18 <- vw_o2f_gather %>% filter(DateTime>=as.Date('2018-01-01')&DateTime<=as.Date('2018-12-31'))
 vw_o2f_gather$depth<-factor(vw_o2f_gather$depth, levels=c("Epi", "Meta", "Hypo", "WaterCol"))
 
 # Plot to check
@@ -246,6 +264,7 @@ o16 <- ggplot(vw_o2f_gather16,aes(x = DateTime, y = vw_o2, color = depth))+
   xlab('2016')+
   ylab(expression("DO (mg L"^-1*")"))+
   ylim(0,17)+
+  xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-30"))+
   theme_classic(base_size = 15)
 
 o17 <- ggplot(vw_o2f_gather17,aes(x = DateTime, y = vw_o2, color = depth))+
@@ -257,12 +276,25 @@ o17 <- ggplot(vw_o2f_gather17,aes(x = DateTime, y = vw_o2, color = depth))+
   xlab('2017')+
   ylab(expression("DO (mg L"^-1*")"))+
   ylim(0,17)+
+  xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-11-30"))+
   theme_classic(base_size = 15)
 
-ggarrange(o16,o17,common.legend=TRUE,legend="right")
+o18 <- ggplot(vw_o2f_gather18,aes(x = DateTime, y = vw_o2, color = depth))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  geom_vline(xintercept=as.POSIXct("2018-10-29"))+ #Turnover
+  labs(color="")+
+  xlab('2018')+
+  ylab(expression("DO (mg L"^-1*")"))+
+  ylim(0,17)+
+  xlim(as.POSIXct("2018-04-01"),as.POSIXct("2018-11-30"))+
+  theme_classic(base_size = 15)
+
+ggarrange(o16,o17,o18,common.legend=TRUE,legend="right",ncol=3,nrow=1)
 
 # Export out Temp Data VW averaged by depth
-write_csv(vw_o2f, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_VW_o2")
+write_csv(vw_o2f, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_VW_o2_16to18.csv")
 
 ### Calculate pCH4 for full water column and by depth: depths designated as:
 # Epi = 0.1, 3.0 m
@@ -276,36 +308,59 @@ write_csv(vw_o2f, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_VW_o
 # 9.0 m = 8 + 9 m
 # 11.0 m = 10 m and below
 
+# Remove dates with all Na values at the beginning
+ghg <- ghg[-c(1:20),]
+
 # Separate by depth then recombine
 ghg_1_rep1 <- ghg %>% filter(depth==0.1,rep==1) %>% group_by(datetime) %>% 
   summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="BVR_1")
+ghg_1_rep1$ch4_umol_L <- na.approx(ghg_1_rep1$ch4_umol_L)
+ghg_1_rep1$co2_umol_L <- na.approx(ghg_1_rep1$co2_umol_L)
 
 ghg_1_rep2 <- ghg %>% filter(depth==0.1,rep==2) %>% group_by(datetime) %>% 
   summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="BVR_1")
+ghg_1_rep2$ch4_umol_L <- na.approx(ghg_1_rep2$ch4_umol_L)
+ghg_1_rep2$co2_umol_L <- na.approx(ghg_1_rep2$co2_umol_L)
 
 ghg_2_rep1 <- ghg %>% filter(depth==3,rep==1) %>% group_by(datetime) %>% 
   summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="BVR_2")
+ghg_2_rep1$ch4_umol_L <- na.approx(ghg_2_rep1$ch4_umol_L)
+ghg_2_rep1$co2_umol_L <- na.approx(ghg_2_rep1$co2_umol_L)
 
 ghg_2_rep2 <- ghg %>% filter(depth==3,rep==2) %>% group_by(datetime) %>% 
   summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="BVR_2")
+ghg_2_rep2$ch4_umol_L <- na.approx(ghg_2_rep2$ch4_umol_L)
+ghg_2_rep2$co2_umol_L <- na.approx(ghg_2_rep2$co2_umol_L)
 
 ghg_3_rep1 <- ghg %>% filter(depth==6,rep==1) %>% group_by(datetime) %>% 
   summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="BVR_3")
+ghg_3_rep1$ch4_umol_L <- na.approx(ghg_3_rep1$ch4_umol_L)
+ghg_3_rep1$co2_umol_L <- na.approx(ghg_3_rep1$co2_umol_L)
 
 ghg_3_rep2 <- ghg %>% filter(depth==6,rep==2) %>% group_by(datetime) %>% 
   summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="BVR_3")
+ghg_3_rep2$ch4_umol_L <- na.approx(ghg_3_rep2$ch4_umol_L)
+ghg_3_rep2$co2_umol_L <- na.approx(ghg_3_rep2$co2_umol_L)
 
 ghg_4_rep1 <- ghg %>% filter(depth==9,rep==1) %>% group_by(datetime) %>% 
   summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="BVR_4")
+ghg_4_rep1$ch4_umol_L <- na.approx(ghg_4_rep1$ch4_umol_L)
+ghg_4_rep1$co2_umol_L <- na.approx(ghg_4_rep1$co2_umol_L)
 
 ghg_4_rep2 <- ghg %>% filter(depth==9,rep==2) %>% group_by(datetime) %>% 
   summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="BVR_4")
+ghg_4_rep2$ch4_umol_L <- na.approx(ghg_4_rep2$ch4_umol_L)
+ghg_4_rep2$co2_umol_L <- na.approx(ghg_4_rep2$co2_umol_L)
 
 ghg_5_rep1 <- ghg %>% filter(depth==11,rep==1) %>% group_by(datetime) %>% 
   summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="BVR_5")
+ghg_5_rep1$ch4_umol_L <- na.approx(ghg_5_rep1$ch4_umol_L)
+ghg_5_rep1$co2_umol_L <- na.approx(ghg_5_rep1$co2_umol_L)
 
 ghg_5_rep2 <- ghg %>% filter(depth==11,rep==2) %>% group_by(datetime) %>% 
   summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="BVR_5")
+ghg_5_rep2$ch4_umol_L <- na.approx(ghg_5_rep2$ch4_umol_L)
+ghg_5_rep2$co2_umol_L <- na.approx(ghg_5_rep2$co2_umol_L)
 
 # Re-combine reps and separate by co2 and ch4
 ghg_merge_rep1 <- rbind(ghg_1_rep1,ghg_2_rep1,ghg_3_rep1,ghg_4_rep1,ghg_5_rep1)
@@ -313,72 +368,35 @@ ghg_merge_rep2 <- rbind(ghg_1_rep2,ghg_2_rep2,ghg_3_rep2,ghg_4_rep2,ghg_5_rep2)
 
 rep1_co2 <- ghg_merge_rep1 %>% select(datetime,co2_umol_L,grouping) %>% arrange(datetime)
 rep1_co2_layers <- rep1_co2 %>% spread(grouping,co2_umol_L)
+rep1_co2_layers$BVR_5 <- na.approx(rep1_co2_layers$BVR_5,na.rm=FALSE)
 
 rep2_co2 <- ghg_merge_rep2 %>% select(datetime,co2_umol_L,grouping) %>% arrange(datetime)
 rep2_co2_layers <- rep2_co2 %>% spread(grouping,co2_umol_L)
+rep2_co2_layers$BVR_5 <- na.approx(rep2_co2_layers$BVR_5,na.rm=FALSE)
 
 rep1_ch4 <- ghg_merge_rep1 %>% select(datetime,ch4_umol_L,grouping) %>% arrange(datetime)
 rep1_ch4_layers <- rep1_ch4 %>% spread(grouping,ch4_umol_L)
+rep1_ch4_layers$BVR_5 <- na.approx(rep1_ch4_layers$BVR_5,na.rm=FALSE)
 
 rep2_ch4 <- ghg_merge_rep2 %>% select(datetime,ch4_umol_L,grouping) %>% arrange(datetime)
 rep2_ch4_layers <- rep2_ch4 %>% spread(grouping,ch4_umol_L)
+rep2_ch4_layers$BVR_5 <- na.approx(rep2_ch4_layers$BVR_5,na.rm=FALSE)
 
-# Remove row 32 (only have 0.1m depth)
-rep1_co2_layers <- rep1_co2_layers[-c(32),]
-rep2_co2_layers <- rep2_co2_layers[-c(32),]
-rep1_ch4_layers <- rep1_ch4_layers[-c(32),]
-rep2_ch4_layers <- rep2_ch4_layers[-c(32),]
+# Remove row 31 (only have 0.1m depth)
+rep1_co2_layers <- rep1_co2_layers[-c(31),]
+rep2_co2_layers <- rep2_co2_layers[-c(31),]
+rep1_ch4_layers <- rep1_ch4_layers[-c(31),]
+rep2_ch4_layers <- rep2_ch4_layers[-c(31),]
 
 # Calculate VW pCH4 for the entire water column: calculate reps 1 and 2 separately
+### DON'T USE DATA FROM 11 M (too many Na's; use 9 m for Hypo)
 vw_ch4_rep1 <- rep(-99,length(rep1_ch4_layers$datetime))
 for(i in 1:length(rep1_ch4_layers$datetime)){
   vw_ch4_rep1[i] <- sum(rep1_ch4_layers$BVR_1[i]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
                         rep1_ch4_layers$BVR_2[i]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
                         rep1_ch4_layers$BVR_3[i]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                        rep1_ch4_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                        rep1_ch4_layers$BVR_5[i]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
+                        rep1_ch4_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[c(8:10)]))/sum(depth_2$LayerVol_m3[c(1:10)])
 }
-
-# Need to re-calculate VW pCH4 when there are Na values
-vw_ch4_rep1[2] <- sum(rep1_ch4_layers$BVR_2[2]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                      rep1_ch4_layers$BVR_3[2]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                      rep1_ch4_layers$BVR_4[2]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                      rep1_ch4_layers$BVR_5[2]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
-
-vw_ch4_rep1[31] <- sum(rep1_ch4_layers$BVR_2[31]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                       rep1_ch4_layers$BVR_3[31]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                       rep1_ch4_layers$BVR_4[31]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                       rep1_ch4_layers$BVR_5[31]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
-
-vw_ch4_rep1[10] <- sum(rep1_ch4_layers$BVR_1[10]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
-                       rep1_ch4_layers$BVR_2[10]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                       rep1_ch4_layers$BVR_3[10]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                       rep1_ch4_layers$BVR_4[10]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9],depth_2$LayerVol_m3[10]))/sum(depth_2$LayerVol_m3[c(1:10)])
-
-vw_ch4_rep1[13] <- sum(rep1_ch4_layers$BVR_1[13]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
-                       rep1_ch4_layers$BVR_2[13]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                       rep1_ch4_layers$BVR_3[13]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                       rep1_ch4_layers$BVR_4[13]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9],depth_2$LayerVol_m3[10]))/sum(depth_2$LayerVol_m3[c(1:10)])
-
-vw_ch4_rep1[16] <- sum(rep1_ch4_layers$BVR_1[16]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
-                       rep1_ch4_layers$BVR_2[16]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                       rep1_ch4_layers$BVR_3[16]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                       rep1_ch4_layers$BVR_4[16]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9],depth_2$LayerVol_m3[10]))/sum(depth_2$LayerVol_m3[c(1:10)])
-
-for(i in 38:46){
-  vw_ch4_rep1[i] <- sum(rep1_ch4_layers$BVR_1[i]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
-                        rep1_ch4_layers$BVR_2[i]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                        rep1_ch4_layers$BVR_3[i]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                        rep1_ch4_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9],depth_2$LayerVol_m3[10]))/sum(depth_2$LayerVol_m3[c(1:10)])
-}
-
-vw_ch4_rep1[28] <- sum(rep1_ch4_layers$BVR_1[28]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
-                      rep1_ch4_layers$BVR_2[28]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                      rep1_ch4_layers$BVR_3[28]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                      rep1_ch4_layers$BVR_5[28]*sum(depth_2$LayerVol_m3[c(8:10)]))/sum(depth_2$LayerVol_m3[c(1:10)])
-
-vw_ch4_rep1[45] <- sum(rep1_ch4_layers$BVR_3[45]*sum(depth_2$LayerVol_m3[c(1:7)]),
-                       rep1_ch4_layers$BVR_4[45]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9],depth_2$LayerVol_m3[10]))/sum(depth_2$LayerVol_m3[c(1:10)])
 
 vw_ch4_rep1 <- cbind(rep1_ch4_layers,vw_ch4_rep1)
 
@@ -391,30 +409,8 @@ for(i in 1:length(rep2_ch4_layers$datetime)){
   vw_ch4_rep2[i] <- sum(rep2_ch4_layers$BVR_1[i]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
                         rep2_ch4_layers$BVR_2[i]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
                         rep2_ch4_layers$BVR_3[i]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                        rep2_ch4_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                        rep2_ch4_layers$BVR_5[i]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
+                        rep2_ch4_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[c(8:10)]))/sum(depth_2$LayerVol_m3[c(1:10)])
 }
-
-vw_ch4_rep2[2] <- sum(rep2_ch4_layers$BVR_2[2]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                      rep2_ch4_layers$BVR_3[2]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                      rep2_ch4_layers$BVR_4[2]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                      rep2_ch4_layers$BVR_5[2]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
-
-vw_ch4_rep2[31] <- sum(rep2_ch4_layers$BVR_2[31]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                       rep2_ch4_layers$BVR_3[31]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                       rep2_ch4_layers$BVR_4[31]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                       rep2_ch4_layers$BVR_5[31]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
-
-for(i in 38:46){
-  vw_ch4_rep2[i] <- sum(rep2_ch4_layers$BVR_1[i]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
-                        rep2_ch4_layers$BVR_2[i]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                        rep2_ch4_layers$BVR_3[i]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                        rep2_ch4_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9],depth_2$LayerVol_m3[10]))/sum(depth_2$LayerVol_m3[c(1:10)])
-}
-
-vw_ch4_rep2[45] <- sum(rep2_ch4_layers$BVR_1[45]*sum(depth_2$LayerVol_m3[c(1:4)]),
-                      rep2_ch4_layers$BVR_3[45]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                      rep2_ch4_layers$BVR_4[45]*sum(depth_2$LayerVol_m3[c(8:10)]))/sum(depth_2$LayerVol_m3[c(1:10)])
 
 vw_ch4_rep2 <- cbind(rep2_ch4_layers,vw_ch4_rep2)
 
@@ -449,24 +445,12 @@ for(i in 1:length(rep1_ch4_layers$datetime)){
                          rep1_ch4_layers$BVR_2[i]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]))/sum(depth_2$LayerVol_m3[c(1:4)])
 }
 
-epi_ch4_rep1[2] <- rep1_ch4_layers$BVR_2[2]
-
-epi_ch4_rep1[31] <- rep1_ch4_layers$BVR_2[31]
-
-epi_ch4_rep1[45] <- rep1_ch4_layers$BVR_3[45]
-
 # Calculate Epi Rep 2
 epi_ch4_rep2 <- rep(-99,length(rep2_ch4_layers$datetime))
 for(i in 1:length(rep2_ch4_layers$datetime)){
   epi_ch4_rep2[i] <- sum(rep2_ch4_layers$BVR_1[i]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
                          rep2_ch4_layers$BVR_2[i]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]))/sum(depth_2$LayerVol_m3[c(1:4)])
 }
-
-epi_ch4_rep2[2] <- rep2_ch4_layers$BVR_2[2]
-
-epi_ch4_rep2[31] <- rep2_ch4_layers$BVR_2[31]
-
-epi_ch4_rep2[45] <- rep2_ch4_layers$BVR_1[45]
 
 epi_ch4 <- cbind(epi_ch4_rep1,epi_ch4_rep2)
 epi_ch4_avg <- rowMeans(epi_ch4,na.rm=TRUE)
@@ -512,33 +496,16 @@ ggplot(vw_ch4_all,aes(datetime,meta_avg))+
   theme_classic()
 
 ### Calculate Hypo VW CH4: defined as 7-11m
+### USE 9M ONLY
 hypo_ch4_rep1 <- rep(-99,length(rep1_ch4_layers$datetime))
 for(i in 1:length(rep1_ch4_layers$datetime)){
-  hypo_ch4_rep1[i] <- sum(rep1_ch4_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                          rep1_ch4_layers$BVR_5[i]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(8:10)])
-}
-
-hypo_ch4_rep1[10] <- rep1_ch4_layers$BVR_4[10]
-
-hypo_ch4_rep1[13] <- rep1_ch4_layers$BVR_4[13]
-
-hypo_ch4_rep1[16] <- rep1_ch4_layers$BVR_4[16]
-
-hypo_ch4_rep1[28] <- rep1_ch4_layers$BVR_5[28]
-
-for(i in 38:46){
-  hypo_ch4_rep1[i] <- sum(rep1_ch4_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[c(8:10)]))/sum(depth_2$LayerVol_m3[c(8:10)])
+  hypo_ch4_rep1[i] <- rep1_ch4_layers$BVR_4[i]
 }
 
 # Hypo Rep 2
 hypo_ch4_rep2 <- rep(-99,length(rep2_ch4_layers$datetime))
 for(i in 1:length(rep2_ch4_layers$datetime)){
-  hypo_ch4_rep2[i] <- sum(rep2_ch4_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                          rep2_ch4_layers$BVR_5[i]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(8:10)])
-}
-
-for(i in 38:46){
-  hypo_ch4_rep2[i] <- sum(rep2_ch4_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[c(8:10)]))/sum(depth_2$LayerVol_m3[c(8:10)])
+  hypo_ch4_rep2[i] <- rep2_ch4_layers$BVR_4[i]
 }
 
 hypo_ch4 <- cbind(hypo_ch4_rep1,hypo_ch4_rep2)
@@ -556,7 +523,7 @@ ggplot(vw_ch4_all,aes(datetime,hypo_avg))+
   geom_errorbar(aes(ymin=hypo_avg-hypo_std, ymax=hypo_avg+hypo_std))+
   theme_classic()
 
-## Separate into years (2016; 2017): width = 1000; height = 400
+## Separate into years (2016; 2017; 2018): width = 1200; height = 300
 vw_ch4_avg <- vw_ch4_all %>% select(datetime,vw_avg,epi_avg,meta_avg,hypo_avg)
 names(vw_ch4_avg)[2] <- 'WaterCol'
 names(vw_ch4_avg)[3] <- 'Epi'
@@ -577,6 +544,17 @@ vw_ch4_long <- merge(vw_ch4_avg_long,vw_ch4_std_long,by=c("datetime","depth"))
 
 vw_ch4_16 <- vw_ch4_long %>% filter(datetime>=as.Date('2016-01-01')&datetime<=as.Date('2016-12-31'))
 vw_ch4_17 <- vw_ch4_long %>% filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
+vw_ch4_18 <- vw_ch4_long %>% filter(datetime>=as.Date('2018-01-01')&datetime<=as.Date('2018-12-31'))
+
+# Remove rows with NA averages (but not SD!)
+completeFun <- function(data, desiredCols) {
+  completeVec <- complete.cases(data[, desiredCols])
+  return(data[completeVec, ])
+}
+
+vw_ch4_16 <- completeFun(vw_ch4_16,"ch4_avg")
+vw_ch4_17 <- completeFun(vw_ch4_17,"ch4_avg")
+vw_ch4_18 <- completeFun(vw_ch4_18,"ch4_avg")
 
 ch416 <- ggplot(vw_ch4_16,aes(x = datetime, y = ch4_avg, color = depth))+
   geom_line(size=1)+
@@ -588,6 +566,7 @@ ch416 <- ggplot(vw_ch4_16,aes(x = datetime, y = ch4_avg, color = depth))+
   labs(color="")+
   xlab('2016')+
   ylab(expression(paste("CH"[4]*" (", mu,"mol L"^-1*")")))+
+  xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-30"))+
   theme_classic(base_size = 15)
 
 ch417 <- ggplot(vw_ch4_17,aes(x = datetime, y = ch4_avg, color = depth))+
@@ -600,67 +579,37 @@ ch417 <- ggplot(vw_ch4_17,aes(x = datetime, y = ch4_avg, color = depth))+
   labs(color="")+
   xlab('2017')+
   ylab(expression(paste("CH"[4]*" (", mu,"mol L"^-1*")")))+
+  xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-11-30"))+
   theme_classic(base_size = 15)
 
-ggarrange(ch416,ch417,common.legend=TRUE,legend="right")
+ch418 <- ggplot(vw_ch4_18,aes(x = datetime, y = ch4_avg, color = depth))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  geom_errorbar(aes(ymin=ch4_avg-ch4_std,ymax=ch4_avg+ch4_std))+
+  scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),
+                     values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  geom_vline(xintercept = as.POSIXct("2018-10-29"))+ #Turnover
+  labs(color="")+
+  xlab('2018')+
+  ylab(expression(paste("CH"[4]*" (", mu,"mol L"^-1*")")))+
+  xlim(as.POSIXct("2018-04-01"),as.POSIXct("2018-11-30"))+
+  theme_classic(base_size = 15)
+
+ggarrange(ch416,ch417,ch418,common.legend=TRUE,legend="right",ncol=3,nrow=1)
 
 # Export out Temp Data VW averaged by depth
-write_csv(vw_ch4_all, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_VW_ch4_stats.csv")
+write_csv(vw_ch4_all, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_VW_ch4_stats_16to18.csv")
 
 ### Calculate VW CO2 for FCR
 # Calculate VW pCH4 for the entire water column
+# USE 9 M ONLY FOR HYPO CALCULATIONS
 vw_co2_rep1 <- rep(-99,length(rep1_co2_layers$datetime))
 for(i in 1:length(rep1_co2_layers$datetime)){
   vw_co2_rep1[i] <- sum(rep1_co2_layers$BVR_1[i]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
                         rep1_co2_layers$BVR_2[i]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
                         rep1_co2_layers$BVR_3[i]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                        rep1_co2_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                        rep1_co2_layers$BVR_5[i]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
+                        rep1_co2_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[c(8:10)]))/sum(depth_2$LayerVol_m3[c(1:10)])
 }
-
-# Need to re-calculate VW pCH4 when there are Na values
-# Includes: Rows: 2, 18, 26, 31, 38-45
-vw_co2_rep1[2] <- sum(rep1_co2_layers$BVR_2[2]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                      rep1_co2_layers$BVR_3[2]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                      rep1_co2_layers$BVR_4[2]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                      rep1_co2_layers$BVR_5[2]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
-
-vw_co2_rep1[26] <- sum(rep1_co2_layers$BVR_2[26]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                       rep1_co2_layers$BVR_3[26]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                       rep1_co2_layers$BVR_4[26]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                       rep1_co2_layers$BVR_5[26]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
-
-vw_co2_rep1[31] <- sum(rep1_co2_layers$BVR_2[31]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                       rep1_co2_layers$BVR_3[31]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                       rep1_co2_layers$BVR_4[31]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                       rep1_co2_layers$BVR_5[31]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
-
-vw_co2_rep1[10] <- sum(rep1_co2_layers$BVR_1[10]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
-                       rep1_co2_layers$BVR_2[10]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                       rep1_co2_layers$BVR_3[10]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                       rep1_co2_layers$BVR_4[10]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9],depth_2$LayerVol_m3[10]))/sum(depth_2$LayerVol_m3[c(1:10)])
-
-vw_co2_rep1[13] <- sum(rep1_co2_layers$BVR_1[13]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
-                       rep1_co2_layers$BVR_2[13]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                       rep1_co2_layers$BVR_3[13]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                       rep1_co2_layers$BVR_4[13]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9],depth_2$LayerVol_m3[10]))/sum(depth_2$LayerVol_m3[c(1:10)])
-
-vw_co2_rep1[16] <- sum(rep1_co2_layers$BVR_1[16]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
-                       rep1_co2_layers$BVR_2[16]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                       rep1_co2_layers$BVR_3[16]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                       rep1_co2_layers$BVR_4[16]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9],depth_2$LayerVol_m3[10]))/sum(depth_2$LayerVol_m3[c(1:10)])
-
-for(i in 38:46){
-  vw_co2_rep1[i] <- sum(rep1_co2_layers$BVR_1[i]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
-                        rep1_co2_layers$BVR_2[i]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                        rep1_co2_layers$BVR_3[i]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                        rep1_co2_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9],depth_2$LayerVol_m3[10]))/sum(depth_2$LayerVol_m3[c(1:10)])
-}
-
-vw_co2_rep1[28] <- sum(rep1_co2_layers$BVR_1[28]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
-                       rep1_co2_layers$BVR_2[28]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                       rep1_co2_layers$BVR_3[28]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                       rep1_co2_layers$BVR_5[28]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9],depth_2$LayerVol_m3[10]))/sum(depth_2$LayerVol_m3[c(1:10)])
 
 vw_co2_rep1 <- cbind(rep1_co2_layers,vw_co2_rep1)
 
@@ -673,39 +622,8 @@ for(i in 1:length(rep2_co2_layers$datetime)){
   vw_co2_rep2[i] <- sum(rep2_co2_layers$BVR_1[i]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
                         rep2_co2_layers$BVR_2[i]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
                         rep2_co2_layers$BVR_3[i]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                        rep2_co2_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                        rep2_co2_layers$BVR_5[i]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
+                        rep2_co2_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[c(8:10)]))/sum(depth_2$LayerVol_m3[c(1:10)])
 }
-
-vw_co2_rep2[2] <- sum(rep2_co2_layers$BVR_2[2]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                      rep2_co2_layers$BVR_3[2]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                      rep2_co2_layers$BVR_4[2]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                      rep2_co2_layers$BVR_5[2]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
-
-vw_co2_rep2[26] <- sum(rep2_co2_layers$BVR_2[26]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                       rep2_co2_layers$BVR_3[26]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                       rep2_co2_layers$BVR_4[26]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                       rep2_co2_layers$BVR_5[26]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
-
-vw_co2_rep2[31] <- sum(rep2_co2_layers$BVR_2[31]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                       rep2_co2_layers$BVR_3[31]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                       rep2_co2_layers$BVR_4[31]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                       rep2_co2_layers$BVR_5[31]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
-for(i in 38:46){
-  vw_co2_rep2[i] <- sum(rep2_co2_layers$BVR_1[i]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
-                        rep2_co2_layers$BVR_2[i]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                        rep2_co2_layers$BVR_3[i]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                        rep2_co2_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9],depth_2$LayerVol_m3[10]))/sum(depth_2$LayerVol_m3[c(1:10)])
-}
-
-vw_co2_rep2[45] <- sum(rep2_co2_layers$BVR_1[45]*sum(depth_2$LayerVol_m3[c(1:4)]),
-                      rep2_co2_layers$BVR_3[45]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                      rep2_co2_layers$BVR_4[45]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9],depth_2$LayerVol_m3[10]))/sum(depth_2$LayerVol_m3[c(1:10)])
-
-vw_co2_rep2[18] <- sum(rep2_co2_layers$BVR_1[18]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2],depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]),
-                       rep2_co2_layers$BVR_3[18]*sum(depth_2$LayerVol_m3[5],depth_2$LayerVol_m3[6],depth_2$LayerVol_m3[7]),
-                       rep2_co2_layers$BVR_4[18]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                       rep2_co2_layers$BVR_5[18]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(1:10)])
 
 vw_co2_rep2 <- cbind(rep2_co2_layers,vw_co2_rep2)
 
@@ -740,28 +658,12 @@ for(i in 1:length(rep1_co2_layers$datetime)){
                        rep1_co2_layers$BVR_2[i]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]))/sum(depth_2$LayerVol_m3[c(1:4)])
 }
 
-epi_co2_rep1[2] <- rep1_co2_layers$BVR_2[2]
-
-epi_co2_rep1[26] <- rep1_co2_layers$BVR_2[26]
-
-epi_co2_rep1[31] <- rep1_co2_layers$BVR_2[31]
-
 # Calculate for Rep 2
 epi_co2_rep2 <- rep(-99,length(rep2_co2_layers$datetime))
 for(i in 1:length(rep2_co2_layers$datetime)){
   epi_co2_rep2[i] <- sum(rep2_co2_layers$BVR_1[i]*sum(depth_2$LayerVol_m3[1],depth_2$LayerVol_m3[2]),
                          rep2_co2_layers$BVR_2[i]*sum(depth_2$LayerVol_m3[3],depth_2$LayerVol_m3[4]))/sum(depth_2$LayerVol_m3[c(1:4)])
 }
-
-epi_co2_rep2[2] <- rep2_co2_layers$BVR_2[2]
-
-epi_co2_rep2[26] <- rep2_co2_layers$BVR_2[26]
-
-epi_co2_rep2[31] <- rep2_co2_layers$BVR_2[31]
-
-epi_co2_rep2[18] <- rep2_co2_layers$BVR_1[18]
-
-epi_co2_rep2[45] <- rep2_co2_layers$BVR_1[45]
 
 epi_co2 <- cbind(epi_co2_rep1,epi_co2_rep2)
 epi_co2_avg <- rowMeans(epi_co2,na.rm=TRUE)
@@ -807,34 +709,17 @@ ggplot(vw_co2_all,aes(datetime,meta_avg))+
   theme_classic()
 
 ### Calculate Hypo VW CO2: defined as 7-11m
+### USE ONLY 9M
 # Calculate Rep 1
 hypo_co2_rep1 <- rep(-99,length(rep1_co2_layers$datetime))
 for(i in 1:length(rep1_co2_layers$datetime)){
-  hypo_co2_rep1[i] <- sum(rep1_co2_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                        rep1_co2_layers$BVR_5[i]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(8:10)])
-}
-
-hypo_co2_rep1[10] <- rep1_co2_layers$BVR_4[10]
-
-hypo_co2_rep1[13] <- rep1_co2_layers$BVR_4[13]
-
-hypo_co2_rep1[16] <- rep1_co2_layers$BVR_4[16]
-
-hypo_co2_rep1[28] <- rep1_co2_layers$BVR_5[28]
-
-for(i in 38:46){
-  hypo_co2_rep1[i] <- sum(rep1_co2_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[c(8:10)]))/sum(depth_2$LayerVol_m3[c(8:10)])
+  hypo_co2_rep1[i] <- rep1_co2_layers$BVR_4[i]
 }
 
 # Calculate Rep 2
 hypo_co2_rep2 <- rep(-99,length(rep2_co2_layers$datetime))
 for(i in 1:length(rep2_co2_layers$datetime)){
-  hypo_co2_rep2[i] <- sum(rep2_co2_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[8],depth_2$LayerVol_m3[9]),
-                          rep2_co2_layers$BVR_5[i]*depth_2$LayerVol_m3[10])/sum(depth_2$LayerVol_m3[c(8:10)])
-}
-
-for(i in 38:46){
-  hypo_co2_rep2[i] <- sum(rep2_co2_layers$BVR_4[i]*sum(depth_2$LayerVol_m3[c(8:10)]))/sum(depth_2$LayerVol_m3[c(8:10)])
+  hypo_co2_rep2[i] <- rep2_co2_layers$BVR_4[i]
 }
 
 hypo_co2 <- cbind(hypo_co2_rep1,hypo_co2_rep2)
@@ -852,7 +737,7 @@ ggplot(vw_co2_all,aes(datetime,hypo_avg))+
   geom_errorbar(aes(ymin=hypo_avg-hypo_std, ymax=hypo_avg+hypo_std))+
   theme_classic()
 
-## Separate into years (2016; 2017): width = 1000; height = 400
+## Separate into years (2016; 2017; 2018): width = 1200; height = 300
 vw_co2_avg <- vw_co2_all %>% select(datetime,vw_avg,epi_avg,meta_avg,hypo_avg)
 names(vw_co2_avg)[2] <- 'WaterCol'
 names(vw_co2_avg)[3] <- 'Epi'
@@ -870,6 +755,7 @@ names(vw_co2_std)[5] <- 'Hypo'
 ## Calculate Hypo 'averaged' concentration over each summer
 # First select the correct date range for each summer
 # April 1 - Turnover
+## Re-use for later!!!
 vw_co2_avg_16 <- vw_co2_avg %>% filter(datetime>=as.Date('2016-04-01')&
                                                   datetime<=as.Date('2016-11-11'))
 vw_co2_avg_17 <- vw_co2_avg %>% filter(datetime>=as.Date('2017-04-01')&
@@ -883,12 +769,14 @@ vw_hypo_co2_17 <- sum(vw_co2_avg_17$Hypo)/length(vw_co2_avg_17$Hypo)
 vw_hypo_ch4_16 <- sum(vw_ch4_avg_16$Hypo)/length(vw_ch4_avg_16$Hypo)
 vw_hypo_ch4_17 <- sum(vw_ch4_avg_17$Hypo)/length(vw_ch4_avg_17$Hypo)
 
+# Begin plotting again
 vw_co2_std_long <- vw_co2_std %>% pivot_longer(-datetime,names_to="depth",values_to="co2_std")
 
 vw_co2_long <- merge(vw_co2_avg_long,vw_co2_std_long,by=c("datetime","depth"))
 
 vw_co2_16 <- vw_co2_long %>% filter(datetime>=as.Date('2016-01-01')&datetime<=as.Date('2016-12-31'))
 vw_co2_17 <- vw_co2_long %>% filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
+vw_co2_18 <- vw_co2_long %>% filter(datetime>=as.Date('2018-01-01')&datetime<=as.Date('2018-12-31'))
 
 co216 <- ggplot(vw_co2_16,aes(x = datetime, y = co2_avg, color = depth))+
   geom_line(size=1)+
@@ -900,6 +788,8 @@ co216 <- ggplot(vw_co2_16,aes(x = datetime, y = co2_avg, color = depth))+
   labs(color="")+
   xlab('2016')+
   ylab(expression(paste("CO"[2]*" (", mu,"mol L"^-1*")")))+
+  ylim(0,700)+
+  xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-30"))+
   theme_classic(base_size = 15)
 
 co217 <- ggplot(vw_co2_17,aes(x = datetime, y = co2_avg, color = depth))+
@@ -909,15 +799,28 @@ co217 <- ggplot(vw_co2_17,aes(x = datetime, y = co2_avg, color = depth))+
   scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),
                      values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
   geom_vline(xintercept=as.POSIXct("2017-11-07"))+ #Turnover
-  scale_color_manual(labels=c("Epi","Meta","Hypo","WaterCol"),
-                     values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
   labs(color="")+
   xlab('2017')+
   ylab(expression(paste("CO"[2]*" (", mu,"mol L"^-1*")")))+
-  ylim(0,800)+
+  ylim(0,700)+
+  xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-11-30"))+
   theme_classic(base_size=15)
 
-ggarrange(co216,co217,common.legend=TRUE,legend="right")
+co218 <- ggplot(vw_co2_18,aes(x = datetime, y = co2_avg, color = depth))+
+  geom_line(size=1)+
+  geom_point(size=2)+
+  geom_errorbar(aes(ymin=co2_avg-co2_std,ymax=co2_avg+co2_std))+
+  scale_color_manual(breaks=c("Epi","Meta","Hypo","WaterCol"),
+                     values=c('#F5793A','#A95AA1','#85C0F9','#0F2080'))+
+  geom_vline(xintercept=as.POSIXct("2018-10-29"))+ #Turnover
+  labs(color="")+
+  xlab('2018')+
+  ylab(expression(paste("CO"[2]*" (", mu,"mol L"^-1*")")))+
+  ylim(0,700)+
+  xlim(as.POSIXct("2018-04-01"),as.POSIXct("2018-11-30"))+
+  theme_classic(base_size=15)
+
+ggarrange(co216,co217,co218,common.legend=TRUE,legend="right",ncol=3,nrow=1)
 
 # Export out Temp Data VW averaged by depth
-write_csv(vw_co2_all, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_VW_co2_stats.csv")
+write_csv(vw_co2_all, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/BVR_VW_co2_stats_16to18.csv")
