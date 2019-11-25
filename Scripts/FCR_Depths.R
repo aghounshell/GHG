@@ -7,11 +7,12 @@
 ### A Hounshell, 22Jul19
 ### Updated: 20Nov19
 ###   Include Summer 2018: updated CTD/YSI casts and GHG data
+###   Need to remove dates with all Na's from GHG data
 
 ## RFile: VW_FCR_16to18
 
 # Load libraries needed
-pacman::p_load(tidyverse,ggplot2,ggpubr,matrixStats)
+pacman::p_load(tidyverse,ggplot2,ggpubr,matrixStats,zoo)
 
 # Load in data
 # FCR Volumes by depth
@@ -279,6 +280,8 @@ o18 <- ggplot(vw_o2f_gather18,aes(x = DateTime, y = vw_o2, color = depth))+
 
 ggarrange(o16,o17,o18,common.legend=TRUE,legend="right",ncol=3,nrow=1)
 
+## May also want to verify date in 2017 when DO drops to zero for the Hypo and Meta - is this real?
+
 # Export out Temp Data VW averaged by depth
 write_csv(vw_o2f, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/FCR_VW_o2_16to18.csv")
 
@@ -301,7 +304,7 @@ ghg_2_rep1$co2_umol_L <- na.approx(ghg_2_rep1$co2_umol_L)
 
 ghg_2_rep2 <- ghg %>% filter(depth==1.6,rep==2) %>% group_by(datetime) %>% 
   summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="FCR_2")
-ghg_2_rep2 <- ghg_2_rep2[-113,]
+ghg_2_rep2 <- ghg_2_rep2[-104,] # NA value for the last date - cannot interpolate
 ghg_2_rep2$ch4_umol_L <- na.approx(ghg_2_rep2$ch4_umol_L)
 ghg_2_rep2$co2_umol_L <- na.approx(ghg_2_rep2$co2_umol_L)
 
@@ -312,7 +315,7 @@ ghg_3_rep1$co2_umol_L <- na.approx(ghg_3_rep1$co2_umol_L)
 
 ghg_3_rep2 <- ghg %>% filter(depth==3.8,rep==2) %>% group_by(datetime) %>% 
   summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="FCR_3")
-ghg_3_rep2 <- ghg_3_rep2[-113,]
+ghg_3_rep2 <- ghg_3_rep2[-104,] # NA value for the last date; cannot interpolate
 ghg_3_rep2$ch4_umol_L <- na.approx(ghg_3_rep2$ch4_umol_L)
 ghg_3_rep2$co2_umol_L <- na.approx(ghg_3_rep2$co2_umol_L)
 
@@ -323,7 +326,7 @@ ghg_4_rep1$co2_umol_L <- na.approx(ghg_4_rep1$co2_umol_L)
 
 ghg_4_rep2 <- ghg %>% filter(depth==5.0,rep==2) %>% group_by(datetime) %>% 
   summarize_all(funs(mean)) %>% arrange(datetime) %>% mutate(grouping="FCR_4")
-ghg_4_rep2 <- ghg_4_rep2[-c(113,114),]
+ghg_4_rep2 <- ghg_4_rep2[-c(104,105),] # NAs for last two dates
 ghg_4_rep2$ch4_umol_L <- na.approx(ghg_4_rep2$ch4_umol_L)
 ghg_4_rep2$co2_umol_L <- na.approx(ghg_4_rep2$co2_umol_L)
 
@@ -553,7 +556,7 @@ vw_ch4_16 <- completeFun(vw_ch4_16,"ch4_avg")
 vw_ch4_17 <- completeFun(vw_ch4_17,"ch4_avg")
 vw_ch4_18 <- completeFun(vw_ch4_18,"ch4_avg")
 
-ch418 <- ggplot(vw_ch4_16,aes(x = datetime, y = ch4_avg, color = depth))+
+ch416 <- ggplot(vw_ch4_16,aes(x = datetime, y = ch4_avg, color = depth))+
   geom_line(size=1)+
   geom_point(size=2)+
   geom_errorbar(aes(ymin=ch4_avg-ch4_std,ymax=ch4_avg+ch4_std))+
@@ -609,8 +612,8 @@ write_csv(vw_ch4_all, path = "C:/Users/ahoun/Dropbox/VT_GHG/GHG/Data_Output/FCR_
 ## Calculate VW pCO2 for FCR
 # Calculate VW pCH4 for the entire water column
 # Remove outlier: Rep 1 ~627 umol/L while Rep 2 ~29 umol/L
-rep1_co2_layers$FCR_2[75] <- NA
-rep1_co2_layers$FCR_6[113] <- NA
+rep1_co2_layers$FCR_2[68] <- NA
+rep1_co2_layers$FCR_6[104] <- NA
 
 vw_co2_rep1 <- rep(-99,length(rep1_co2_layers$datetime))
 for(i in 1:length(rep1_co2_layers$datetime)){
@@ -770,6 +773,8 @@ names(vw_co2_std)[3] <- 'Epi'
 names(vw_co2_std)[4] <- 'Meta'
 names(vw_co2_std)[5] <- 'Hypo'
 
+#### Need to check this ####
+
 ## Calculate Hypo 'averaged' concentration over each summer
 # First select the correct date range for each summer
 # April 1 - Turnover
@@ -795,6 +800,16 @@ vw_co2_long <- merge(vw_co2_avg_long,vw_co2_std_long,by=c("datetime","depth"))
 vw_co2_16 <- vw_co2_long %>% filter(datetime>=as.Date('2016-01-01')&datetime<=as.Date('2016-12-31'))
 vw_co2_17 <- vw_co2_long %>% filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
 vw_co2_18 <- vw_co2_long %>% filter(datetime>=as.Date('2018-01-01')&datetime<=as.Date('2018-12-31'))
+
+# Remove rows with NA averages (but not SD!)
+completeFun <- function(data, desiredCols) {
+  completeVec <- complete.cases(data[, desiredCols])
+  return(data[completeVec, ])
+}
+
+vw_co2_16 <- completeFun(vw_co2_16,"co2_avg")
+vw_co2_17 <- completeFun(vw_co2_17,"co2_avg")
+vw_co2_18 <- completeFun(vw_co2_18,"co2_avg")
 
 co216 <- ggplot(vw_co2_16,aes(x = datetime, y = co2_avg, color = depth))+
   geom_line(size=1)+
