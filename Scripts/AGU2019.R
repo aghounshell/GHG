@@ -108,7 +108,7 @@ co2_16 <- ggplot()+
                                         ymax=hypo_co2_avg+hypo_co2_std,group=1,color='BVR'),size=1)+
   geom_vline(xintercept = as.POSIXct("2016-11-11"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2016-10-07"),linetype="dashed",color="#0F2080")+ #Turnover FCR
-  scale_color_manual(breaks=c("BVR","FCR"),
+  scale_color_manual(breaks=c("BVR","FCR"), labels=c("Anoxic","Oxic"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
   xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-30"))+
@@ -128,7 +128,7 @@ co2_17 <- ggplot()+
                                         ymax=hypo_co2_avg+hypo_co2_std,group=1,color='BVR'),size=1)+
   geom_vline(xintercept = as.POSIXct("2017-11-07"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2017-10-30"),linetype="dashed",color="#0F2080")+ #Turnover FCR
-  scale_color_manual(breaks=c("BVR","FCR"),
+  scale_color_manual(breaks=c("BVR","FCR"), labels=c("Anoxic","Oxic"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
   xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-11-30"))+
@@ -148,7 +148,7 @@ co2_18 <- ggplot()+
                                         ymax=hypo_co2_avg+hypo_co2_std,group=1,color='BVR'),size=1)+
   geom_vline(xintercept = as.POSIXct("2018-10-29"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2018-10-21"),linetype="dashed",color="#0F2080")+ #Turnover FCR
-  scale_color_manual(breaks=c("BVR","FCR"),
+  scale_color_manual(breaks=c("BVR","FCR"), labels=c("Anoxic","Oxic"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
   xlim(as.POSIXct("2018-04-01"),as.POSIXct("2018-11-30"))+
@@ -172,7 +172,7 @@ ch4_16 <- ggplot()+
                                         ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='BVR'),size=1)+
   geom_vline(xintercept = as.POSIXct("2016-11-11"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2016-10-07"),linetype="dashed",color="#0F2080")+ #Turnover FCR
-  scale_color_manual(breaks=c("BVR","FCR"),
+  scale_color_manual(breaks=c("BVR","FCR"), labels=c("Anoxic","Oxic"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
   xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-30"))+
@@ -192,7 +192,7 @@ ch4_17 <- ggplot()+
                                         ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='BVR'),size=1)+
   geom_vline(xintercept = as.POSIXct("2017-11-07"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2017-10-30"),linetype="dashed",color="#0F2080")+ #Turnover FCR
-  scale_color_manual(breaks=c("BVR","FCR"),
+  scale_color_manual(breaks=c("BVR","FCR"), labels=c("Anoxic","Oxic"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
   xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-11-30"))+
@@ -212,7 +212,7 @@ ch4_18 <- ggplot()+
                                         ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='BVR'),size=1)+
   geom_vline(xintercept = as.POSIXct("2018-10-29"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2018-10-21"),linetype="dashed",color="#0F2080")+ #Turnover FCR
-  scale_color_manual(breaks=c("BVR","FCR"),
+  scale_color_manual(breaks=c("BVR","FCR"), labels=c("Anoxic","Oxic"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
   xlim(as.POSIXct("2018-04-01"),as.POSIXct("2018-11-30"))+
