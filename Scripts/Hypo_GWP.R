@@ -322,7 +322,7 @@ gwp <- cbind.data.frame(res,year,avg,sd)
 ggplot(gwp,mapping=aes(x=year,y=avg,fill=res))+
   geom_bar(stat="identity", color="black",position=position_dodge())+
   geom_errorbar(aes(ymin=avg-sd,ymax=avg+sd), width=.2,position=position_dodge(.9))+
-  scale_fill_manual(breaks=c("BVR","FCR"),
+  scale_fill_manual(breaks=c("BVR","FCR"),labels=c("Anoxic","Oxic"),
                      values=c('#F5793A','#0F2080'))+
   labs(fill="")+
   xlab("")+
