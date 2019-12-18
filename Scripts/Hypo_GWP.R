@@ -282,8 +282,8 @@ sd <- c(sd(bvr_ch4_16_sum),sd(bvr_co2_16_sum),sd(bvr_ch4_17_sum),sd(bvr_co2_17_s
 
 data_2 <- cbind.data.frame(res,year,gas,avg,sd)
 
-ggplot(data_2,mapping=aes(x=year,y=avg,fill=gas))+
-  geom_bar(stat="identity", color="black",position=position_dodge())
+data_2 <- data_2 %>% add_column(res_gas=c('BVR_ch4','BVR_co2','BVR_ch4','BVR_co2','BVR_ch4','BVR_co2',
+                                          'FCR_ch4','FCR_co2','FCR_ch4','FCR_co2','FCR_ch4','FCR_co2'))
 
 # Units in kg/L
 bvr_gwp_16 <- matrix(ncol=1,nrow=2)
@@ -319,12 +319,29 @@ sd <- c(sd(bvr_gwp_16),sd(bvr_gwp_17),sd(bvr_gwp_18),sd(fcr_gwp_16),sd(fcr_gwp_1
 
 gwp <- cbind.data.frame(res,year,avg,sd)
 
-ggplot(gwp,mapping=aes(x=year,y=avg,fill=res))+
+# GRAPH!
+
+ghg_graph <- ggplot(data_2,mapping=aes(x=year,y=avg/1000,fill=res_gas))+
+  geom_bar(stat="identity", color="black",position=position_dodge())+
+  geom_errorbar(aes(ymin=avg/1000-sd/1000,ymax=avg/1000+sd/1000),width=0.4,position=position_dodge(0.9))+
+  scale_fill_manual(breaks=c("BVR_ch4","BVR_co2","FCR_ch4","FCR_co2"),labels=c(expression("BVR pCH"[4]),
+                                                                               expression("BVR pCO"[2]),
+                                                                               expression("FCR pCH"[4]),
+                                                                               expression("FCR pCO"[2])),
+                    values=c('#F5793A','#ffa700','#0F2080','#91bfff'))+
+  labs(fill="")+
+  xlab("")+
+  ylab(expression(paste("Summed pGHG (mmol L"^-1*")")))+
+  theme_classic(base_size=15)
+
+gwp_graph <- ggplot(gwp,mapping=aes(x=year,y=avg,fill=res))+
   geom_bar(stat="identity", color="black",position=position_dodge())+
   geom_errorbar(aes(ymin=avg-sd,ymax=avg+sd), width=.2,position=position_dodge(.9))+
-  scale_fill_manual(breaks=c("BVR","FCR"),labels=c("Anoxic","Oxic"),
+  scale_fill_manual(breaks=c("BVR","FCR"),labels=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(fill="")+
   xlab("")+
   ylab(expression(paste("Hypo GWP (g L"^-1*")")))+
   theme_classic(base_size=15)
+
+ggarrange(ghg_graph,gwp_graph,legend="right",ncol=2,nrow=1)
