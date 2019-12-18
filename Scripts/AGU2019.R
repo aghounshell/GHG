@@ -108,7 +108,7 @@ co2_16 <- ggplot()+
                                         ymax=hypo_co2_avg+hypo_co2_std,group=1,color='BVR'),size=1)+
   geom_vline(xintercept = as.POSIXct("2016-11-11"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2016-10-07"),linetype="dashed",color="#0F2080")+ #Turnover FCR
-  scale_color_manual(breaks=c("BVR","FCR"), labels=c("Anoxic","Oxic"),
+  scale_color_manual(breaks=c("BVR","FCR"), labels=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
   xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-30"))+
@@ -128,7 +128,7 @@ co2_17 <- ggplot()+
                                         ymax=hypo_co2_avg+hypo_co2_std,group=1,color='BVR'),size=1)+
   geom_vline(xintercept = as.POSIXct("2017-11-07"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2017-10-30"),linetype="dashed",color="#0F2080")+ #Turnover FCR
-  scale_color_manual(breaks=c("BVR","FCR"), labels=c("Anoxic","Oxic"),
+  scale_color_manual(breaks=c("BVR","FCR"), labels=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
   xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-11-30"))+
@@ -148,16 +148,17 @@ co2_18 <- ggplot()+
                                         ymax=hypo_co2_avg+hypo_co2_std,group=1,color='BVR'),size=1)+
   geom_vline(xintercept = as.POSIXct("2018-10-29"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2018-10-21"),linetype="dashed",color="#0F2080")+ #Turnover FCR
-  scale_color_manual(breaks=c("BVR","FCR"), labels=c("Anoxic","Oxic"),
+  geom_vline(xintercept = as.POSIXct("2018-07-19"),color="#0F2080")+ # SSS Off in FCR
+  scale_color_manual(breaks=c("BVR","FCR"), labels=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
   xlim(as.POSIXct("2018-04-01"),as.POSIXct("2018-11-30"))+
   xlab('2018')+
-  ylab('')+
+  ylab(expression(paste("VW Hypo pCO"[2]*" (", mu,"mol L"^-1*")")))+
   ylim(0,1000)+
   theme_classic(base_size=15)
 
-ggarrange(co2_16,co2_17,co2_18,common.legend=TRUE,legend="right",ncol=3,nrow=1)
+ggarrange(co2_16,co2_17,co2_18,common.legend=TRUE,legend="right",ncol=2,nrow=2)
 
 # pCH4
 
@@ -172,7 +173,7 @@ ch4_16 <- ggplot()+
                                         ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='BVR'),size=1)+
   geom_vline(xintercept = as.POSIXct("2016-11-11"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2016-10-07"),linetype="dashed",color="#0F2080")+ #Turnover FCR
-  scale_color_manual(breaks=c("BVR","FCR"), labels=c("Anoxic","Oxic"),
+  scale_color_manual(breaks=c("BVR","FCR"), labels=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
   xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-30"))+
@@ -192,7 +193,7 @@ ch4_17 <- ggplot()+
                                         ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='BVR'),size=1)+
   geom_vline(xintercept = as.POSIXct("2017-11-07"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2017-10-30"),linetype="dashed",color="#0F2080")+ #Turnover FCR
-  scale_color_manual(breaks=c("BVR","FCR"), labels=c("Anoxic","Oxic"),
+  scale_color_manual(breaks=c("BVR","FCR"), labels=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
   xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-11-30"))+
@@ -212,13 +213,14 @@ ch4_18 <- ggplot()+
                                         ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='BVR'),size=1)+
   geom_vline(xintercept = as.POSIXct("2018-10-29"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2018-10-21"),linetype="dashed",color="#0F2080")+ #Turnover FCR
-  scale_color_manual(breaks=c("BVR","FCR"), labels=c("Anoxic","Oxic"),
+  geom_vline(xintercept = as.POSIXct("2018-07-19"),color="#0F2080")+ # SSS Off in FCR
+  scale_color_manual(breaks=c("BVR","FCR"), labels=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
   xlim(as.POSIXct("2018-04-01"),as.POSIXct("2018-11-30"))+
+  ylab(expression(paste("VW Hypo pCH"[4]*" (", mu,"mol L"^-1*")")))+
   xlab('2018')+
-  ylab('')+
   ylim(0,600)+
   theme_classic(base_size=15)
 
-ggarrange(ch4_16,ch4_17,ch4_18,common.legend=TRUE,legend="right",ncol=3,nrow=1)
+ggarrange(ch4_16,ch4_17,ch4_18,common.legend=TRUE,legend="right",ncol=2,nrow=2)
