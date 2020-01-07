@@ -152,13 +152,14 @@ co2_18 <- ggplot()+
   scale_color_manual(breaks=c("BVR","FCR"), labels=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
+  ylab("")+
   xlim(as.POSIXct("2018-04-01"),as.POSIXct("2018-11-30"))+
   xlab('2018')+
-  ylab(expression(paste("VW Hypo pCO"[2]*" (", mu,"mol L"^-1*")")))+
   ylim(0,1000)+
   theme_classic(base_size=15)
 
-ggarrange(co2_16,co2_17,co2_18,common.legend=TRUE,legend="right",ncol=2,nrow=2)
+# Saved as: 1000, 300
+ggarrange(co2_16,co2_17,co2_18,common.legend=TRUE,legend="right",ncol=3,nrow=1)
 
 # pCH4
 
@@ -218,9 +219,9 @@ ch4_18 <- ggplot()+
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
   xlim(as.POSIXct("2018-04-01"),as.POSIXct("2018-11-30"))+
-  ylab(expression(paste("VW Hypo pCH"[4]*" (", mu,"mol L"^-1*")")))+
+  ylab("")+
   xlab('2018')+
   ylim(0,600)+
   theme_classic(base_size=15)
 
-ggarrange(ch4_16,ch4_17,ch4_18,common.legend=TRUE,legend="right",ncol=2,nrow=2)
+ggarrange(ch4_16,ch4_17,ch4_18,common.legend=TRUE,legend="right",ncol=3,nrow=1)
