@@ -237,7 +237,7 @@ fcr_temp_18_plot <- ggplot(fcr_temp_18, aes(x=date, y=y))+
   geom_point(aes(x = as.Date("2018-07-30"),y = 0),shape=17,size=2)+ #SSS Off
   geom_point(aes(x = as.Date("2018-10-21"),y = 0),shape=15, size=2)+ #Turnover
   labs(x = "2018", y = "", fill=expression(''*~degree*C*''))+
-  scale_fill_gradientn(colours = rev(blue2green2red(60)), na.value="gray")+
+  scale_fill_gradientn(colours = blue2green2red(60), na.value="gray")+
   xlim(as.Date("2018-04-01"),as.Date("2018-11-30"))+
   theme_classic(base_size=15)
 
@@ -285,7 +285,7 @@ bvr_temp_18_plot <- ggplot(bvr_temp_18, aes(x=date, y=y))+
   geom_hline(yintercept = 9, linetype="dashed", colour="white")+
   geom_point(aes(x=as.Date("2018-10-29"),y=0),shape=15,size=2)+ #Turnover
   labs(x = "2018", y = "", fill=expression(''*~degree*C*''))+
-  scale_fill_gradientn(colours = rev(blue2green2red(60)), na.value="gray")+
+  scale_fill_gradientn(colours = blue2green2red(60), na.value="gray")+
   xlim(as.Date("2018-04-01"),as.Date("2018-11-30"))+
   theme_classic(base_size=15)
 
@@ -293,5 +293,5 @@ temp_heatmap <- ggarrange(fcr_temp_16_plot, fcr_temp_17_plot, fcr_temp_18_plot, 
                         bvr_temp_17_plot, bvr_temp_18_plot, common.legend=TRUE,legend="right", 
                         ncol=3, nrow=2)
 
-ggsave("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Fig_Output/Temp_heatmap.jpg",temp_heatmap,width=12,height=6,
+ggsave("C:/Users/ahoun/Dropbox/VT_GHG/GHG/Fig_Output/Temp_heatmap_2.jpg",temp_heatmap,width=12,height=6,
        units=c("in"))
