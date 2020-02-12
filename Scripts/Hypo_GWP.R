@@ -285,6 +285,59 @@ data_2 <- cbind.data.frame(res,year,gas,avg,sd)
 data_2 <- data_2 %>% add_column(res_gas=c('BVR_ch4','BVR_co2','BVR_ch4','BVR_co2','BVR_ch4','BVR_co2',
                                           'FCR_ch4','FCR_co2','FCR_ch4','FCR_co2','FCR_ch4','FCR_co2'))
 
+# Back-of-envelope calculation: c/m2 produced in FCR and BVR by year
+# Convert umols/L CO2 and CH4 to mols C/L * Vol Hypo / Hypo Surface area
+bvr_co2_c_16 <- (bvr_co2_16[2:3]/1000000)*208000000/72679
+bvr_ch4_c_16 <- (bvr_ch4_16[2:3]/1000000)*208000000/72679
+
+bvr_co2_c_17 <- (bvr_co2_17[2:3]/1000000)*208000000/72679
+bvr_ch4_c_17 <- (bvr_ch4_17[2:3]/1000000)*208000000/72679
+
+bvr_co2_c_18 <- (bvr_co2_18[2:3]/1000000)*208000000/72679
+bvr_ch4_c_18 <- (bvr_ch4_18[2:3]/1000000)*208000000/72679
+
+fcr_co2_c_16 <- (fcr_co2_16[2:3]/1000000)*11268000/3291
+fcr_ch4_c_16 <- (fcr_ch4_16[2:3]/1000000)*11268000/3291
+
+fcr_co2_c_17 <- (fcr_co2_17[2:3]/1000000)*11268000/3291
+fcr_ch4_c_17 <- (fcr_ch4_17[2:3]/1000000)*11268000/3291
+
+fcr_co2_c_18 <- (fcr_co2_18[2:3]/1000000)*11268000/3291
+fcr_ch4_c_18 <- (fcr_ch4_18[2:3]/1000000)*11268000/3291
+
+# Sum C from CO2 and C from CH4 all year then add (mols C/m2)
+bvr_c_16 <- matrix(nrow=1,ncol=2)
+bvr_c_16[1,1] <- sum(bvr_co2_c_16[1],na.rm=TRUE) + sum(bvr_ch4_c_16[1],na.rm=TRUE)
+bvr_c_16[1,2] <- sum(bvr_co2_c_16[2],na.rm=TRUE) + sum(bvr_ch4_c_16[2],na.rm=TRUE)
+
+bvr_c_17 <- matrix(nrow=1,ncol=2)
+bvr_c_17[1,1] <- sum(bvr_co2_c_17[1],na.rm=TRUE) + sum(bvr_ch4_c_17[1],na.rm=TRUE)
+bvr_c_17[1,2] <- sum(bvr_co2_c_17[2],na.rm=TRUE) + sum(bvr_ch4_c_17[2],na.rm=TRUE)
+
+bvr_c_18 <- matrix(nrow=1,ncol=2)
+bvr_c_18[1,1] <- sum(bvr_co2_c_18[1],na.rm=TRUE) + sum(bvr_ch4_c_18[1],na.rm=TRUE)
+bvr_c_18[1,2] <- sum(bvr_co2_c_18[2],na.rm=TRUE) + sum(bvr_ch4_c_18[2],na.rm=TRUE)
+
+fcr_c_16 <- matrix(nrow=1,ncol=2)
+fcr_c_16[1,1] <- sum(fcr_co2_c_16[1],na.rm=TRUE) + sum(fcr_ch4_c_16[1],na.rm=TRUE)
+fcr_c_16[1,2] <- sum(fcr_co2_c_16[2],na.rm=TRUE) + sum(fcr_ch4_c_16[2],na.rm=TRUE)
+
+fcr_c_17 <- matrix(nrow=1,ncol=2)
+fcr_c_17[1,1] <- sum(fcr_co2_c_17[1],na.rm=TRUE) + sum(fcr_ch4_c_17[1],na.rm=TRUE)
+fcr_c_17[1,2] <- sum(fcr_co2_c_17[2],na.rm=TRUE) + sum(fcr_ch4_c_17[2],na.rm=TRUE)
+
+fcr_c_18 <- matrix(nrow=1,ncol=2)
+fcr_c_18[1,1] <- sum(fcr_co2_c_18[1],na.rm=TRUE) + sum(fcr_ch4_c_18[1],na.rm=TRUE)
+fcr_c_18[1,2] <- sum(fcr_co2_c_18[2],na.rm=TRUE) + sum(fcr_ch4_c_18[2],na.rm=TRUE)
+
+res <- c("BVR","BVR","BVR","FCR","FCR","FCR")
+year <- c("2016","2017","2018","2016","2017","2018")
+avg <- c(mean(bvr_c_16),mean(bvr_c_17),mean(bvr_c_18),mean(fcr_c_16),mean(fcr_c_17),
+         mean(fcr_c_18))
+sd <- c(sd(bvr_c_16),sd(bvr_c_17),sd(bvr_c_18),sd(fcr_c_16),sd(fcr_c_17),sd(fcr_c_18))
+
+data_c <- cbind.data.frame(res,year,avg,sd)
+
 # Units in kg/L
 bvr_gwp_16 <- matrix(ncol=1,nrow=2)
 bvr_gwp_16[1,1] <- ((bvr_ch4_16_sum[1,1]*34*16.04)+(bvr_co2_16_sum[1,1]*44.01))/1000000
