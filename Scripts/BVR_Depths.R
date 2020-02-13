@@ -13,7 +13,7 @@
 # RFile: VW_BVR_16to18
 
 # Load libraries needed
-pacman::p_load(tidyverse,ggplot2,ggpubr,matrixStats,zoo)
+pacman::p_load(tidyverse,ggplot2,ggpubr,matrixStats,zoo,lubridate)
 
 # Load in data
 # BVR Volumes by depth
@@ -71,6 +71,43 @@ casts_layers <- casts_layers[,c(1:2,4:11,3)]
 
 # Select complete cases
 casts_layers <- na.omit(casts_layers)
+
+# Plot averaged temperature for 'casts_10' (aka: > 9 m)
+ggplot(casts_layers,aes(x=Date,y=BVR_10))+
+  geom_line(aes(x=Date,y=BVR_10))+
+  geom_point()+
+  theme_classic()
+
+# Separate by year and remove funky values (2017-07-06; 2017-10-08)
+swi_16 <- casts_layers %>% filter(Date>=as.Date('2016-01-01')&Date<=as.Date('2016-12-31'))
+swi_16$doy <- yday(swi_16$Date)
+swi_17 <- casts_layers %>% filter(Date>=as.Date('2017-01-01')&Date<=as.Date('2017-12-31'))
+swi_17$doy <- yday(swi_17$Date)
+swi_18 <- casts_layers %>% filter(Date>=as.Date('2018-01-01')&Date<=as.Date('2018-12-31'))
+swi_18$doy <- yday(swi_18$Date)
+
+# Export out to compare to BVR
+write_csv(swi_16, path = "C:/Users/ahoun/OneDrive/Desktop/GHG/Data_Output/swi_16_bvr.csv")
+write_csv(swi_17, path = "C:/Users/ahoun/OneDrive/Desktop/GHG/Data_Output/swi_17_bvr.csv")
+write_csv(swi_18, path = "C:/Users/ahoun/OneDrive/Desktop/GHG/Data_Output/swi_18_bvr.csv")
+
+# Plot all years on same graph
+ggplot()+
+  geom_line(data=swi_16,aes(x=doy,y=BVR_10,color="2016"),size=1.1)+
+  geom_point(data=swi_16,aes(x=doy,y=BVR_10,color="2016"),size=4)+
+  geom_line(data=swi_17,aes(x=doy,y=BVR_10,color="2017"),size=1.1)+
+  geom_point(data=swi_17,aes(x=doy,y=BVR_10,color="2017"),size=4)+
+  geom_line(data=swi_18,aes(x=doy,y=BVR_10,color="2018"),size=1.1)+
+  geom_point(data=swi_18,aes(x=doy,y=BVR_10,color="2018"),size=4)+
+  geom_vline(xintercept = 315,linetype="dashed",color="#ffa700",size=1)+ #Turnover BVR 2016
+  geom_vline(xintercept = 311,linetype="dashed",color="#ffa07a",size=1)+ #Turnover BVR 2017
+  geom_vline(xintercept = 302,linetype="dashed",color="#F5793A",size=1)+ #Turnover BVR 2018
+  scale_color_manual(breaks=c("2016","2017","2018"), labels=c("BVR 2016","BVR 2017","BVR 2018"),
+                     values=c('#ffa700','#ffa07a','#F5793A'))+
+  xlab("Day of Year")+
+  labs(color="")+
+  ylab("Temperature (deg C)")+
+  theme_classic(base_size=15)
 
 # Calculate volume weighted average temperature for the entire water column
 # Add volume from the bottom-most layers (10-13)
