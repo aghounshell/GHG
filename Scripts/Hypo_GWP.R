@@ -169,21 +169,21 @@ ggplot()+
   theme_classic()
 
 ## Calculate Hypo GHGs: sum from 04-06 to 10-20 for each year
-bvr_ch4_16 <- bvr_ch4_merge %>% filter(datetime>=as.Date('2016-04-06')&datetime<=as.Date('2016-10-20'))
-bvr_ch4_17 <- bvr_ch4_merge %>% filter(datetime>=as.Date('2017-04-06')&datetime<=as.Date('2017-10-20'))
-bvr_ch4_18 <- bvr_ch4_merge %>% filter(datetime>=as.Date('2018-04-06')&datetime<=as.Date('2018-10-20'))
+bvr_ch4_16 <- bvr_ch4_merge %>% filter(datetime>=as.Date('2016-04-06')&datetime<=as.Date('2016-09-30'))
+bvr_ch4_17 <- bvr_ch4_merge %>% filter(datetime>=as.Date('2017-04-06')&datetime<=as.Date('2017-09-30'))
+bvr_ch4_18 <- bvr_ch4_merge %>% filter(datetime>=as.Date('2018-04-06')&datetime<=as.Date('2018-09-30'))
 
-bvr_co2_16 <- bvr_co2_merge %>% filter(datetime>=as.Date('2016-04-06')&datetime<=as.Date('2016-10-20'))
-bvr_co2_17 <- bvr_co2_merge %>% filter(datetime>=as.Date('2017-04-06')&datetime<=as.Date('2017-10-20'))
-bvr_co2_18 <- bvr_co2_merge %>% filter(datetime>=as.Date('2018-04-06')&datetime<=as.Date('2018-10-20'))
+bvr_co2_16 <- bvr_co2_merge %>% filter(datetime>=as.Date('2016-04-06')&datetime<=as.Date('2016-09-30'))
+bvr_co2_17 <- bvr_co2_merge %>% filter(datetime>=as.Date('2017-04-06')&datetime<=as.Date('2017-09-30'))
+bvr_co2_18 <- bvr_co2_merge %>% filter(datetime>=as.Date('2018-04-06')&datetime<=as.Date('2018-09-30'))
 
-fcr_ch4_16 <- fcr_ch4_merge %>% filter(datetime>=as.Date('2016-04-06')&datetime<=as.Date('2016-10-20'))
-fcr_ch4_17 <- fcr_ch4_merge %>% filter(datetime>=as.Date('2017-04-06')&datetime<=as.Date('2017-10-20'))
-fcr_ch4_18 <- fcr_ch4_merge %>% filter(datetime>=as.Date('2018-04-06')&datetime<=as.Date('2018-10-20'))
+fcr_ch4_16 <- fcr_ch4_merge %>% filter(datetime>=as.Date('2016-04-06')&datetime<=as.Date('2016-09-30'))
+fcr_ch4_17 <- fcr_ch4_merge %>% filter(datetime>=as.Date('2017-04-06')&datetime<=as.Date('2017-09-30'))
+fcr_ch4_18 <- fcr_ch4_merge %>% filter(datetime>=as.Date('2018-04-06')&datetime<=as.Date('2018-09-30'))
 
-fcr_co2_16 <- fcr_co2_merge %>% filter(datetime>=as.Date('2016-04-06')&datetime<=as.Date('2016-10-20'))
-fcr_co2_17 <- fcr_co2_merge %>% filter(datetime>=as.Date('2017-04-06')&datetime<=as.Date('2017-10-20'))
-fcr_co2_18 <- fcr_co2_merge %>% filter(datetime>=as.Date('2018-04-06')&datetime<=as.Date('2018-10-20'))
+fcr_co2_16 <- fcr_co2_merge %>% filter(datetime>=as.Date('2016-04-06')&datetime<=as.Date('2016-09-30'))
+fcr_co2_17 <- fcr_co2_merge %>% filter(datetime>=as.Date('2017-04-06')&datetime<=as.Date('2017-09-30'))
+fcr_co2_18 <- fcr_co2_merge %>% filter(datetime>=as.Date('2018-04-06')&datetime<=as.Date('2018-09-30'))
 
 ### Sum and calculate Avg and Stdev
 bvr_ch4_16_sum <- matrix(ncol=1,nrow=2)
@@ -398,3 +398,14 @@ gwp_graph <- ggplot(gwp,mapping=aes(x=year,y=avg,fill=res))+
   theme_classic(base_size=15)
 
 ggarrange(ghg_graph,gwp_graph,legend="right",ncol=2,nrow=1)
+
+# Graph the amount of C (mols C/m2)
+ggplot(data_c,mapping=aes(x=year,y=avg,fill=res))+
+  geom_bar(stat="identity",color="black",position=position_dodge())+
+  geom_errorbar(aes(ymin=avg-sd,ymax=avg+sd),width=0.4,position=position_dodge(0.9))+
+  scale_fill_manual(breaks=c("BVR","FCR"),labels=c("BVR","FCR"),
+                    values=c('#F5793A','#0F2080'))+
+  labs(fill="")+
+  xlab("")+
+  ylab(expression(paste("Summed C (mol C m"^-2*")")))+
+  theme_classic(base_size=15)
