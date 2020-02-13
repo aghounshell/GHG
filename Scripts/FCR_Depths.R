@@ -12,7 +12,7 @@
 ## RFile: VW_FCR_16to18
 
 # Load libraries needed
-pacman::p_load(tidyverse,ggplot2,ggpubr,matrixStats,zoo)
+pacman::p_load(tidyverse,ggplot2,ggpubr,matrixStats,zoo,lubridate)
 
 # Load in data
 # FCR Volumes by depth
@@ -67,6 +67,44 @@ casts_layers_temp <- casts_merge_temp %>% spread(grouping,Temp_C)
 
 # Remove rows with Na values
 casts_layers_temp <- na.omit(casts_layers_temp)
+
+# Plot averaged temperature for 'casts_7' (aka: 8.7 - 9.6 m depths)
+ggplot(casts_layers_temp,aes(x=Date,y=FCR_7))+
+  geom_line(aes(x=Date,y=FCR_7))+
+  geom_point()+
+  theme_classic()
+
+# Separate by year and remove funky values (2017-07-06; 2017-10-08)
+swi_16 <- casts_layers_temp %>% filter(Date>=as.Date('2016-01-01')&Date<=as.Date('2016-12-31'))
+swi_16$doy <- yday(swi_16$Date)
+swi_17 <- casts_layers_temp %>% filter(Date>=as.Date('2017-01-01')&Date<=as.Date('2017-12-31'))
+swi_17$doy <- yday(swi_17$Date)
+swi_17 <- swi_17[-c(30,57),]
+swi_18 <- casts_layers_temp %>% filter(Date>=as.Date('2018-01-01')&Date<=as.Date('2018-12-31'))
+swi_18$doy <- yday(swi_18$Date)
+
+# Export out to compare to BVR
+write_csv(swi_16, path = "C:/Users/ahoun/OneDrive/Desktop/GHG/Data_Output/swi_16_fcr.csv")
+write_csv(swi_17, path = "C:/Users/ahoun/OneDrive/Desktop/GHG/Data_Output/swi_17_fcr.csv")
+write_csv(swi_18, path = "C:/Users/ahoun/OneDrive/Desktop/GHG/Data_Output/swi_18_fcr.csv")
+
+# Plot all years on same graph
+ggplot()+
+  geom_line(data=swi_16,aes(x=doy,y=FCR_7,color="2016"),size=1.1)+
+  geom_point(data=swi_16,aes(x=doy,y=FCR_7,color="2016"),size=4)+
+  geom_line(data=swi_17,aes(x=doy,y=FCR_7,color="2017"),size=1.1)+
+  geom_point(data=swi_17,aes(x=doy,y=FCR_7,color="2017"),size=4)+
+  geom_line(data=swi_18,aes(x=doy,y=FCR_7,color="2018"),size=1.1)+
+  geom_point(data=swi_18,aes(x=doy,y=FCR_7,color="2018"),size=4)+
+  scale_color_manual(breaks=c("2016","2017","2018"), labels=c("FCR 2016","FCR 2017","FCR 2018"),
+                     values=c('#91bfff','#2c2cff','#0F2080'))+
+  geom_vline(xintercept = 280,linetype="dashed",color="#91bfff",size=1)+ #Turnover FCR 2016
+  geom_vline(xintercept = 298,linetype="dashed",color="#2c2cff",size=1)+ #Turnover FCR 2017
+  geom_vline(xintercept = 294,linetype="dashed",color="#0F2080",size=1)+ #Turnover FCR 2018
+  xlab("Day of Year")+
+  labs(color="")+
+  ylab("Temperature (deg C)")+
+  theme_classic(base_size=15)
 
 # Use for loop to calculate volume weighted averages for each time point
 vw_temp <- rep(-99,length(casts_layers_temp$Date))
