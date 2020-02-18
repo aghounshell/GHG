@@ -15,6 +15,17 @@ bvr_16 <- read_csv("C:/Users/ahoun/OneDrive/Desktop/GHG/Data_Output/swi_16_bvr.c
 bvr_17 <- read_csv("C:/Users/ahoun/OneDrive/Desktop/GHG/Data_Output/swi_17_bvr.csv")
 bvr_18 <- read_csv("C:/Users/ahoun/OneDrive/Desktop/GHG/Data_Output/swi_18_bvr.csv")
 
+# Calculate average difference bewteen FCR and BVR
+diff_16 <- mean(fcr_16$FCR_7) - mean(bvr_16$BVR_10)
+diff_17 <- mean(fcr_17$FCR_7) - mean(bvr_17$BVR_10)
+diff_18 <- mean(fcr_18$FCR_7) - mean(bvr_18$BVR_10)
+
+# Calculate difference for 2018
+fcr_diff_16to18 <- mean(fcr_16$FCR_7) - mean(fcr_18$FCR_7)
+fcr_diff_17to18 <- mean(fcr_17$FCR_7) - mean(fcr_18$FCR_7)
+bvr_diff_16to18 <- mean(bvr_16$BVR_10) - mean(bvr_18$BVR_10)
+bvr_diff_17to18 <- mean(bvr_17$BVR_10) - mean(bvr_18$BVR_10)
+
 # Plot FCR data
 fcr <- ggplot()+
   geom_line(data=fcr_16,aes(x=doy,y=FCR_7,color="2016"),size=1.1)+
