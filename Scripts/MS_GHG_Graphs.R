@@ -98,9 +98,9 @@ co2_16 <- ggplot()+
   geom_point(data=fcr_16,mapping=aes(x=datetime,y=hypo_co2_avg,group=1,color='FCR'),size=4)+
   geom_point(data=bvr_16,mapping=aes(x=datetime,y=hypo_co2_avg,group=1,color='BVR'),size=4)+
   geom_errorbar(data=fcr_16,mapping=aes(x=datetime,y=hypo_co2_avg,ymin=hypo_co2_avg-hypo_co2_std,
-                                        ymax=hypo_co2_avg+hypo_co2_std,group=1,color='FCR'),size=1)+
+                                        ymax=hypo_co2_avg+hypo_co2_std,group=1,color='FCR'),size=1,width=1)+
   geom_errorbar(data=bvr_16,mapping=aes(x=datetime,y=hypo_co2_avg,ymin=hypo_co2_avg-hypo_co2_std,
-                                        ymax=hypo_co2_avg+hypo_co2_std,group=1,color='BVR'),size=1)+
+                                        ymax=hypo_co2_avg+hypo_co2_std,group=1,color='BVR'),size=1,width=1)+
   geom_vline(xintercept = as.POSIXct("2016-11-11"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2016-10-07"),linetype="dashed",color="#0F2080")+ #Turnover FCR
   scale_color_manual(breaks=c("BVR","FCR"), labels=c("BVR","FCR"),
@@ -109,7 +109,7 @@ co2_16 <- ggplot()+
   xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-30"))+
   xlab('2016')+
   ylab(expression(paste("VW Hypo CO"[2]*" (", mu,"mol L"^-1*")")))+
-  ylim(0,1000)+
+  ylim(-25,1000)+
   theme_classic(base_size=15)+
   theme(legend.position=c(0.2,0.9))
 
@@ -119,9 +119,9 @@ co2_17 <- ggplot()+
   geom_point(data=fcr_17,mapping=aes(x=datetime,y=hypo_co2_avg,group=1,color='FCR'),size=4)+
   geom_point(data=bvr_17,mapping=aes(x=datetime,y=hypo_co2_avg,group=1,color='BVR'),size=4)+
   geom_errorbar(data=fcr_17,mapping=aes(x=datetime,y=hypo_co2_avg,ymin=hypo_co2_avg-hypo_co2_std,
-                                        ymax=hypo_co2_avg+hypo_co2_std,group=1,color='FCR'),size=1)+
+                                        ymax=hypo_co2_avg+hypo_co2_std,group=1,color='FCR'),size=1,width=1)+
   geom_errorbar(data=bvr_17,mapping=aes(x=datetime,y=hypo_co2_avg,ymin=hypo_co2_avg-hypo_co2_std,
-                                        ymax=hypo_co2_avg+hypo_co2_std,group=1,color='BVR'),size=1)+
+                                        ymax=hypo_co2_avg+hypo_co2_std,group=1,color='BVR'),size=1,width=1)+
   geom_vline(xintercept = as.POSIXct("2017-11-07"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2017-10-30"),linetype="dashed",color="#0F2080")+ #Turnover FCR
   scale_color_manual(breaks=c("BVR","FCR"), labels=c("BVR","FCR"),
@@ -130,7 +130,7 @@ co2_17 <- ggplot()+
   xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-11-30"))+
   xlab('2017')+
   ylab('')+
-  ylim(0,1000)+
+  ylim(-25,1000)+
   theme_classic(base_size=15)+
   theme(legend.position='none')
 
@@ -140,9 +140,9 @@ co2_18 <- ggplot()+
   geom_point(data=fcr_18,mapping=aes(x=datetime,y=hypo_co2_avg,group=1,color='FCR'),size=4)+
   geom_point(data=bvr_18,mapping=aes(x=datetime,y=hypo_co2_avg,group=1,color='BVR'),size=4)+
   geom_errorbar(data=fcr_18,mapping=aes(x=datetime,y=hypo_co2_avg,ymin=hypo_co2_avg-hypo_co2_std,
-                                        ymax=hypo_co2_avg+hypo_co2_std,group=1,color='FCR'),size=1)+
+                                        ymax=hypo_co2_avg+hypo_co2_std,group=1,color='FCR'),size=1,width=1)+
   geom_errorbar(data=bvr_18,mapping=aes(x=datetime,y=hypo_co2_avg,ymin=hypo_co2_avg-hypo_co2_std,
-                                        ymax=hypo_co2_avg+hypo_co2_std,group=1,color='BVR'),size=1)+
+                                        ymax=hypo_co2_avg+hypo_co2_std,group=1,color='BVR'),size=1,width=1)+
   geom_vline(xintercept = as.POSIXct("2018-10-29"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2018-10-21"),linetype="dashed",color="#0F2080")+ #Turnover FCR
   geom_vline(xintercept = as.POSIXct("2018-07-30"),color="#0F2080")+ # SSS Off in FCR
@@ -153,7 +153,7 @@ co2_18 <- ggplot()+
   xlim(as.POSIXct("2018-04-01"),as.POSIXct("2018-11-30"))+
   ylab(expression(paste("VW Hypo CO"[2]*" (", mu,"mol L"^-1*")")))+
   xlab('2018')+
-  ylim(0,1000)+
+  ylim(-25,1000)+
   theme_classic(base_size=15)+
   theme(legend.position='none')
 
@@ -168,9 +168,9 @@ ch4_16 <- ggplot()+
   geom_point(data=fcr_16,mapping=aes(x=datetime,y=hypo_ch4_avg,group=1,color='FCR'),size=4)+
   geom_point(data=bvr_16,mapping=aes(x=datetime,y=hypo_ch4_avg,group=1,color='BVR'),size=4)+
   geom_errorbar(data=fcr_16,mapping=aes(x=datetime,y=hypo_ch4_avg,ymin=hypo_ch4_avg-hypo_ch4_std,
-                                        ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='FCR'),size=1)+
+                                        ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='FCR'),size=1,width=1)+
   geom_errorbar(data=bvr_16,mapping=aes(x=datetime,y=hypo_ch4_avg,ymin=hypo_ch4_avg-hypo_ch4_std,
-                                        ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='BVR'),size=1)+
+                                        ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='BVR'),size=1,width=1)+
   geom_vline(xintercept = as.POSIXct("2016-11-11"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2016-10-07"),linetype="dashed",color="#0F2080")+ #Turnover FCR
   scale_color_manual(breaks=c("BVR","FCR"), labels=c("BVR","FCR"),
@@ -189,9 +189,9 @@ ch4_17 <- ggplot()+
   geom_point(data=fcr_17,mapping=aes(x=datetime,y=hypo_ch4_avg,group=1,color='FCR'),size=4)+
   geom_point(data=bvr_17,mapping=aes(x=datetime,y=hypo_ch4_avg,group=1,color='BVR'),size=4)+
   geom_errorbar(data=fcr_17,mapping=aes(x=datetime,y=hypo_ch4_avg,ymin=hypo_ch4_avg-hypo_ch4_std,
-                                        ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='FCR'),size=1)+
+                                        ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='FCR'),size=1,width=1)+
   geom_errorbar(data=bvr_17,mapping=aes(x=datetime,y=hypo_ch4_avg,ymin=hypo_ch4_avg-hypo_ch4_std,
-                                        ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='BVR'),size=1)+
+                                        ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='BVR'),size=1,width=1)+
   geom_vline(xintercept = as.POSIXct("2017-11-07"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2017-10-30"),linetype="dashed",color="#0F2080")+ #Turnover FCR
   scale_color_manual(breaks=c("BVR","FCR"), labels=c("BVR","FCR"),
@@ -210,9 +210,9 @@ ch4_18 <- ggplot()+
   geom_point(data=fcr_18,mapping=aes(x=datetime,y=hypo_ch4_avg,group=1,color='FCR'),size=4)+
   geom_point(data=bvr_18,mapping=aes(x=datetime,y=hypo_ch4_avg,group=1,color='BVR'),size=4)+
   geom_errorbar(data=fcr_18,mapping=aes(x=datetime,y=hypo_ch4_avg,ymin=hypo_ch4_avg-hypo_ch4_std,
-                                        ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='FCR'),size=1)+
+                                        ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='FCR'),size=1,width=1)+
   geom_errorbar(data=bvr_18,mapping=aes(x=datetime,y=hypo_ch4_avg,ymin=hypo_ch4_avg-hypo_ch4_std,
-                                        ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='BVR'),size=1)+
+                                        ymax=hypo_ch4_avg+hypo_ch4_std,group=1,color='BVR'),size=1,width=1)+
   geom_vline(xintercept = as.POSIXct("2018-10-29"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2018-10-21"),linetype="dashed",color="#0F2080")+ #Turnover FCR
   geom_vline(xintercept = as.POSIXct("2018-07-30"),color="#0F2080")+ # SSS Off in FCR
