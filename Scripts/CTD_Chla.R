@@ -91,7 +91,7 @@ phyto_17 <- ggplot()+
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
   xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-11-30"))+
-  xlab('2016')+
+  xlab('2017')+
   ylab(expression(paste("Total phytoplankton (", mu,"g L"^-1*")")))+
   ylim(0,50)+
   theme_classic(base_size=15)+
@@ -109,7 +109,7 @@ phyto_18 <- ggplot()+
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
   xlim(as.POSIXct("2018-04-01"),as.POSIXct("2018-11-30"))+
-  xlab('2016')+
+  xlab('2018')+
   ylab(expression(paste("Total phytoplankton (", mu,"g L"^-1*")")))+
   ylim(0,50)+
   theme_classic(base_size=15)+
