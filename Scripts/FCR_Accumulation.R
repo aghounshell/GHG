@@ -77,9 +77,11 @@ vw_ch4_stdv <- apply(vw_ch4_all,1,FUN=sd,na.rm=TRUE)
 vw_ch4_all <- cbind.data.frame(rep2_ch4_layers$DateTime,vw_ch4_all,vw_ch4_avg,vw_ch4_stdv)
 names(vw_ch4_all)[1] <- "datetime"
 
-vw_ch4_16 <- vw_ch4_all %>% filter(datetime>=as.Date('2016-04-06')&datetime<=as.Date('2016-09-30'))
-vw_ch4_17 <- vw_ch4_all %>% filter(datetime>=as.Date('2017-04-06')&datetime<=as.Date('2017-09-30'))
-vw_ch4_18 <- vw_ch4_all %>% filter(datetime>=as.Date('2018-04-06')&datetime<=as.Date('2018-09-30'))
+vw_ch4_16 <- vw_ch4_all %>% filter(datetime>=as.Date('2016-01-01')&datetime<=as.Date('2016-12-31'))
+vw_ch4_17 <- vw_ch4_all %>% filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
+vw_ch4_17 <- vw_ch4_17[complete.cases(vw_ch4_17),]
+vw_ch4_18 <- vw_ch4_all %>% filter(datetime>=as.Date('2018-01-01')&datetime<=as.Date('2018-12-31'))
+vw_ch4_18 <- vw_ch4_18[complete.cases(vw_ch4_18),]
 
 # Plot concentration (umol/L)
 ggplot(vw_ch4_all,aes(x=datetime,y=hypo_ch4_rep1))+
@@ -107,9 +109,11 @@ vw_co2_stdv <- apply(vw_co2_all,1,FUN=sd,na.rm=TRUE)
 vw_co2_all <- cbind.data.frame(rep2_co2_layers$DateTime,vw_co2_all,vw_co2_avg,vw_co2_stdv)
 names(vw_co2_all)[1] <- "datetime"
 
-vw_co2_16 <- vw_co2_all %>% filter(datetime>=as.Date('2016-04-06')&datetime<=as.Date('2016-09-30'))
-vw_co2_17 <- vw_co2_all %>% filter(datetime>=as.Date('2017-04-06')&datetime<=as.Date('2017-09-30'))
-vw_co2_18 <- vw_co2_all %>% filter(datetime>=as.Date('2018-04-06')&datetime<=as.Date('2018-09-30'))
+vw_co2_16 <- vw_co2_all %>% filter(datetime>=as.Date('2016-01-01')&datetime<=as.Date('2016-12-31'))
+vw_co2_17 <- vw_co2_all %>% filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
+vw_co2_17 <- vw_co2_17[complete.cases(vw_co2_17),]
+vw_co2_18 <- vw_co2_all %>% filter(datetime>=as.Date('2018-01-01')&datetime<=as.Date('2018-12-31'))
+vw_co2_18 <- vw_co2_18[complete.cases(vw_co2_18),]
 
 ####################################### BVR CH4 Mass (mmol) ############################################
 # Select BVR data only
@@ -204,9 +208,9 @@ bvr_vw_ch4_stdv <- apply(bvr_vw_ch4_all,1,FUN=sd,na.rm=TRUE)
 bvr_vw_ch4_all <- cbind.data.frame(rep2_ch4_layers$DateTime,bvr_vw_ch4_all,bvr_vw_ch4_avg,bvr_vw_ch4_stdv)
 names(bvr_vw_ch4_all)[1] <- "datetime"
 
-bvr_vw_ch4_16 <- bvr_vw_ch4_all %>% filter(datetime>=as.Date('2016-04-06')&datetime<=as.Date('2016-09-30'))
-bvr_vw_ch4_17 <- bvr_vw_ch4_all %>% filter(datetime>=as.Date('2017-04-06')&datetime<=as.Date('2017-09-30'))
-bvr_vw_ch4_18 <- bvr_vw_ch4_all %>% filter(datetime>=as.Date('2018-04-06')&datetime<=as.Date('2018-09-30'))
+bvr_vw_ch4_16 <- bvr_vw_ch4_all %>% filter(datetime>=as.Date('2016-01-01')&datetime<=as.Date('2016-12-31'))
+bvr_vw_ch4_17 <- bvr_vw_ch4_all %>% filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
+bvr_vw_ch4_18 <- bvr_vw_ch4_all %>% filter(datetime>=as.Date('2018-01-01')&datetime<=as.Date('2018-12-31'))
 
 ##################################### BVR CO2 Mass (mmol) ###############################################
 # Calculate mass (mmol)
@@ -219,9 +223,9 @@ bvr_vw_co2_stdv <- apply(bvr_vw_co2_all,1,FUN=sd,na.rm=TRUE)
 bvr_vw_co2_all <- cbind.data.frame(rep2_co2_layers$DateTime,bvr_vw_co2_all,bvr_vw_co2_avg,bvr_vw_co2_stdv)
 names(bvr_vw_co2_all)[1] <- "datetime"
 
-bvr_vw_co2_16 <- bvr_vw_co2_all %>% filter(datetime>=as.Date('2016-04-06')&datetime<=as.Date('2016-09-30'))
-bvr_vw_co2_17 <- bvr_vw_co2_all %>% filter(datetime>=as.Date('2017-04-06')&datetime<=as.Date('2017-09-30'))
-bvr_vw_co2_18 <- bvr_vw_co2_all %>% filter(datetime>=as.Date('2018-04-06')&datetime<=as.Date('2018-09-30'))
+bvr_vw_co2_16 <- bvr_vw_co2_all %>% filter(datetime>=as.Date('2016-01-01')&datetime<=as.Date('2016-12-31'))
+bvr_vw_co2_17 <- bvr_vw_co2_all %>% filter(datetime>=as.Date('2017-01-01')&datetime<=as.Date('2017-12-31'))
+bvr_vw_co2_18 <- bvr_vw_co2_all %>% filter(datetime>=as.Date('2018-01-01')&datetime<=as.Date('2018-12-31'))
 
 ###################################### Combine all Masses (mmol) #########################################
 data <- matrix(ncol=2,nrow=12)
@@ -343,7 +347,7 @@ ghg_graph <- ggplot(data,mapping=aes(x=year,y=Avg,fill=res_gas))+
                     values=c('#F5793A','#ffa700','#0F2080','#91bfff'))+
   labs(fill="")+
   xlab("")+
-  ylab(expression(paste("Maximum Hypo GHG (mmol L"^-1*")")))+
+  ylab(expression(paste("Maximum Hypo GHG (", mu,"mol L"^-1*")")))+
   theme_classic(base_size=15)
 
 gwp_graph <- ggplot(gwp,mapping=aes(x=year,y=gwp_avg,fill=res))+
