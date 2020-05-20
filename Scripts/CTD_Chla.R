@@ -70,6 +70,8 @@ phyto_16 <- ggplot()+
   geom_point(data=bvr_16,mapping=aes(x=DateTime,y=TotalConc_ugL,group=1,color='BVR'),size=4)+
   geom_vline(xintercept = as.POSIXct("2016-11-11"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2016-10-07"),linetype="dashed",color="#0F2080")+ #Turnover FCR
+  geom_hline(yintercept = mean(fcr_16$TotalConc_ugL,na.rm=TRUE),linetype="dotted",color="#0F2080")+
+  geom_hline(yintercept = mean(bvr_16$TotalConc_ugL,na.rm=TRUE),linetype="dotted",color="#F5793A")+
   scale_color_manual(breaks=c("BVR","FCR"), labels=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
@@ -87,6 +89,8 @@ phyto_17 <- ggplot()+
   geom_point(data=bvr_17,mapping=aes(x=DateTime,y=TotalConc_ugL,group=1,color='BVR'),size=4)+
   geom_vline(xintercept = as.POSIXct("2017-11-07"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2017-10-30"),linetype="dashed",color="#0F2080")+ #Turnover FCR
+  geom_hline(yintercept = mean(fcr_17$TotalConc_ugL,na.rm=TRUE),linetype="dotted",color="#0F2080")+
+  geom_hline(yintercept = mean(bvr_17$TotalConc_ugL,na.rm=TRUE),linetype="dotted",color="#F5793A")+
   scale_color_manual(breaks=c("BVR","FCR"), labels=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
@@ -105,6 +109,8 @@ phyto_18 <- ggplot()+
   geom_vline(xintercept = as.POSIXct("2018-10-29"),linetype="dashed",color="#F5793A")+ #Turnover
   geom_vline(xintercept = as.POSIXct("2018-10-21"),linetype="dashed",color="#0F2080")+ #Turnover FCR
   geom_vline(xintercept = as.POSIXct("2018-07-30"),color="#0F2080")+ # SSS Off in FCR
+  geom_hline(yintercept = mean(fcr_18$TotalConc_ugL,na.rm=TRUE),linetype="dotted",color="#0F2080")+
+  geom_hline(yintercept = mean(bvr_18$TotalConc_ugL,na.rm=TRUE),linetype="dotted",color="#F5793A")+
   scale_color_manual(breaks=c("BVR","FCR"), labels=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
