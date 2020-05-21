@@ -363,6 +363,59 @@ gwp_graph <- ggplot(gwp,mapping=aes(x=year,y=gwp_avg,fill=res))+
 ggarrange(ghg_graph,gwp_graph,legend="right",ncol=2,nrow=1)
 # Saved: 1000 x 400
 
+################ Calculate C mineralization for FCR and BVR using updated 2018 sediment SAs ###########################
+# Following Hypo_GWP: but use maximum concetrations of CO2 and CH4 (similar to 'updated' GWP calculations)
+# Currently in umol/L for both CO2 and CH4
+
+# BVR
+mineral_bvr_rep1 <- (((gwp$ch4_rep1[1:3]/1000)*32571.38)/35930.57)+(((gwp$co2_rep1[1:3]/1000)*32571.38)/35930.57)
+mineral_bvr_rep2 <- (((gwp$ch4_rep2[1:3]/1000)*32571.38)/35930.57)+(((gwp$co2_rep2[1:3]/1000)*32571.38)/35930.57)
+
+# FCR
+mineral_fcr_rep1 <- (((gwp$ch4_rep1[4:6]/1000)*15993.24)/10966.41)+(((gwp$co2_rep1[4:6]/1000)*15993.24)/10966.41)
+mineral_fcr_rep2 <- (((gwp$ch4_rep2[4:6]/1000)*15993.24)/10966.41)+(((gwp$co2_rep2[4:6]/1000)*15993.24)/10966.41)
+
+mineral_bvr <- cbind.data.frame(mineral_bvr_rep1,mineral_bvr_rep2)
+mineral_fcr <- cbind.data.frame(mineral_fcr_rep1,mineral_fcr_rep2)
+
+mineral_fcr_avg <- rowMeans(mineral_fcr,na.rm=TRUE)
+mineral_fcr_stdev <- apply(mineral_fcr,1,FUN=sd,na.rm=TRUE)
+
+mineral_bvr_avg <- rowMeans(mineral_bvr,na.rm=TRUE)
+mineral_bvr_stdev <- apply(mineral_bvr,1,FUN=sd,na.rm=TRUE)
+
+mineral <- matrix(ncol=4,nrow=6)
+row.names(mineral) <- c("bvr_16","bvr_17","bvr_18","fcr_16","fcr_17","fcr_18")
+colnames(mineral) <- c("rep1","rep2","avg","stdev")
+
+mineral <- as.data.frame(mineral)
+mineral$rep1[1:3] <- mineral_bvr_rep1
+mineral$rep1[4:6] <- mineral_fcr_rep1
+
+mineral$rep2[1:3] <- mineral_bvr_rep2
+mineral$rep2[4:6] <- mineral_fcr_rep2
+
+mineral$avg[1:3] <- mineral_bvr_avg
+mineral$avg[4:6] <- mineral_fcr_avg
+
+mineral$stdev[1:3] <- mineral_bvr_stdev
+mineral$stdev[4:6] <- mineral_fcr_stdev
+
+mineral <- mineral %>% add_column(year=c('2016','2017','2018','2016','2017','2018'))
+
+mineral <- mineral %>% add_column(res=c('BVR','BVR','BVR','FCR','FCR','FCR'))
+
+# Plot: saved as 500 x 400
+ggplot(mineral,mapping=aes(x=year,y=avg,fill=res))+
+  geom_bar(stat="identity", color="black",position=position_dodge())+
+  geom_errorbar(aes(ymin=avg-stdev,ymax=avg+stdev), width=.2,position=position_dodge(.9))+
+  scale_fill_manual(breaks=c("BVR","FCR"),labels=c("BVR","FCR"),
+                    values=c('#F5793A','#0F2080'))+
+  labs(fill="")+
+  xlab("")+
+  ylab(expression(paste("Hypo mineralized C (mol m"^-2*")")))+
+  theme_classic(base_size=15)
+
 ############################# FCR CH4 Accumulation Rate: DID NOT USE ######################################
 # Calculate dGHG/dt for VW Hypo CH4
 i_diff <- vw_ch4_all[c(1:104),]
