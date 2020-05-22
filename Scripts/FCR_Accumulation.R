@@ -340,10 +340,10 @@ gwp <- gwp %>% add_column(res=c('BVR','BVR','BVR','FCR','FCR','FCR'))
 ghg_graph <- ggplot(data,mapping=aes(x=year,y=Avg,fill=res_gas))+
   geom_bar(stat="identity", color="black",position=position_dodge())+
   geom_errorbar(aes(ymin=Avg-Stdev,ymax=Avg+Stdev),width=0.4,position=position_dodge(0.9))+
-  scale_fill_manual(breaks=c("BVR_ch4","BVR_co2","FCR_ch4","FCR_co2"),labels=c(expression("BVR pCH"[4]),
-                                                                               expression("BVR pCO"[2]),
-                                                                               expression("FCR pCH"[4]),
-                                                                               expression("FCR pCO"[2])),
+  scale_fill_manual(breaks=c("BVR_ch4","BVR_co2","FCR_ch4","FCR_co2"),labels=c(expression("BVR CH"[4]),
+                                                                               expression("BVR CO"[2]),
+                                                                               expression("FCR CH"[4]),
+                                                                               expression("FCR CO"[2])),
                     values=c('#F5793A','#ffa700','#0F2080','#91bfff'))+
   labs(fill="")+
   xlab("")+
