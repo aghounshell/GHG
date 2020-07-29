@@ -360,7 +360,11 @@ gwp_graph <- ggplot(gwp,mapping=aes(x=year,y=gwp_avg,fill=res))+
   ylab(expression(paste("Maximum Hypo GWP (g L"^-1*")")))+
   theme_classic(base_size=15)
 
-ggarrange(ghg_graph,gwp_graph,legend="right",ncol=2,nrow=1)
+bargraphs <- ggarrange(ghg_graph,gwp_graph,legend="right",ncol=2,nrow=1)
+
+ggsave("C:/Users/ahoun/OneDrive/Desktop/GHG/Fig_Output/Figure5_HiRes.jpg",bargraphs,width=11,height=4,
+       units=c("in"))
+
 # Saved: 1000 x 400
 
 ################ Calculate C mineralization for FCR and BVR using updated 2018 sediment SAs ###########################
