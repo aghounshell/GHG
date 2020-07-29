@@ -2,6 +2,9 @@
 ### In response to LO-L Reveiwer comments
 ### A Hounshell, 15 May 20
 
+### Updated to include 11 m for BVR - following Revsions round 2
+### A Hounshell, 29 July 20
+
 # Rfile saved as: GHG_Profiles
 
 # Load libraries
@@ -57,7 +60,10 @@ bvr_3 <- bvr %>% filter(Depth_m==6.0) %>% select(DateTime,Depth_m,ch4_umolL,co2_
 bvr_4 <- bvr %>% filter(Depth_m==9.0) %>% select(DateTime,Depth_m,ch4_umolL,co2_umolL) %>% 
   group_by(DateTime) %>% summarize_all(funs(mean,sd),na.rm=TRUE) %>% arrange(DateTime) %>% mutate(grouping="BVR_4")
 
-bvr_merge <- rbind(bvr_1,bvr_2,bvr_3,bvr_4)
+bvr_5 <- bvr %>% filter(Depth_m==11.0) %>% select(DateTime,Depth_m,ch4_umolL,co2_umolL) %>% 
+  group_by(DateTime) %>% summarize_all(funs(mean,sd),na.rm=TRUE) %>% arrange(DateTime) %>% mutate(grouping="BVR_5")
+
+bvr_merge <- rbind(bvr_1,bvr_2,bvr_3,bvr_4,bvr_5)
 
 # Select by year
 bvr_16 <- bvr_merge %>% filter(DateTime>=as.Date('2016-01-01')&DateTime<=as.Date('2016-12-31'))
@@ -122,9 +128,9 @@ bvr_16_co2 <- ggplot(bvr_16,mapping=aes(x=DateTime,y=co2_umolL_mean,color=groupi
   geom_point(size=4)+
   geom_errorbar(bvr_16,mapping=aes(x=DateTime,y=co2_umolL_mean,color=grouping,ymin=co2_umolL_mean-co2_umolL_sd,
                                    ymax=co2_umolL_mean+co2_umolL_sd),size=1)+
-  scale_color_manual(breaks=c("BVR_1","BVR_2","BVR_3","BVR_4"), 
-                     labels=c("0.1 m","3.0 m","6.0 m","9.0 m"),
-                     values=c('#F94144','#F9C74F','#90BE6D','#577590'))+
+  scale_color_manual(breaks=c("BVR_1","BVR_2","BVR_3","BVR_4","BVR_5"), 
+                     labels=c("0.1 m","3.0 m","6.0 m","9.0 m","11.0 m"),
+                     values=c('#F94144','#F3722C','#F9C74F','#90BE6D','#577590'))+
   labs(color="")+
   xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-30"))+
   xlab('2016')+
@@ -139,9 +145,9 @@ bvr_17_co2 <- ggplot(bvr_17,mapping=aes(x=DateTime,y=co2_umolL_mean,color=groupi
   geom_point(size=4)+
   geom_errorbar(bvr_17,mapping=aes(x=DateTime,y=co2_umolL_mean,color=grouping,ymin=co2_umolL_mean-co2_umolL_sd,
                                    ymax=co2_umolL_mean+co2_umolL_sd),size=1)+
-  scale_color_manual(breaks=c("BVR_1","BVR_2","BVR_3","BVR_4"), 
-                     labels=c("0.1 m","3.0 m","6.0 m","9.0 m"),
-                     values=c('#F94144','#F9C74F','#90BE6D','#577590'))+
+  scale_color_manual(breaks=c("BVR_1","BVR_2","BVR_3","BVR_4","BVR_5"), 
+                     labels=c("0.1 m","3.0 m","6.0 m","9.0 m","11.0 m"),
+                     values=c('#F94144','#F3722C','#F9C74F','#90BE6D','#577590'))+
   labs(color="")+
   xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-11-30"))+
   xlab('2017')+
@@ -155,9 +161,9 @@ bvr_18_co2 <- ggplot(bvr_18,mapping=aes(x=DateTime,y=co2_umolL_mean,color=groupi
   geom_point(size=4)+
   geom_errorbar(bvr_18,mapping=aes(x=DateTime,y=co2_umolL_mean,color=grouping,ymin=co2_umolL_mean-co2_umolL_sd,
                                    ymax=co2_umolL_mean+co2_umolL_sd),size=1)+
-  scale_color_manual(breaks=c("BVR_1","BVR_2","BVR_3","BVR_4"), 
-                     labels=c("0.1 m","3.0 m","6.0 m","9.0 m"),
-                     values=c('#F94144','#F9C74F','#90BE6D','#577590'))+
+  scale_color_manual(breaks=c("BVR_1","BVR_2","BVR_3","BVR_4","BVR_5"), 
+                     labels=c("0.1 m","3.0 m","6.0 m","9.0 m","11.0 m"),
+                     values=c('#F94144','#F3722C','#F9C74F','#90BE6D','#577590'))+
   labs(color="")+
   xlim(as.POSIXct("2018-04-01"),as.POSIXct("2018-11-30"))+
   xlab('2018')+
@@ -226,9 +232,9 @@ bvr_16_ch4 <- ggplot(bvr_16,mapping=aes(x=DateTime,y=ch4_umolL_mean,color=groupi
   geom_point(size=4)+
   geom_errorbar(bvr_16,mapping=aes(x=DateTime,y=ch4_umolL_mean,color=grouping,ymin=ch4_umolL_mean-ch4_umolL_sd,
                                    ymax=ch4_umolL_mean+ch4_umolL_sd),size=1)+
-  scale_color_manual(breaks=c("BVR_1","BVR_2","BVR_3","BVR_4"), 
-                     labels=c("0.1 m","3.0 m","6.0 m","9.0 m"),
-                     values=c('#F94144','#F9C74F','#90BE6D','#577590'))+
+  scale_color_manual(breaks=c("BVR_1","BVR_2","BVR_3","BVR_4","BVR_5"), 
+                     labels=c("0.1 m","3.0 m","6.0 m","9.0 m","11.0 m"),
+                     values=c('#F94144','#F3722C','#F9C74F','#90BE6D','#577590'))+
   labs(color="")+
   xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-30"))+
   xlab('2016')+
@@ -243,9 +249,9 @@ bvr_17_ch4 <- ggplot(bvr_17,mapping=aes(x=DateTime,y=ch4_umolL_mean,color=groupi
   geom_point(size=4)+
   geom_errorbar(bvr_17,mapping=aes(x=DateTime,y=ch4_umolL_mean,color=grouping,ymin=ch4_umolL_mean-ch4_umolL_sd,
                                    ymax=ch4_umolL_mean+ch4_umolL_sd),size=1)+
-  scale_color_manual(breaks=c("BVR_1","BVR_2","BVR_3","BVR_4"), 
-                     labels=c("0.1 m","3.0 m","6.0 m","9.0 m"),
-                     values=c('#F94144','#F9C74F','#90BE6D','#577590'))+
+  scale_color_manual(breaks=c("BVR_1","BVR_2","BVR_3","BVR_4","BVR_5"), 
+                     labels=c("0.1 m","3.0 m","6.0 m","9.0 m","11.0 m"),
+                     values=c('#F94144','#F3722C','#F9C74F','#90BE6D','#577590'))+
   labs(color="")+
   xlim(as.POSIXct("2017-04-01"),as.POSIXct("2017-11-30"))+
   xlab('2017')+
@@ -259,9 +265,9 @@ bvr_18_ch4 <- ggplot(bvr_18,mapping=aes(x=DateTime,y=ch4_umolL_mean,color=groupi
   geom_point(size=4)+
   geom_errorbar(bvr_18,mapping=aes(x=DateTime,y=ch4_umolL_mean,color=grouping,ymin=ch4_umolL_mean-ch4_umolL_sd,
                                    ymax=ch4_umolL_mean+ch4_umolL_sd),size=1)+
-  scale_color_manual(breaks=c("BVR_1","BVR_2","BVR_3","BVR_4"), 
-                     labels=c("0.1 m","3.0 m","6.0 m","9.0 m"),
-                     values=c('#F94144','#F9C74F','#90BE6D','#577590'))+
+  scale_color_manual(breaks=c("BVR_1","BVR_2","BVR_3","BVR_4","BVR_5"), 
+                     labels=c("0.1 m","3.0 m","6.0 m","9.0 m","11.0 m"),
+                     values=c('#F94144','#F3722C','#F9C74F','#90BE6D','#577590'))+
   labs(color="")+
   xlim(as.POSIXct("2018-04-01"),as.POSIXct("2018-11-30"))+
   xlab('2018')+
