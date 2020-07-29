@@ -111,7 +111,7 @@ co2_16 <- ggplot()+
   ylab(expression(paste("VW Hypo CO"[2]*" (", mu,"mol L"^-1*")")))+
   ylim(-25,1000)+
   theme_classic(base_size=15)+
-  theme(legend.position=c(0.2,0.9))
+  theme(legend.position=c(0.3,0.9))
 
 co2_17 <- ggplot()+
   geom_line(data=fcr_17,mapping=aes(x=datetime,y=hypo_co2_avg,group=1,color='FCR'),size=1.1)+
@@ -158,7 +158,10 @@ co2_18 <- ggplot()+
   theme(legend.position='none')
 
 # Saved as: 1000, 300; 800 x 700 for MS
-ggarrange(co2_16,co2_17,co2_18,common.legend=FALSE,ncol=2,nrow=2)
+co2 <- ggarrange(co2_16,co2_17,co2_18,common.legend=FALSE,ncol=2,nrow=2)
+
+ggsave("C:/Users/ahoun/OneDrive/Desktop/GHG/Fig_Output/Figure3_HiRes.jpg",co2,width=7,height=6,
+       units=c("in"))
 
 # pCH4
 
@@ -181,7 +184,7 @@ ch4_16 <- ggplot()+
   ylim(0,600)+
   ylab(expression(paste("VW Hypo CH"[4]*" (", mu,"mol L"^-1*")")))+
   theme_classic(base_size=15)+
-  theme(legend.position=c(0.2,0.9))
+  theme(legend.position=c(0.3,0.9))
 
 ch4_17 <- ggplot()+
   geom_line(data=fcr_17,mapping=aes(x=datetime,y=hypo_ch4_avg,group=1,color='FCR'),size=1.1)+
@@ -226,4 +229,7 @@ ch4_18 <- ggplot()+
   theme_classic(base_size=15)+
   theme(legend.position='none')
 
-ggarrange(ch4_16,ch4_17,ch4_18,common.legend=FALSE,ncol=2,nrow=2)
+ch4 <- ggarrange(ch4_16,ch4_17,ch4_18,common.legend=FALSE,ncol=2,nrow=2)
+
+ggsave("C:/Users/ahoun/OneDrive/Desktop/GHG/Fig_Output/Figure4_HiRes.jpg",ch4,width=7,height=6,
+       units=c("in"))
