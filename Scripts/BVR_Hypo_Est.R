@@ -108,6 +108,18 @@ ggplot(ghg_hypo_all,mapping=aes(x=DateTime,y=perc_diff_co2))+
 
 # Underestimates CH4 concentrations by ~35%
 mean(ghg_hypo_all$perc_diff_ch4)
+median(ghg_hypo_all$perc_diff_ch4)
+max(ghg_hypo_all$perc_diff_ch4)
+min(ghg_hypo_all$perc_diff_ch4)
+
+boxplot(ghg_hypo_all$perc_diff_ch4)
+title("CH4")
 
 # Underestimates CO2 concentrations by ~2%
 mean(ghg_hypo_all$perc_diff_co2)
+median(ghg_hypo_all$perc_diff_co2)
+max(ghg_hypo_all$perc_diff_co2)
+min(ghg_hypo_all$perc_diff_co2)
+
+boxplot(ghg_hypo_all$perc_diff_co2)
+title("CO2")
