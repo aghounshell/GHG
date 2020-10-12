@@ -160,7 +160,7 @@ co2_18 <- ggplot()+
 # Saved as: 1000, 300; 800 x 700 for MS
 co2 <- ggarrange(co2_16,co2_17,co2_18,common.legend=FALSE,ncol=2,nrow=2)
 
-ggsave("C:/Users/ahoun/OneDrive/Desktop/GHG/Fig_Output/Figure3_HiRes.jpg",co2,width=7,height=6,
+ggsave("C:/Users/ahoun/OneDrive/Desktop/GHG/Fig_Output/Figure4_HiRes_Conc.jpg",co2,dpi=800,width=7,height=6,
        units=c("in"))
 
 # pCH4
@@ -231,5 +231,5 @@ ch4_18 <- ggplot()+
 
 ch4 <- ggarrange(ch4_16,ch4_17,ch4_18,common.legend=FALSE,ncol=2,nrow=2)
 
-ggsave("C:/Users/ahoun/OneDrive/Desktop/GHG/Fig_Output/Figure4_HiRes.jpg",ch4,width=7,height=6,
+ggsave("C:/Users/ahoun/OneDrive/Desktop/GHG/Fig_Output/Figure3_HiRes_Conc.jpg",ch4,dpi=800,width=7,height=6,
        units=c("in"))
