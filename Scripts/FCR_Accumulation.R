@@ -362,7 +362,7 @@ gwp_graph <- ggplot(gwp,mapping=aes(x=year,y=gwp_avg,fill=res))+
 
 bargraphs <- ggarrange(ghg_graph,gwp_graph,legend="right",ncol=2,nrow=1)
 
-ggsave("C:/Users/ahoun/OneDrive/Desktop/GHG/Fig_Output/Figure5_HiRes.jpg",bargraphs,width=11,height=4,
+ggsave("C:/Users/ahoun/OneDrive/Desktop/GHG/Fig_Output/Figure5_HiRes_dpi.jpg",bargraphs,dpi=800,width=11,height=4,
        units=c("in"))
 
 # Saved: 1000 x 400
