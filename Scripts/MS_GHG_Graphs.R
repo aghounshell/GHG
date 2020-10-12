@@ -108,7 +108,7 @@ co2_16 <- ggplot()+
   labs(color="")+
   xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-30"))+
   xlab('2016')+
-  ylab(expression(paste("VW Hypo CO"[2]*" (", mu,"mol L"^-1*")")))+
+  ylab(expression(paste("VW Hypo [CO"[2]*"] (", mu,"mol L"^-1*")")))+
   ylim(-25,1000)+
   theme_classic(base_size=15)+
   theme(legend.position=c(0.3,0.9))
@@ -151,7 +151,7 @@ co2_18 <- ggplot()+
   labs(color="")+
   ylab("")+
   xlim(as.POSIXct("2018-04-01"),as.POSIXct("2018-11-30"))+
-  ylab(expression(paste("VW Hypo CO"[2]*" (", mu,"mol L"^-1*")")))+
+  ylab(expression(paste("VW Hypo [CO"[2]*"] (", mu,"mol L"^-1*")")))+
   xlab('2018')+
   ylim(-25,1000)+
   theme_classic(base_size=15)+
@@ -182,7 +182,7 @@ ch4_16 <- ggplot()+
   xlim(as.POSIXct("2016-04-01"),as.POSIXct("2016-11-30"))+
   xlab('2016')+
   ylim(0,600)+
-  ylab(expression(paste("VW Hypo CH"[4]*" (", mu,"mol L"^-1*")")))+
+  ylab(expression(paste("VW Hypo [CH"[4]*"] (", mu,"mol L"^-1*")")))+
   theme_classic(base_size=15)+
   theme(legend.position=c(0.3,0.9))
 
@@ -222,7 +222,7 @@ ch4_18 <- ggplot()+
   scale_color_manual(breaks=c("BVR","FCR"), labels=c("BVR","FCR"),
                      values=c('#F5793A','#0F2080'))+
   labs(color="")+
-  ylab(expression(paste("VW Hypo CH"[4]*" (", mu,"mol L"^-1*")")))+
+  ylab(expression(paste("VW Hypo [CH"[4]*"] (", mu,"mol L"^-1*")")))+
   xlim(as.POSIXct("2018-04-01"),as.POSIXct("2018-11-30"))+
   xlab('2018')+
   ylim(0,600)+
